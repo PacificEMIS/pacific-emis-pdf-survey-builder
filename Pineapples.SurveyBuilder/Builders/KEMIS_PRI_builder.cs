@@ -156,7 +156,7 @@ namespace surveybuilder
 
 			AddOutline(enrolOutline, "Disabilities");
 			document.Add(Heading_2("Children with Disabilities Attending School"));
-			document = new DisabilitiesPrimary()
+			document = new Disabilities()
 				.Build(this, document, grd, lookups["disabilities"]);
 			NewPage(document);
 

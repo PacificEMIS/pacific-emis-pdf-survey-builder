@@ -17,7 +17,7 @@ using static surveybuilder.CellMakers;
 
 namespace surveybuilder
 {
-	public class DisabilitiesPrimary
+	public class Disabilities
 	{
 		public Document Build(KEMIS_PRI_Builder builder, Document document, GenderedGridmaker grd, List<KeyValuePair<string, string>> disabilities)
 		{

@@ -51,36 +51,35 @@ namespace surveybuilder
 			stylesheet.Add("Heading 1", new PdfStyle(stylesheet["headingbase"])
 			{
 				FontSize = 24,
-				FontColor = ColorConstants.BLUE
+				//FontColor = ColorConstants.BLUE
 			});
 
 			// Define Heading 2 style
 			stylesheet.Add("Heading 2", new PdfStyle(stylesheet["headingbase"])
 			{
 				FontSize = 20,
-				FontColor = ColorConstants.RED
+				//FontColor = ColorConstants.RED
 			});
 
 			// Define Heading 3 style
 			stylesheet.Add("Heading 3", new PdfStyle(stylesheet["headingbase"])
 			{
 				FontSize = 18,
-				FontColor = ColorConstants.ORANGE
+				//FontColor = ColorConstants.ORANGE
 			});
 
 			// Define Heading 4 style
 			stylesheet.Add("Heading 4", new PdfStyle(stylesheet["headingbase"])
 			{
 				FontSize = 16,
-				FontColor = ColorConstants.CYAN
+				//FontColor = ColorConstants.CYAN
 			});
 
 			// Define Heading 5 style
 			stylesheet.Add("Heading 5", new PdfStyle(stylesheet["headingbase"])
 			{
 				FontSize = 14,
-
-				FontColor = ColorConstants.GREEN
+				//FontColor = ColorConstants.GREEN
 			});
 
 			// Create a new PDF document
