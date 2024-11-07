@@ -175,7 +175,7 @@ namespace surveybuilder
 				{
 					string name = $"{Tag}.R.{i:00}.V";
 					Paragraph pp = new Paragraph();
-					pp.SetNextRenderer(new GridDataFieldCellRenderer(cellmodel, name));
+					//pp.SetNextRenderer(new GridDataFieldCellRenderer(cellmodel, name));
 					table.AddCell(cellmodel.Clone(false).Add(pp));
 				}
 
