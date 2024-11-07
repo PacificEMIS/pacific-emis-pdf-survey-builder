@@ -158,7 +158,7 @@ namespace surveybuilder
 			{
 				table.AddCell(TextCell(colheadermodel, genderheader("M")));
 				table.AddCell(TextCell(colheadermodel, genderheader("F")));
-				table.AddCell(TextCell(colheadermodel2, colheader("F")));
+				table.AddCell(TextCell(colheadermodel2, genderheader("Totals (M+F)")));
 			}
 
 
@@ -303,7 +303,6 @@ namespace surveybuilder
 			}
 
 			return table
-				//.SetBackgroundColor(Colors.WebColors.GetRGBColor("ivory"))
 				.SetBorder(new Borders.SolidBorder(Colors.WebColors.GetRGBColor(color3), 1));
 			;
 		}
