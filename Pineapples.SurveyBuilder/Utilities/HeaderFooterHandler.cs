@@ -68,7 +68,7 @@ namespace surveybuilder
 			string text = headerTextFunc != null ? headerTextFunc(pageNumber, facingPages) : headerText;
 
 			// Determine header position - right hand pages are odd numbers
-			float headerX = facingPages && pageNumber % 2 == 1 ? pageSize.GetRight() - 50 : pageSize.GetLeft() + 50;
+			float headerX = facingPages && pageNumber % 2 == 1 ? pageSize.GetRight() - 75 : pageSize.GetLeft() + 75;
 			float headerY = pageSize.GetTop() - 20;
 			TextAlignment alignment = facingPages && pageNumber % 2 == 1 ? TextAlignment.RIGHT : TextAlignment.LEFT;
 
@@ -106,7 +106,7 @@ namespace surveybuilder
 			Rectangle pageSize = page.GetPageSize();
 
 			// Determine footer position
-			float footerX = facingPages && pageNumber % 2 == 0 ? pageSize.GetRight() - 50 : pageSize.GetLeft() + 50;
+			float footerX = facingPages && pageNumber % 2 == 0 ? pageSize.GetRight() - 75 : pageSize.GetLeft() + 75;
 			float footerY = pageSize.GetBottom() + 20;
 			TextAlignment alignment = facingPages && pageNumber % 2 == 0 ? TextAlignment.LEFT : TextAlignment.RIGHT;
 
