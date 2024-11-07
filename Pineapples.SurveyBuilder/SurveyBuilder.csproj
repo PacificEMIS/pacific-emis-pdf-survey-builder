@@ -133,7 +133,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Parts\Block_SchoolInfo.cs" />
+    <Compile Include="Parts\TransfersIn.cs" />
+    <Compile Include="Parts\SchoolInfo.cs" />
     <Compile Include="Parts\PSA.cs" />
     <Compile Include="Parts\Disabilities.cs" />
     <Compile Include="Parts\DistanceFromSchool.cs" />
@@ -146,7 +147,7 @@
     <Compile Include="Components\Gridmaker.cs" />
     <Compile Include="Utilities\HeaderFooterHandler.cs" />
     <Compile Include="Builders\KEMIS_PRI_builder.cs" />
-    <Compile Include="Parts\KEMIS_Wash.cs" />
+    <Compile Include="Parts\Wash.cs" />
     <Compile Include="Builders\PdfBuilder.cs" />
     <Compile Include="Utilities\PdfBuilders.cs" />
     <Compile Include="Utilities\PdfExtensions.cs" />
