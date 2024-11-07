@@ -30,7 +30,7 @@ namespace surveybuilder
 				+ @"for further advice.")
 			);
 
-			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 40, 60 }));
+			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 30, 70 }));
 			table.SetMarginTop(5);
 
 			table.AddCell(new Paragraph(new Text(@"Type of functional difficulty or disability").AddStyle(new Style().SetBold())));
@@ -69,6 +69,8 @@ namespace surveybuilder
 			table.AddCell("The student has more than one of the above types of difficulties");
 
 			document.Add(table);
+
+			builder.NewPage(document);
 
 			document.Add(new Paragraph(@"Record the number of children with a functional difficulty or a disability who are attending your school."
 			+ @"Record each pupil only once. Record pupils with more than one type of difficulty or disability under the category "
