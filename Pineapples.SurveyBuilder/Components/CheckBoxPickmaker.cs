@@ -112,7 +112,7 @@ namespace surveybuilder
 
 		private void Lint(Document document)
 		{
-		//various experiments at coloring a checkbox symbol - NOT USED
+			//various experiments at coloring a checkbox symbol - NOT USED
 		}
 
 		// returnthe dingbat character for each checkbox type

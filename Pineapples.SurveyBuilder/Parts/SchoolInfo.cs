@@ -32,7 +32,7 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			var model = new Cell().SetHeight(20);
-			var model2 = new Cell(1,2).SetHeight(20);
+			var model2 = new Cell(1, 2).SetHeight(20);
 			var model4 = new Cell(1, 4).SetHeight(20);
 
 			builder.Heading_2("General Information", document);
@@ -51,13 +51,13 @@ namespace surveybuilder
 			table.AddRow(
 				TextCell(model, "Header Teacher's Name"),
 				TextCell(model, "First:"),
-				InputCell(model,"Survey.HtGiven")
+				InputCell(model, "Survey.HtGiven")
 			);
 
 			table.AddRow(
 				TextCell(model, ""),
 				TextCell(model, "Last:"),
-				InputCell(model,"Survey.HtFamily",20)
+				InputCell(model, "Survey.HtFamily", 20)
 			);
 
 			table.AddRow(
@@ -68,7 +68,7 @@ namespace surveybuilder
 
 			table.AddRow(
 				TextCell(model, "School Email"),
-				InputCell(model2,"Survey.SchoolEmail", 50)
+				InputCell(model2, "Survey.SchoolEmail", 50)
 			);
 
 			table.AddRow(
@@ -86,7 +86,7 @@ namespace surveybuilder
 			builder.Heading_2("Parents' Committee", document);
 			document.Add(new Paragraph(@"Record the details of the school's Parents Committee."));
 
-			table = new Table(UnitValue.CreatePercentArray(new float[] { 8,1,1,1,1}))
+			table = new Table(UnitValue.CreatePercentArray(new float[] { 8, 1, 1, 1, 1 }))
 						.UseAllAvailableWidth();
 
 			PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, "PC.Exists")
@@ -119,9 +119,9 @@ namespace surveybuilder
 
 			string prompt = @"On the scale below rate the level of support your school receives from the local community.";
 			document.Add(new Paragraph(prompt));
-			
+
 			string[] Columns = { "Excellent", "Very Good", "Satisfactory", "Poor", "Very Bad" };
-			int[] values = { 1,2,3,4,5};
+			int[] values = { 1, 2, 3, 4, 5 };
 
 			var chk = new CheckBoxPickmaker();
 			chk.Names = Columns;
@@ -135,12 +135,12 @@ namespace surveybuilder
 			prompt = @"Record the following summary details about the overall structure of your school.";
 			document.Add(new Paragraph(prompt));
 
-			table = new Table(UnitValue.CreatePercentArray(new float[] { 4,1 }))
+			table = new Table(UnitValue.CreatePercentArray(new float[] { 4, 1 }))
 						.UseAllAvailableWidth();
 
 			table.AddRow(
 					TextCell(model, "Total number of pupils"),
-					NumberCell(model,"Survey.Pupils")
+					NumberCell(model, "Survey.Pupils")
 				);
 
 			table.AddRow(
@@ -157,6 +157,6 @@ namespace surveybuilder
 
 			return document;
 		}
-		
+
 	}
 }

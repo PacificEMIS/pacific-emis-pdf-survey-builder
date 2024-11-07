@@ -45,7 +45,7 @@ namespace surveybuilder
 		{
 			if (name == String.Empty)
 			{
-				return null; 
+				return null;
 			}
 
 			PdfFormField parent;
@@ -59,7 +59,7 @@ namespace surveybuilder
 				}
 			}
 			string[] parts = name.Split(new[] { '.', '!' });
-			
+
 			string parentName = String.Join(".", parts, 0, parts.Length - 1);
 			string currentPartial = parts[parts.Length - 1];
 			PdfFormField tmp = new NonTerminalFormFieldBuilder(pdfDoc, currentPartial)

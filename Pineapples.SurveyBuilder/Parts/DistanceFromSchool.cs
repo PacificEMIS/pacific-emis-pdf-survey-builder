@@ -53,10 +53,10 @@ namespace surveybuilder
 			table.AddCell(TextCell(model, "Total"));
 
 			for (int j = 0; j < 3; j++)
-				{
-					// TODO - Add support for read only NumberCell
-					table.AddCell(NumberCell(model, $"DT.T.T.{j:00}.All"));
-				}
+			{
+				// TODO - Add support for read only NumberCell
+				table.AddCell(NumberCell(model, $"DT.T.T.{j:00}.All"));
+			}
 
 			document.Add(table);
 			return document;

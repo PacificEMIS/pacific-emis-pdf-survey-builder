@@ -58,7 +58,7 @@ namespace surveybuilder
 			gridstyles.Add("genderheader",
 				new PdfStyle(gridstyles["colheader"]) { FontSize = gridstyles["colheader"].FontSize - 2 });
 
-					}
+		}
 		public GenderedGridmaker(string name) { }
 
 		Paragraph rowheader(string text)
@@ -87,17 +87,17 @@ namespace surveybuilder
 			Cell oddmodel = new Cell().SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color1));
 
-			Cell oddmodel2 = new Cell(1,2).SetHeight(RowHeight)
+			Cell oddmodel2 = new Cell(1, 2).SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color1));
 
 			Cell evenmodel = new Cell().SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color2));
-			
+
 			var totalmodel = new Cell()
 				.SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 
-			var totalmodel2 = new Cell(1,2)
+			var totalmodel2 = new Cell(1, 2)
 				.SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 
@@ -105,7 +105,7 @@ namespace surveybuilder
 				.SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 
-			var colheadermodel2 = new Cell(1,2)
+			var colheadermodel2 = new Cell(1, 2)
 				.SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 			var colheadermodel4 = new Cell(1, 4)
@@ -130,7 +130,7 @@ namespace surveybuilder
 			{
 				// rowspan is 2
 				table.AddCell(
-					TextCell(colheadermodel2 ,colheader(kvp.Value)));
+					TextCell(colheadermodel2, colheader(kvp.Value)));
 
 			}
 			if (RowTotals)
@@ -141,7 +141,7 @@ namespace surveybuilder
 			// gender headings row
 			// Empty cell in the top-left corner
 			table.AddCell(new Cell().SetHeight(RowHeight));
-						
+
 			if (IncludeFirstColumn)
 			{
 				table.AddCell(
@@ -248,7 +248,7 @@ namespace surveybuilder
 				{
 					table.AddCell(new Cell().SetHeight(RowHeight));
 				}
-				table.AddCell(totalmodel.Clone(false).Add(rowheader("Totals (M+F)")));				
+				table.AddCell(totalmodel.Clone(false).Add(rowheader("Totals (M+F)")));
 
 				for (int j = 0; j < Columns.Count; j++)
 				{

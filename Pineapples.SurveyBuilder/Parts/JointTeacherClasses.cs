@@ -27,7 +27,7 @@ namespace surveybuilder
 			+ @"teaching of one class. Enter in the box opposite their name and the number of pupils enrolled in the "
 			+ @"class they teach."));
 
-			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 4,4,4,3,3,3,3,3,3}))
+			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 4, 4, 4, 3, 3, 3, 3, 3, 3 }))
 						.UseAllAvailableWidth();
 
 			Cell model = new Cell().SetHeight(18);
@@ -59,7 +59,7 @@ namespace surveybuilder
 			{
 				table.AddCell(InputCell(model, $"ClassJ.D.{i:00}.T0.ID", 50));
 				table.AddCell(InputCell(model, $"ClassJ.D.{i:00}.T0.Given", 50));
-				table.AddCell(InputCell(model, $"ClassJ.D.{i:00}.T0.Family", 50));	
+				table.AddCell(InputCell(model, $"ClassJ.D.{i:00}.T0.Family", 50));
 
 				for (int j = 0; j < 6; j++)
 				{

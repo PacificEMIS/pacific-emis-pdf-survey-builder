@@ -241,8 +241,8 @@ namespace surveybuilder
 		}
 	}
 
-/**
-	 * Arguments
+	/**
+		 * Arguments
 nDec (number of decimals):
 
 Type: Integer
@@ -251,44 +251,44 @@ Example: 0 (no decimal places), 2 (two decimal places).
 
 sepStyle (separator style):
 
-	Type: Integer
-	Description: Defines the style of the thousands separator.
-	0: No separator.
-	1: Comma (,) separator.
-	2: Period (.) separator.
-	3: Space ( ) separator.
-	Example: 1 (comma as thousands separator).
+		Type: Integer
+		Description: Defines the style of the thousands separator.
+		0: No separator.
+		1: Comma (,) separator.
+		2: Period (.) separator.
+		3: Space ( ) separator.
+		Example: 1 (comma as thousands separator).
 negStyle (negative number style):
 
-	Type: Integer
-	Description: Determines how negative numbers are displayed.
-	0: Minus sign before the number (-1234).
-	1: Parentheses around the number ((1234)).
-	2: Red color for negative numbers (if supported by the viewer).
-	Example: 0 (minus sign), 1 (parentheses).
+		Type: Integer
+		Description: Determines how negative numbers are displayed.
+		0: Minus sign before the number (-1234).
+		1: Parentheses around the number ((1234)).
+		2: Red color for negative numbers (if supported by the viewer).
+		Example: 0 (minus sign), 1 (parentheses).
 
 currStyle (currency style):
 
-	Type: Integer
-	Description: Specifies whether the currency symbol should be used.
-	0: No currency symbol.
-	1: Currency symbol is used.
-	Example: 0 (no currency symbol), 1 (use currency symbol).
+		Type: Integer
+		Description: Specifies whether the currency symbol should be used.
+		0: No currency symbol.
+		1: Currency symbol is used.
+		Example: 0 (no currency symbol), 1 (use currency symbol).
 
 strCurrency (currency string):
 
-	Type: String
-	Description: The currency symbol to display, such as $, €, or £. This is only used if currStyle is set to 1.
-	Example: "$" (dollar sign), "€" (euro sign).
+		Type: String
+		Description: The currency symbol to display, such as $, €, or £. This is only used if currStyle is set to 1.
+		Example: "$" (dollar sign), "€" (euro sign).
 
 bCurrencyPrepend (currency prepend):
 
-	Type: Boolean
-	Description: Determines the position of the currency symbol. If true, the currency symbol is prepended to the number (e.g., $1234). If false, it is appended to the number (e.g., 1234$).
-	Example: true (currency symbol before number), false (currency symbol after number).
-	Example Usage
+		Type: Boolean
+		Description: Determines the position of the currency symbol. If true, the currency symbol is prepended to the number (e.g., $1234). If false, it is appended to the number (e.g., 1234$).
+		Example: true (currency symbol before number), false (currency symbol after number).
+		Example Usage
 For the function call AFNumber_Format(0, 1, 0, 0, '', true):
-	 */
+		 */
 	/// <summary>
 	/// Creates a text box for numeric input in a cell
 
@@ -303,8 +303,8 @@ For the function call AFNumber_Format(0, 1, 0, 0, '', true):
 			int decimals = 0, int sepStyle = 0, int negStyle = 0,
 			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
 			: base(modelElement, name)
-		{	
-			formataction = Actions.NFormatJs(decimals,sepStyle,negStyle, currStyle, strCurrency, bPrePend);
+		{
+			formataction = Actions.NFormatJs(decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
 			keystrokeaction = Actions.NKeystrokeJs(decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
 			base.styler = FieldStyle;
 		}
@@ -330,9 +330,9 @@ For the function call AFNumber_Format(0, 1, 0, 0, '', true):
 				.SetJustification(TextAlignment.RIGHT)
 				.SetFontSize(10)
 				.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
-				
-				var w = field.GetFirstFormAnnotation();
-				w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
+
+			var w = field.GetFirstFormAnnotation();
+			w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
 			return (PdfFormField)field;
 		}
 	}
@@ -365,12 +365,13 @@ For the function call AFNumber_Format(0, 1, 0, 0, '', true):
 				.SetFontSize(10)
 				.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
 
-				var w = field.GetFirstFormAnnotation();
-				w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
+			var w = field.GetFirstFormAnnotation();
+			w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
 			return (PdfFormField)field;
 
 
-;		}
+			;
+		}
 	}
 	public class TotalFieldRenderer : FieldCellRenderer
 	{
@@ -411,7 +412,7 @@ For the function call AFNumber_Format(0, 1, 0, 0, '', true):
 			this.name = name;
 			this.styler = styler;
 		}
-	
+
 		public FieldCellRenderer(Cell modelElement, string name) : base(modelElement)
 		{
 			this.name = name;
@@ -433,8 +434,8 @@ For the function call AFNumber_Format(0, 1, 0, 0, '', true):
 			PdfTextFormField dataField = pttb
 				.SetWidgetRectangle(rect)
 				.CreateText();
-			
-			styler(dataField); 
+
+			styler(dataField);
 
 
 			var form = PdfAcroForm.GetAcroForm(thisDoc, true);

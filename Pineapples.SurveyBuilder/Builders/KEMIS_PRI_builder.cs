@@ -61,7 +61,7 @@ namespace surveybuilder
 
 			// Cover page
 			string imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Images", "report-cover.png");
-			Image coverImage = new Image(ImageDataFactory.Create(imagePath));;
+			Image coverImage = new Image(ImageDataFactory.Create(imagePath)); ;
 			coverImage.ScaleToFit(PageSize.A4.GetWidth(), PageSize.A4.GetHeight());
 			coverImage.SetFixedPosition(0, 0);
 			document.Add(coverImage);
@@ -129,7 +129,7 @@ namespace surveybuilder
 			AddOutline(enrolOutline, "Distance from School");
 
 
-			document.Add(Heading_1("Enrolment Details"));		
+			document.Add(Heading_1("Enrolment Details"));
 
 			var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
 							.Select(n => new KeyValuePair<string, string>(n, n))
@@ -159,7 +159,7 @@ namespace surveybuilder
 			document.Add(Heading_2("Enrolment of Pupils by Age, Class Level and Gender"));
 			document.Add(new Paragraph(@"Record the number of pupils enrolled at your school this year according to their age, class level and gender. "
 			+ @"Age is at 31 March this year."));
-			
+
 			grd.Tag = "Enrol";
 
 			document.Add(grd.Make(this));
@@ -170,7 +170,7 @@ namespace surveybuilder
 			document.Add(Heading_2("Repeaters"));
 			document.Add(new Paragraph(@"For each class, record the number of pupils who were enrolled in the same class in the previous school year. "
 			+ @"Record the repeating students by their age as at 31 March this year."));
-			
+
 			grd.Tag = "Rep";
 
 			document.Add(grd.Make(this));
@@ -190,7 +190,7 @@ namespace surveybuilder
 			NewPage(document);
 
 			AddOutline(enrolOutline, "Transfers In");
-			document.Add(Heading_2("Transfers In"));			
+			document.Add(Heading_2("Transfers In"));
 
 			grd.Tag = "TRIN";
 			grd.Rows = lookups["islands"];

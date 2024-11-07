@@ -29,7 +29,7 @@ namespace surveybuilder
 			+ @"level, enter the enrolment in the appropriate column. If the class group contains pupils at different "
 			+ @"levels, enter the number at each level in the appropriate column."));
 
-			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 4,4,4,3,3,3,3,3,3}))
+			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 4, 4, 4, 3, 3, 3, 3, 3, 3 }))
 						.UseAllAvailableWidth();
 
 			Cell model = new Cell().SetHeight(18);
@@ -40,7 +40,7 @@ namespace surveybuilder
 				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
 			table.AddCell(TextCell(new Cell(1, 2), "Teacher Name")
 				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
-			
+
 			for (int j = 0; j < 6; j++)
 			{
 				table.AddCell(TextCell(model21, $"Class {j + 1:0}")

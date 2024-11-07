@@ -26,7 +26,7 @@ using System.Security.Cryptography;
 namespace surveybuilder
 {
 	class Program
-	{		
+	{
 		private static String DEST = System.IO.Path.Combine(ConfigurationManager.AppSettings["filesPath"], "LayoutFormFields.pdf");
 
 		static void Main()
@@ -130,7 +130,7 @@ namespace surveybuilder
 
 			// Create a page break (start a new page)
 			pdf.AddNewPage();
-			
+
 
 			document.Add(new Paragraph("This is the 2 page."));
 			PdfTextFormField field2 = new TextFormFieldBuilder(pdf, "field2")
