@@ -35,6 +35,9 @@ using Org.BouncyCastle.Utilities;
 using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 using System.Net.NetworkInformation;
 using iText.Layout.Borders;
+using iText.IO.Image;
+using iText.Kernel.Pdf.Canvas;
+using iText.IO.Font;
 
 
 namespace surveybuilder
@@ -56,6 +59,32 @@ namespace surveybuilder
 			SetFacingPages(true);
 			SetPageHeader("left page", "right page");
 
+			// Cover page
+			string imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Images", "report-cover.png");
+			Image coverImage = new Image(ImageDataFactory.Create(imagePath));;
+			coverImage.ScaleToFit(PageSize.A4.GetWidth(), PageSize.A4.GetHeight());
+			coverImage.SetFixedPosition(0, 0);
+			document.Add(coverImage);
+			NewPage(document);
+
+			// Dynamic details on cover page
+			// Define your text and its exact positions on the page
+			PdfCanvas canvas = new PdfCanvas(pdfDoc.GetFirstPage());
+
+			// Example of adding small text at specific coordinates
+			// Load the custom font
+			string fontPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Fonts", "MYRIADPRO-REGULAR.OTF");
+			string fontPath2 = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Fonts", "MYRIADPRO-BOLD.OTF");
+			PdfFont customFont = PdfFontFactory.CreateFont(fontPath, PdfEncodings.WINANSI, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
+			PdfFont customFont2 = PdfFontFactory.CreateFont(fontPath2, PdfEncodings.WINANSI, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
+			canvas.BeginText()
+				  .SetFontAndSize(customFont2, 32)
+				  .MoveText(50, 150) // (x, y) position for the text
+				  .ShowText("2024")
+				  .SetFontAndSize(customFont, 12)
+				  .MoveText(448, -90) // Adjust for the next line of text if needed
+				  .ShowText("07112024") // Version
+				  .EndText();
 
 			//IList<PdfOutline> children = outlines.GetAllChildren();
 			//outlines.AddOutline()

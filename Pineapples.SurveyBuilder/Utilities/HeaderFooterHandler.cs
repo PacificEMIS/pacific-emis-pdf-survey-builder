@@ -97,20 +97,25 @@ namespace surveybuilder
 			PdfDocument pdfDoc = docEvent.GetDocument();
 			PdfPage page = docEvent.GetPage();
 			int pageNumber = pdfDoc.GetPageNumber(page);
+
+			// Skip footer for the cover page (assumed to be page 1)
+			if (pageNumber == 1) return;
+			// Offset the page number by subtracting 1 for display (page numbering starts after cover page)
+			int displayedPageNumber = pageNumber - 1;
+
 			Rectangle pageSize = page.GetPageSize();
 
 			// Determine footer position
-			float footerX = facingPages && pageNumber % 2 == 0 ? pageSize.GetLeft() + 50 : pageSize.GetRight() - 50;
+			float footerX = facingPages && pageNumber % 2 == 0 ? pageSize.GetRight() - 50 : pageSize.GetLeft() + 50;
 			float footerY = pageSize.GetBottom() + 20;
 			TextAlignment alignment = facingPages && pageNumber % 2 == 0 ? TextAlignment.LEFT : TextAlignment.RIGHT;
 
 			// Add footer
 			Canvas canvas = new Canvas(page, pageSize);
-			canvas.ShowTextAligned(new Paragraph("Page " + pageNumber),
+			canvas.ShowTextAligned(new Paragraph("Page " + displayedPageNumber),
 								   footerX, footerY, alignment);
 			canvas.Close();
 		}
 	}
-
 
 }
