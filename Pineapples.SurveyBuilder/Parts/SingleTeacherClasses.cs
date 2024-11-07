@@ -15,6 +15,7 @@ using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using Colors = iText.Kernel.Colors;
 
 namespace surveybuilder
 {
@@ -32,23 +33,26 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			Cell model = new Cell().SetHeight(18);
+			Cell model21 = new Cell(2, 1).SetHeight(18);
 
-			table.AddCell(TextCell(new Cell(1, 1), "Employment No"));
-			table.AddCell(TextCell(new Cell(1, 2), "Teacher Name"));
-
+			table.AddCell(TextCell(new Cell(2, 1), "Employment No")
+				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
+				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
+			table.AddCell(TextCell(new Cell(1, 2), "Teacher Name")
+				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
+			
 			for (int j = 0; j < 6; j++)
 			{
-				table.AddCell(TextCell(model, $"{j}"));
+				table.AddCell(TextCell(model21, $"Class {j + 1:0}")
+					.SetVerticalAlignment(VerticalAlignment.MIDDLE)
+					.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
 			}
+
 			// second row of headings
-			table.AddCell(TextCell(model, "No"));
-			table.AddCell(TextCell(model, "Given Name"));
-			table.AddCell(TextCell(model, "Family Name"));
-
-			for (int j = 0; j < 6; j++)
-			{
-				table.AddCell(TextCell(model, $"Class {j + 1:0}"));
-			}
+			table.AddCell(TextCell(model, "Given Name")
+				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
+			table.AddCell(TextCell(model, "Family Name")
+				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
 
 			for (int i = 0; i <= 29; i++)
 			{
@@ -63,7 +67,8 @@ namespace surveybuilder
 			}
 
 			// Totals
-			table.AddCell(TextCell(new Cell(1, 3), "Total Pupils"));
+			table.AddCell(TextCell(new Cell(1, 3), "Total Pupils")
+				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
 
 			for (int j = 0; j < 6; j++)
 			{
