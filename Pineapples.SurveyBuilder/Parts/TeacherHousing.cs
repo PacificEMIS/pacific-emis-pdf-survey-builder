@@ -16,52 +16,18 @@ using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using Org.BouncyCastle.Asn1.Cmp;
 using System.Collections;
-using Colors = iText.Kernel.Colors;
 
 namespace surveybuilder
 {
 	public class TeacherHousing
 	{
-		public PdfStylesheet styles = new PdfStylesheet();
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 
 		public TeacherHousing()
 		{
-			string color1 = "eaeaea";
-			string color2 = "cccccc";
-			string color3 = "a8a8a8";
-
-			// TODO all styles here are likely to quickly become used in many places (all/most tables?)
-			// this would be better pulled out into PDFStylesheets.cs somehow.
-			styles.Add("tableheader",
-				new PdfStyle(styles["base"])
-				{
-					FontSize = 12,
-					TextAlignment = TextAlignment.CENTER
-				});
-			styles.Add("tableheadercell",
-				new PdfStyle(styles["base"])
-				{
-					BackgroundColor = Colors.ColorConstants.LIGHT_GRAY
-				});
-			styles.Add("tablesubheadercell",
-				new PdfStyle(styles["base"])
-				{
-					BackgroundColor = Colors.WebColors.GetRGBColor(color3)
-				});
-		}
-		Paragraph tableheader(string text)
-		{
-			return styles.ApplyStyle("tableheader", text);
 		}
 
-		Cell tableheader(Cell cell)
-		{
-			return styles.ApplyCell("tableheadercell", cell);
-		}
-		Cell tablesubheader(Cell cell)
-		{
-			return styles.ApplyCell("tablesubheadercell", cell);
-		}
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
 			var model = new Cell()
@@ -121,16 +87,16 @@ namespace surveybuilder
 
 			// table headers
 			tableTHTConditions.AddRow(
-					tableheader(TextCell(model21, tableheader("Teacher Housing Type "))),
-						tableheader(TextCell(model21, tableheader("Number of"))),
-						tableheader(TextCell(model13, tableheader("Overall Condition")))
-					);
+				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Teacher Housing Type "))),
+				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Number of"))),
+				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Overall Condition")))
+			);
 
 			tableTHTConditions.AddRow(
-					tableheader(TextCell(model, tableheader("Good"))),
-					tableheader(TextCell(model, tableheader("Fair"))),
-					tableheader(TextCell(model, tableheader("Poor")))
-				);
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Good"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Fair"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Poor")))
+			);
 
 			// data rows
 			// Categories
@@ -159,7 +125,7 @@ namespace surveybuilder
 
 				// first the row subheader (TODO no field included yet here)
 				tableTHTConditions.AddRow(
-					tablesubheader(TextCell(model15, tableheader($"{kvp.Key}")))
+					ts.TableSubHeaderStyle(TextCell(model15, ts.TableHeaderStyle($"{kvp.Key}")))
 				);
 
 				// Data fields for each row
@@ -172,7 +138,7 @@ namespace surveybuilder
 					PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
 
 					tableTHTConditions.AddRow(
-						TextCell(model, teacherHousingTypes[$"{kvp.Key}"]+$", {i+1} Bedroom"),
+						TextCell(model, teacherHousingTypes[$"{kvp.Key}"] + $", {i + 1} Bedroom"),
 						NumberCell(model, fieldNum),
 						SelectCell(model, rgrp, "G"),
 						SelectCell(model, rgrp, "F"),

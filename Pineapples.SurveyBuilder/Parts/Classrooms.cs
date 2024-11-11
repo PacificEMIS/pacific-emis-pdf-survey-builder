@@ -21,35 +21,12 @@ namespace surveybuilder
 {
 	public class Classrooms
 	{
-
-		public PdfStylesheet styles = new PdfStylesheet();
-
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Classrooms()
 		{
-			// TODO all styles here are likely to quickly become used in many places (all/most tables?)
-			// this would be better pulled out into PDFStylesheets.cs somehow.
-			styles.Add("tableheader",
-				new PdfStyle(styles["base"])
-				{
-					FontSize = 12,
-					TextAlignment = TextAlignment.CENTER
-				});
-			styles.Add("tableheadercell",
-				new PdfStyle(styles["base"])
-				{
-					BackgroundColor = ColorConstants.LIGHT_GRAY
-				});
+			
 		}
-		Paragraph tableheader(string text)
-		{
-			return styles.ApplyStyle("tableheader", text);
-		}
-
-		Cell tableheader(Cell cell)
-		{
-			return styles.ApplyCell("tableheadercell", cell);
-		}
-
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
 
@@ -99,15 +76,15 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			tableMaterial.AddRow(
-					tableheader(TextCell(model21, tableheader("Material"))),
-					tableheader(TextCell(model21, tableheader("Number of Rooms"))),
-					tableheader(TextCell(model13, tableheader("Overall Condition")))
+					ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Material"))),
+					ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Number of Rooms"))),
+					ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Overall Condition")))
 				);
 
 			tableMaterial.AddRow(
-					tableheader(TextCell(model, tableheader("Good"))),
-					tableheader(TextCell(model, tableheader("Fair"))),
-					tableheader(TextCell(model, tableheader("Poor")))
+					ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Good"))),
+					ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Fair"))),
+					ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Poor")))
 				);
 
 			tableMaterial.AddRow(

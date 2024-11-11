@@ -304,4 +304,85 @@ namespace surveybuilder
 	}
 	#endregion
 
+	#region Table styles
+
+	/// <summary>
+	/// Represents a stylesheet for managing table styles in a PDF document.
+	/// Inherits from <see cref="Dictionary{TKey, TValue}"/> where the key is a string and the value is a <see cref="PdfStyle"/>.
+	/// </summary>
+	public class PdfTableStylesheet : Dictionary<string, PdfStyle>
+	{
+		/// <summary>
+		/// A collection of base styles available for table elements.
+		/// </summary>
+		public PdfStylesheet styles = new PdfStylesheet();
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="PdfTableStylesheet"/> class.
+		/// Sets up predefined styles for table headers, header cells, and subheader cells.
+		/// </summary>
+		public PdfTableStylesheet()
+		{
+			// Define colors using hexadecimal values
+			// Colors eventually to move to a ThemeColors.cs (something like WebColors.cs but only necessary colors
+			// with better theming design
+			string color1 = "eaeaea"; // Light gray for potential use
+			string color2 = "cccccc"; // Medium gray for potential use
+			string color3 = "a8a8a8"; // Darker gray for subheader cells
+
+			// Define and add a styles
+			styles.Add("tableheader",
+				new PdfStyle(styles["base"])
+				{
+					FontSize = 12,
+					TextAlignment = TextAlignment.CENTER
+				});
+
+			styles.Add("tableheadercell",
+				new PdfStyle(styles["base"])
+				{
+					BackgroundColor = ColorConstants.LIGHT_GRAY
+				});
+
+			// Define and add a style for table subheader cells
+			styles.Add("tablesubheadercell",
+				new PdfStyle(styles["base"])
+				{
+					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color3)
+				});
+		}
+
+		/// <summary>
+		/// Applies the "tableheader" style to a <see cref="Paragraph"/>.
+		/// </summary>
+		/// <param name="text">The text to apply the table header style to.</param>
+		/// <returns>A <see cref="Paragraph"/> styled as a table header.</returns>
+		public Paragraph TableHeaderStyle(string text)
+		{
+			return styles.ApplyStyle("tableheader", text);
+		}
+
+		/// <summary>
+		/// Applies the "tableheadercell" style to a <see cref="Cell"/>.
+		/// </summary>
+		/// <param name="cell">The cell to apply the table header cell style to.</param>
+		/// <returns>A <see cref="Cell"/> styled as a table header cell.</returns>
+		public Cell TableHeaderStyle(Cell cell)
+		{
+			return styles.ApplyCell("tableheadercell", cell);
+		}
+
+		/// <summary>
+		/// Applies the "tablesubheadercell" style to a <see cref="Cell"/>.
+		/// </summary>
+		/// <param name="cell">The cell to apply the table subheader cell style to.</param>
+		/// <returns>A <see cref="Cell"/> styled as a table subheader cell.</returns>
+		public Cell TableSubHeaderStyle(Cell cell)
+		{
+			return styles.ApplyCell("tablesubheadercell", cell);
+		}
+	}
+
+	#endregion
+
 }
