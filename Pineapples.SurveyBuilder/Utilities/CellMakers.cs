@@ -20,6 +20,10 @@ namespace surveybuilder
 		{
 			return CheckCell(cellmodel, grp, "N", CheckBoxType.CROSS);
 		}
+		public static Cell SelectCell(Cell cellmodel, PdfButtonFormField grp, string exportValue)
+		{
+			return CheckCell(cellmodel, grp, exportValue, CheckBoxType.SQUARE);
+		}
 
 		public static Cell CheckCell(Cell cellmodel, PdfButtonFormField grp, object value,
 			CheckBoxType typ)

@@ -94,20 +94,35 @@ namespace surveybuilder
 			//}
 			//		pdfDoc.Add
 
+			// Prepare grid makers common to several sections in the document
 			GenderedGridmaker grd = new GenderedGridmaker();
 
-			// TODO temporarily not include javascript (I don't have it)
-			// after setting all the fields, add the javascript libraries
-			//var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
+			var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
+							.Select(n => new KeyValuePair<string, string>(n, n))
+							.ToList();		
 
-			//string jsPath = System.IO.Path.Combine(ConfigurationManager.AppSettings["pineapplesPath"], @"Pineapples.Client\assets\pdfSurvey\js");
-			//foreach (string jsfile in System.IO.Directory.GetFiles(jsPath))
-			//{
-			//	string jscriptText = System.IO.File.ReadAllText(jsfile);
-			//	iText.Kernel.Pdf.PdfDictionary jscript = iText.Kernel.Pdf.Action.PdfAction
-			//		.CreateJavaScript(jscriptText).GetPdfObject();
-			//	javaScriptNameTree.AddEntry(System.IO.Path.GetFileName(jsfile), jscript);
-			//}
+			var classLevels = new List<KeyValuePair<string, string>>();
+			classLevels.Add(new KeyValuePair<string, string>("P1", "Class 1"));
+			classLevels.Add(new KeyValuePair<string, string>("P2", "Class 2"));
+			classLevels.Add(new KeyValuePair<string, string>("P3", "Class 3"));
+			classLevels.Add(new KeyValuePair<string, string>("P4", "Class 4"));
+			classLevels.Add(new KeyValuePair<string, string>("P5", "Class 5"));
+			classLevels.Add(new KeyValuePair<string, string>("P6", "Class 6"));
+
+			grd.Rows = rows;
+			grd.Columns = classLevels;
+
+			// after setting all the fields, add the javascript libraries
+			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
+
+			string jsPath = System.IO.Path.Combine(ConfigurationManager.AppSettings["pineapplesPath"], @"Pineapples.Client\assets\pdfSurvey\js");
+			foreach (string jsfile in System.IO.Directory.GetFiles(jsPath))
+			{
+				string jscriptText = System.IO.File.ReadAllText(jsfile);
+				iText.Kernel.Pdf.PdfDictionary jscript = iText.Kernel.Pdf.Action.PdfAction
+					.CreateJavaScript(jscriptText).GetPdfObject();
+				javaScriptNameTree.AddEntry(System.IO.Path.GetFileName(jsfile), jscript);
+			}
 
 			PdfOutline rootoutline = pdfDoc.GetOutlines(false);
 			var parentOutline = rootoutline.AddOutline("KEMIS Survey");
@@ -126,25 +141,7 @@ namespace surveybuilder
 			NewPage(document);
 
 			var enrolOutline = this.AddOutline(parentOutline, "Enrolment Details");
-			AddOutline(enrolOutline, "Distance from School");
-
-
-			document.Add(Heading_1("Enrolment Details"));
-
-			var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
-							.Select(n => new KeyValuePair<string, string>(n, n))
-							.ToList();
-			grd.Rows = rows;
-
-			var classLevels = new List<KeyValuePair<string, string>>();
-
-			classLevels.Add(new KeyValuePair<string, string>("P1", "Class 1"));
-			classLevels.Add(new KeyValuePair<string, string>("P2", "Class 2"));
-			classLevels.Add(new KeyValuePair<string, string>("P3", "Class 3"));
-			classLevels.Add(new KeyValuePair<string, string>("P4", "Class 4"));
-			classLevels.Add(new KeyValuePair<string, string>("P5", "Class 5"));
-			classLevels.Add(new KeyValuePair<string, string>("P6", "Class 6"));
-			grd.Columns = classLevels;
+			document.Add(Heading_1("Enrolment Details"));			
 
 			/* in production we could do this, with access to the DbContext:
 			var classLevels = Factory.DbContext.Levels
@@ -191,30 +188,15 @@ namespace surveybuilder
 
 			AddOutline(enrolOutline, "Transfers In");
 			document.Add(Heading_2("Transfers In"));
-
-			grd.Tag = "TRIN";
-			grd.Rows = lookups["islands"];
-			document.Add(grd.Make(this));
+			document = new TransfersIn()
+				.Build(this, document, grd, lookups["islands"]);
 			NewPage(document);
-
-			// Using different row/columns for GenderedGridMaker here
-			rows = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }
-							.Select(n => new KeyValuePair<string, string>(n, n))
-							.ToList();
-			grd.Rows = rows;
-
-			var ages = new List<KeyValuePair<string, string>>();
-
-			ages.Add(new KeyValuePair<string, string>("5", "5"));
-			ages.Add(new KeyValuePair<string, string>("6", "6"));
-			ages.Add(new KeyValuePair<string, string>("7", "7"));
-			ages.Add(new KeyValuePair<string, string>("8", "8"));
-			grd.Columns = ages;
+						
 
 			AddOutline(enrolOutline, "Pre-School Attendance");
 			document.Add(Heading_2("Pupils Who Have Attended Pre-School"));
 			document = new PSA()
-				.Build(this, document, grd);
+				.Build(this, document);
 			NewPage(document);
 
 			AddOutline(enrolOutline, "Single Teacher Classes");
@@ -230,12 +212,77 @@ namespace surveybuilder
 			var staffOutline = this.AddOutline(parentOutline, "School Staff Information");
 			document.Add(Heading_1("School Staff Information"));
 
+			AddOutline(staffOutline, "Expected Staff List");
+			document.Add(Heading_2("Expected Staff List"));
+			document = new ExpectedStaff()
+				.Build(this, document);
 			NewPage(document);
+
+			AddOutline(staffOutline, "New Staff");
+			document.Add(Heading_2("New Staff"));
+			document = new NewStaff()
+				.Build(this, document);
+			NewPage(document);
+
+			var infrastructureOutline = this.AddOutline(parentOutline, "Buildings and Rooms");
+			document.Add(Heading_1("Buildings and Rooms"));
+
+			AddOutline(infrastructureOutline, "Classrooms");
+			document.Add(Heading_2("Classrooms"));
+			document = new Classrooms()
+				.Build(this, document);
+			NewPage(document);
+
+			AddOutline(infrastructureOutline, "School Site");
+			document.Add(Heading_2("School Sites"));
+			document = new SchoolSite()
+				.Build(this, document);
+			NewPage(document);
+
+			AddOutline(infrastructureOutline, "Teacher Housing");
+			document.Add(Heading_2("Teacher Housing"));
+			document = new TeacherHousing()
+				.Build(this, document);
+			NewPage(document);
+
+			var washOutline = this.AddOutline(parentOutline, "Water, Sanitation and Hygiene");
 			document.Add(Heading_1("Water, Sanitation and Hygiene"));
-			AddOutline(parentOutline, "Water, Sanitation and Hygiene");
-			document = new KEMIS_Wash().Build(this, document);
 
+			AddOutline(washOutline, "Water");
+			document.Add(Heading_2("Water"));
+			document = new WASHWater()
+				.Build(this, document);
+			NewPage(document);
 
+			AddOutline(washOutline, "Sanitation");
+			document.Add(Heading_2("Sanitation"));
+			document = new WASHSanitation()
+				.Build(this, document);
+			NewPage(document);
+
+			AddOutline(washOutline, "Hygiene");
+			document.Add(Heading_2("Hygiene"));
+			document = new WASHHygiene()
+				.Build(this, document);
+			NewPage(document);
+
+			//document = new Wash().Build(this, document);
+			//NewPage(document);
+
+			var resourcesOutline = this.AddOutline(parentOutline, "School Resources");
+			document.Add(Heading_1("School Reources"));
+
+			AddOutline(resourcesOutline, "School Resources");
+			document.Add(Heading_2("School Resources"));
+			document = new SchoolResources()
+				.Build(this, document);
+			NewPage(document);
+
+			AddOutline(resourcesOutline, "School Supplies");
+			document.Add(Heading_2("School Supplies"));
+			document = new SchoolSupplies()
+				.Build(this, document);
+			NewPage(document);
 
 
 			return document;

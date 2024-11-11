@@ -64,21 +64,21 @@ namespace surveybuilder
 			// Define Heading 3 style
 			stylesheet.Add("Heading 3", new PdfStyle(stylesheet["headingbase"])
 			{
-				FontSize = 18,
+				FontSize = 16,
 				//FontColor = ColorConstants.ORANGE
 			});
 
 			// Define Heading 4 style
 			stylesheet.Add("Heading 4", new PdfStyle(stylesheet["headingbase"])
 			{
-				FontSize = 16,
+				FontSize = 12,
 				//FontColor = ColorConstants.CYAN
 			});
 
 			// Define Heading 5 style
 			stylesheet.Add("Heading 5", new PdfStyle(stylesheet["headingbase"])
 			{
-				FontSize = 14,
+				FontSize = 12,
 				//FontColor = ColorConstants.GREEN
 			});
 

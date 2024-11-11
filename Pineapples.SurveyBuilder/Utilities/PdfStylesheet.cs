@@ -48,7 +48,7 @@ namespace surveybuilder
 		public Border Border { get; set; }
 
 		// background (for cells)
-		Color BackgroundColor { get; set; }
+		public Color BackgroundColor { get; set; }
 		public string BackgroundImage { get; set; }
 		public int Height = 0;
 		public int ColSpan = 1;
@@ -115,7 +115,8 @@ namespace surveybuilder
 				.SetMarginLeft(IndentationLeft)
 				.SetMarginRight(IndentationRight)
 				.SetMarginTop(SpacingBefore)
-				.SetMarginBottom(SpacingAfter);
+				.SetMarginBottom(SpacingAfter)
+				.SetBackgroundColor(BackgroundColor);
 
 			if (FontBold)
 				paragraph.SetBold();
@@ -301,6 +302,6 @@ namespace surveybuilder
 			});
 		}
 	}
-
 	#endregion
+
 }

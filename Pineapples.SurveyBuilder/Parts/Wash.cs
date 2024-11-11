@@ -21,9 +21,9 @@ namespace surveybuilder
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
-
+			
 			document.Add(builder.Heading_4("Water Source"));
-
+			
 			string prompt = @"On the following scale, rate the adequacy 
 of your water supply for pupils and staff in relationship to the standard you would like to be able to provide. Tick the category which describes it best";
 			document.Add(new Paragraph(prompt));
@@ -40,7 +40,7 @@ of your water supply for pupils and staff in relationship to the standard you wo
 
 			document.Add(builder.Heading_4("Drinking Water"));
 
-			prompt = "What is the primary source of drinking water in the school?";
+			prompt = "What is the primary source of drinking water in the school?"; 
 
 			document.Add(new Paragraph(prompt));
 			chk = new CheckBoxPickmaker();
@@ -49,7 +49,7 @@ of your water supply for pupils and staff in relationship to the standard you wo
 			chk.Tag = "Wash.Water.Source";
 			chk.Make(builder, document);
 
-
+			
 			prompt = "For drinking water, what type of water treatment is practiced at the school? (select one only";
 			document.Add(new Paragraph(prompt));
 

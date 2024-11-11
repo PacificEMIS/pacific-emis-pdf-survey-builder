@@ -133,12 +133,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parts\SchoolSupplies.cs" />
+    <Compile Include="Parts\SchoolResources.cs" />
+    <Compile Include="Parts\TeacherHousing.cs" />
+    <Compile Include="Parts\SchoolSite.cs" />
+    <Compile Include="Parts\Classrooms.cs" />
+    <Compile Include="Parts\NewStaff.cs" />
+    <Compile Include="Parts\ExpectedStaff.cs" />
     <Compile Include="Parts\TransfersIn.cs" />
     <Compile Include="Parts\SchoolInfo.cs" />
     <Compile Include="Parts\PSA.cs" />
     <Compile Include="Parts\Disabilities.cs" />
     <Compile Include="Parts\DistanceFromSchool.cs" />
     <Compile Include="Parts\JointTeacherClasses.cs" />
+    <Compile Include="Parts\WASHWater.cs" />
+    <Compile Include="Parts\WASHHygiene.cs" />
+    <Compile Include="Parts\WASHSanitation.cs" />
     <Compile Include="Utilities\Actions.cs" />
     <Compile Include="Utilities\CellFieldRenderers.cs" />
     <Compile Include="Utilities\CellMakers.cs" />
