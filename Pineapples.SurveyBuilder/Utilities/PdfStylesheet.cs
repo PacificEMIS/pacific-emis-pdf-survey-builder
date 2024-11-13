@@ -308,9 +308,10 @@ namespace surveybuilder
 
 	/// <summary>
 	/// Represents a stylesheet for managing table styles in a PDF document.
-	/// Inherits from <see cref="Dictionary{TKey, TValue}"/> where the key is a string and the value is a <see cref="PdfStyle"/>.
+	/// This is done a bit more "directly" then the previous <see cref="PdfTextFieldStylesheet"/>
+	/// One style othe the other should be chosen and then remain consistent.
 	/// </summary>
-	public class PdfTableStylesheet : Dictionary<string, PdfStyle>
+	public class PdfTableStylesheet
 	{
 		/// <summary>
 		/// A collection of base styles available for table elements.
@@ -330,7 +331,7 @@ namespace surveybuilder
 			string color2 = "cccccc"; // Medium gray for potential use
 			string color3 = "a8a8a8"; // Darker gray for subheader cells
 
-			// Define and add a styles
+			// Define and add styles
 			styles.Add("tableheader",
 				new PdfStyle(styles["base"])
 				{

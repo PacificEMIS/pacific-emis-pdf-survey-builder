@@ -54,6 +54,8 @@ namespace surveybuilder
 			dataHost = ConfigurationManager.AppSettings["emisUrl"]; // dataHost = $"https://kemis-test.pacific-emis.org";
 			InitLookups();
 			AddLookups("student");
+			AddLookups("censusworkbook");
+
 
 			Document document = new Document(pdfDoc, PageSize.A4);
 			SetFacingPages(true);
@@ -99,7 +101,7 @@ namespace surveybuilder
 
 			var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
 							.Select(n => new KeyValuePair<string, string>(n, n))
-							.ToList();		
+							.ToList();
 
 			var classLevels = new List<KeyValuePair<string, string>>();
 			classLevels.Add(new KeyValuePair<string, string>("P1", "Class 1"));
@@ -141,7 +143,7 @@ namespace surveybuilder
 			NewPage(document);
 
 			var enrolOutline = this.AddOutline(parentOutline, "Enrolment Details");
-			document.Add(Heading_1("Enrolment Details"));			
+			document.Add(Heading_1("Enrolment Details"));
 
 			/* in production we could do this, with access to the DbContext:
 			var classLevels = Factory.DbContext.Levels
@@ -191,7 +193,7 @@ namespace surveybuilder
 			document = new TransfersIn()
 				.Build(this, document, grd, lookups["islands"]);
 			NewPage(document);
-						
+
 
 			AddOutline(enrolOutline, "Pre-School Attendance");
 			document.Add(Heading_2("Pupils Who Have Attended Pre-School"));
@@ -251,7 +253,7 @@ namespace surveybuilder
 			AddOutline(washOutline, "Water");
 			document.Add(Heading_2("Water"));
 			document = new WASHWater()
-				.Build(this, document);
+				.Build(this, document, lookups["waterSupplyTypes"]);
 			NewPage(document);
 
 			AddOutline(washOutline, "Sanitation");

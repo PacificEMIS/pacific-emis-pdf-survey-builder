@@ -82,7 +82,7 @@ namespace surveybuilder
 			string color2 = "cccccc";
 			string color3 = "a8a8a8";
 
-			//// dell models for table construction
+			//// cell models for table construction
 			// Row headings and data fields
 			Cell oddmodel = new Cell().SetHeight(RowHeight)
 				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color1));

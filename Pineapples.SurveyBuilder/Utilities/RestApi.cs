@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Xml.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace surveybuilder
 {
@@ -42,41 +43,68 @@ namespace surveybuilder
 					//client.DefaultRequestHeaders.Accept.Clear();
 					//client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/xml"));
 
-					// Send a GET request to the specified endpoint.
+					// Send a GET request to the specified endpoint
 					HttpResponseMessage response = client.GetAsync(client.BaseAddress).Result;
 
-					// Ensure the request was successful.
+					// Ensure the request was successful
 					response.EnsureSuccessStatusCode();
 
-					// Read the response content as a string.
+					// Read the response content as a string
 					string responseBody = response.Content.ReadAsStringAsync().Result;
 
-					// representation of the Json returned by lookups/collection methods
-					Dictionary<string, CnObject[]> tmp = JsonConvert.DeserializeObject<Dictionary<string, CnObject[]>>(responseBody);
+					// Parse the JSON response dynamically
+					var tmp = JsonConvert.DeserializeObject<JObject>(responseBody);
 
+					// Dictionary to store the parsed results
 					var dic = new Dictionary<string, List<KeyValuePair<string, string>>>();
 
-					dic = tmp.ToDictionary(
-						kvp => kvp.Key,
-						kvp => kvp.Value
-								.Select(cn => new KeyValuePair<string, string>(cn.C, cn.N))
-								.ToList()
-								);
+					// Iterate through each property in the JSON object
+					foreach (var property in tmp.Properties())
+					{
+						string key = property.Name; // e.g., "schoolTypes", "authorities"
+						JArray items = (JArray)property.Value;
+
+						var keyValueList = new List<KeyValuePair<string, string>>();
+
+						foreach (JObject item in items)
+						{
+							// Try to retrieve "C" and "N" or use fallback keys
+							string code = item.ContainsKey("C") ? item["C"]?.ToString() :
+										  item.ContainsKey("QualCode") ? item["QualCode"]?.ToString() :
+										  item.ContainsKey("mresName") ? item["mresName"]?.ToString() :
+										  item.ContainsKey("ToiletType") ? item["ToiletType"]?.ToString() : null;
+
+							string name = item.ContainsKey("N") ? item["N"]?.ToString() :
+										  item.ContainsKey("QualName") ? item["QualName"]?.ToString() :
+										  item.ContainsKey("mresName") ? item["mresName"]?.ToString() :
+										  item.ContainsKey("ToiletType") ? item["ToiletType"]?.ToString() : null;
+
+							// Add to the list if at least one value exists
+							if (!string.IsNullOrEmpty(code) || !string.IsNullOrEmpty(name))
+							{
+								keyValueList.Add(new KeyValuePair<string, string>(code ?? string.Empty, name ?? string.Empty));
+							}
+						}
+
+						// Add the processed list to the dictionary
+						dic[key] = keyValueList;
+					}
 
 					return dic;
 				}
 				catch (HttpRequestException e)
 				{
-					// Handle any HTTP request exceptions.
+					// Handle any HTTP request exceptions
 					Console.WriteLine($"Request error: {e.Message}");
 					throw;
 				}
 				catch (Exception e)
 				{
-					// Handle any other exceptions.
+					// Handle any other exceptions
 					Console.WriteLine($"Unexpected error: {e.Message}");
 					throw;
 				}
+
 			}
 		}
 	}
