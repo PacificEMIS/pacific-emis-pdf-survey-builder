@@ -104,7 +104,7 @@ namespace surveybuilder
 				tableToilets.AddRow(
 					TextCell(model, toiletType.Value), // fieldK/fieldV missing
 					NumberCell(model, fieldDPupilM),
-					NumberCell(model, fieldDPupilM),
+					NumberCell(model, fieldDPupilF),
 					SelectCell(model, rgrpPupilToiletC, "G"),
 					SelectCell(model, rgrpPupilToiletC, "F"),
 					SelectCell(model, rgrpPupilToiletC, "P"),
