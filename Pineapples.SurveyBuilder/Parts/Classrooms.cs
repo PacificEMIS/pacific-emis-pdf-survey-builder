@@ -87,6 +87,8 @@ namespace surveybuilder
 					ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Poor")))
 				);
 
+			// Could dynamically generate types of material...
+
 			tableMaterial.AddRow(
 					TextCell(model, "Permanent"),
 					NumberCell(model, "Survey.ClassroomCountP.Num"),

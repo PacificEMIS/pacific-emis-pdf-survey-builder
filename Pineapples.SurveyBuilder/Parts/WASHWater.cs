@@ -25,7 +25,7 @@ namespace surveybuilder
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document, List<KeyValuePair<string, string>> waterSupplyTypes)
 		{
-			// TODO Move to reusable Cell stylesheets
+			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
 			var model = new Cell()
 				.SetHeight(20)
 				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
@@ -90,7 +90,7 @@ namespace surveybuilder
 			}
 
 			// Number Row
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Number"))));
+			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, "Number")));
 			for (int i = 0; i < wstCount; i++)
 			{
 				string fieldNum = $"Resource.Water.D.{i:00}.Num";
@@ -98,7 +98,7 @@ namespace surveybuilder
 			}
 
 			// Total Capacity in Litres Row
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Total Capacity in Litres"))));
+			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, "Total Capacity in Litres")));
 			for (int i = 0; i < wstCount; i++)
 			{
 				// TODO does not handle the water source types where it makes no sense to record the capacity
@@ -108,7 +108,7 @@ namespace surveybuilder
 			}
 
 			// Tick if properly covered/protected Row
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Tick if properly covered/protected"))));
+			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, "Tick if properly covered/protected")));
 			for (int i = 0; i < wstCount; i++)
 			{
 				string fieldNum = $"Resource.Water.D.{i:00}.Protected";
@@ -162,6 +162,7 @@ namespace surveybuilder
 			document.Add(new Paragraph()
 				.Add(@"If YES, provide details of the most recent test:")
 			);
+
 			Table tableWaterTreatment = new Table(UnitValue.CreatePercentArray(new float[] { 70, 30 }))
 						.UseAllAvailableWidth();
 

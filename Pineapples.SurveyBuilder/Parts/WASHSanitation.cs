@@ -12,24 +12,117 @@ using System.Threading.Tasks;
 using iText.Kernel.Colors;
 using iText.Forms;
 using iText.Forms.Fields.Properties;
+using static surveybuilder.CellMakers;
 
 namespace surveybuilder
 {
 	public class WASHSanitation
 	{
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHSanitation() { }
 
-		public Document Build(KEMIS_PRI_Builder builder, Document document)
+		public Document Build(KEMIS_PRI_Builder builder, Document document, List<KeyValuePair<string, string>> toiletTypes)
 		{
+
+			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
+			var model = new Cell()
+				.SetHeight(20)
+				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
+				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			var model12 = new Cell(1, 2)
+				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
+				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			var model21 = new Cell(2, 1)
+				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
+				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			var model13 = new Cell(1, 3).SetHeight(20)
+				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
+				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			var model15 = new Cell(1, 5).SetHeight(20)
+				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
+				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
 
 			// Toilets
 			document.Add(builder.Heading_3("Toilets"));
 
 			document.Add(new Paragraph()
-				.Add(@"On the following scale, rate the adequacy of your water supply for pupils and staff in relationship "
-				+ @"to the standard you would like to be able to provide. Tick the category which describes it best.")
+				.Add(@"Record the details of your school’s toilet facilities for staff and pupils.")
 			);
 
+			document.Add(new Paragraph()
+				.Add(@"Note: Under Condition columns 'G' = 'Good', 'F' = 'Fair', 'P' = 'Poor'")
+			);
+
+			Table tableToilets = new Table(UnitValue.CreatePercentArray(new float[] { 19, 6, 6, 5, 5, 5, 12, 5, 5, 5, 12, 5, 5, 5 }))
+						.UseAllAvailableWidth();
+
+			// Heading
+			tableToilets.AddRow(
+				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Toilet Type"))),
+				ts.TableHeaderStyle(TextCell(model12, ts.TableHeaderStyle("No of Pupil Toilets"))),
+				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Condition"))),
+				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("No of Staff Toilets"))),
+				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Condition"))),
+				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("No of Wheelchair Accessible Toilets"))),
+				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Condition")))
+			);
+
+			tableToilets.AddRow(
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("M"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("G"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("P"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("G"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("P"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("G"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("P")))
+			);
+
+			// Rows
+			var ttI = 0;
+			foreach (var toiletType in toiletTypes)
+			{
+				// TODO need to include the field key
+				string fieldK = $"Toilets.R.{ttI:00}.K";
+				string fieldV = $"Toilets.R.{ttI:00}.V";
+				string fieldDPupilM = $"Toilets.D.{ttI:00}.Pupil.M";
+				string fieldDPupilF = $"Toilets.D.{ttI:00}.Pupil.F";
+				string fieldDPupilC = $"Toilets.D.{ttI:00}.Pupil.C";
+				string fieldDStaff = $"Toilets.D.{ttI:00}.Staff.All";
+				string fieldDStaffC = $"Toilets.D.{ttI:00}.Staff.C";
+				string fieldDWheelchair = $"Toilets.D.{ttI:00}.Wheelchair.All";
+				string fieldDWheelchairC = $"Toilets.D.{ttI:00}.Wheelchair.C";
+
+				PdfButtonFormField rgrpPupilToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDPupilC).CreateRadioGroup();
+				PdfButtonFormField rgrpStaffToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDStaffC).CreateRadioGroup();
+				PdfButtonFormField rgrpWheelchairToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDWheelchairC).CreateRadioGroup();
+
+				tableToilets.AddRow(
+					TextCell(model, toiletType.Value), // fieldK/fieldV missing
+					NumberCell(model, fieldDPupilM),
+					NumberCell(model, fieldDPupilM),
+					SelectCell(model, rgrpPupilToiletC, "G"),
+					SelectCell(model, rgrpPupilToiletC, "F"),
+					SelectCell(model, rgrpPupilToiletC, "P"),
+					NumberCell(model, fieldDStaff),
+					SelectCell(model, rgrpStaffToiletC, "G"),
+					SelectCell(model, rgrpStaffToiletC, "F"),
+					SelectCell(model, rgrpStaffToiletC, "P"),
+					NumberCell(model, fieldDWheelchair),
+					SelectCell(model, rgrpWheelchairToiletC, "G"),
+					SelectCell(model, rgrpWheelchairToiletC, "F"),
+					SelectCell(model, rgrpWheelchairToiletC, "P")
+				);
+
+				ttI++;
+
+			}
+
+			document.Add(tableToilets);
 
 			return document;
 		}

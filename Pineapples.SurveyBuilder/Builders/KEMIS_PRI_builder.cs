@@ -259,7 +259,7 @@ namespace surveybuilder
 			AddOutline(washOutline, "Sanitation");
 			document.Add(Heading_2("Sanitation"));
 			document = new WASHSanitation()
-				.Build(this, document);
+				.Build(this, document, lookups["toiletTypes"]);
 			NewPage(document);
 
 			AddOutline(washOutline, "Hygiene");
