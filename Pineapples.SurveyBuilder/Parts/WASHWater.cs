@@ -156,6 +156,30 @@ namespace surveybuilder
 			chk.Tag = "Wash.Water.Treatment";
 			chk.Make(builder, document);
 
+			document.Add(new Paragraph()
+				.Add(@"For drinking water does the school practice water treatment?")
+			);
+			document.Add(new Paragraph()
+				.Add(@"If YES, provide details of the most recent test:")
+			);
+			Table tableWaterTreatment = new Table(UnitValue.CreatePercentArray(new float[] { 70, 30 }))
+						.UseAllAvailableWidth();
+
+			tableWaterTreatment.AddRow(
+				ts.TableHeaderStyle(TextCell(model, "Date tested:")),
+				DateCell(model, "Wash.Water.Test.Date")
+			);
+			tableWaterTreatment.AddRow(
+				ts.TableHeaderStyle(TextCell(model, "Tested by")),
+				InputCell(model, "Wash.Water.Test.By")
+			);
+			tableWaterTreatment.AddRow(
+				ts.TableHeaderStyle(TextCell(model, "Total Coliform found")),
+				NumberCell(model, "Wash.Water.Test.Result")
+			);
+
+			document.Add(tableWaterTreatment);
+
 			return document;
 		}
 	}

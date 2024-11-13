@@ -54,6 +54,29 @@ namespace surveybuilder
 		}
 		#endregion
 
+		#region cells for date inputs
+		/// <summary>
+		/// Creates a cell for date inputs, using a custom renderer for handling dates.
+		/// </summary>
+		/// <param name="cellmodel">The model cell to clone.</param>
+		/// <param name="fieldname">The unique field name associated with the date cell.</param>
+		/// <param name="dateValue">The optional date value to prepopulate.</param>
+		/// <param name="dateFormat">The date format string (e.g., "MM/dd/yyyy").</param>
+		/// <returns>A new cell configured for date input.</returns>
+		public static Cell DateCell(Cell cellmodel, string fieldname, DateTime? dateValue = null, string dateFormat = "MM/dd/yyyy")
+		{
+			// Create a paragraph and set a custom renderer for dates
+			Paragraph pp = new Paragraph();
+			pp.SetNextRenderer(new DateFieldCellRenderer(cellmodel, fieldname, dateValue, dateFormat));
+
+			// Clone the cell model and add the paragraph
+			Cell cell = cellmodel.Clone(false);
+			cell.Add(pp);
+			return cell;
+		}
+		#endregion
+
+
 		// text input
 		public static Cell InputCell(Cell cellmodel, string fieldname, int maxLen = 0,
 			string value = null, bool readOnly = false, bool hidden = false)
