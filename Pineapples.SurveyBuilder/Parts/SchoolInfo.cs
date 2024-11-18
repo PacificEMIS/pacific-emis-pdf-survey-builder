@@ -30,57 +30,61 @@ namespace surveybuilder
 
 			// make a table 6 columns grouped 3 1 2
 
-			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 3, 1, 2 }))
+			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 35, 15, 50 }))
 						.UseAllAvailableWidth();
 
 			var model = new Cell().SetHeight(20);
-			var model2 = new Cell(1, 2).SetHeight(20);
-			var model4 = new Cell(1, 4).SetHeight(20);
+			var model12 = new Cell(1, 2).SetHeight(20);
+			var model14 = new Cell(1, 4).SetHeight(20);
+			var model31 = new Cell(3, 1).SetHeight(20);
 
 			builder.Heading_2("General Information", document);
 
 			//AddRow is an extension method in PdfExtensions
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "School Name")),
-				InputCell(model2, "Survey.SchoolName", 50)
+				ts.TableHeaderStyle(TextCell(model12, "Details")),
+				ts.TableHeaderStyle(TextCell(model, "Answer"))
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Registered Number")),
-				InputCell(model2, "Survey.SchoolNo", 20)
+				TextCell(model12, "School Name"),
+				InputCell(model, "Survey.SchoolName", 50)
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Header Teacher's Name")),
-				ts.TableHeaderStyle(TextCell(model, "First:")),
+				TextCell(model12, "Registered Number"),
+				InputCell(model, "Survey.SchoolNo", 20)
+			);
+
+			table.AddRow(
+				TextCell(model31, "Header Teacher's Name"),
+				TextCell(model, "First:"),
 				InputCell(model, "Survey.HtGiven")
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "")),
-				ts.TableHeaderStyle(TextCell(model, "Last:")),
+				TextCell(model, "Last:"),
 				InputCell(model, "Survey.HtFamily", 20)
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "")),
-				ts.TableHeaderStyle(TextCell(model, "Mobile #:")),
+				TextCell(model, "Mobile #:"),
 				InputCell(model, "Survey.HtPh", 20)
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "School Email")),
-				InputCell(model2, "Survey.SchoolEmail", 50)
+				TextCell(model12, "School Email"),
+				InputCell(model, "Survey.SchoolEmail", 50)
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "School Phone")),
-				InputCell(model2, "Survey.SchoolPhone", 20)
+				TextCell(model12, "School Phone"),
+				InputCell(model, "Survey.SchoolPhone", 20)
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Survey Year")),
-				InputCell(model2, "Survey.SurveyYear", 4, "2024", true)
+				TextCell(model12, "Survey Year"),
+				InputCell(model, "Survey.SurveyYear", 4, "2024", true)
 			);
 
 			document.Add(table);
@@ -95,7 +99,7 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Does your school have a Parents' Committee")),
+				TextCell(model, "Does your school have a Parents' Committee"),
 				ts.TableHeaderStyle(TextCell(model, "Yes")),
 				YesCell(model, rgrp),
 				ts.TableHeaderStyle(TextCell(model, "No")),
@@ -103,11 +107,11 @@ namespace surveybuilder
 			);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "If Yes, how many times did it meet last year?")),
-				NumberCell(model4, "PC.Meet")
+				TextCell(model, "If Yes, how many times did it meet last year?"),
+				NumberCell(model14, "PC.Meet")
 			);
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "No of Males and Females on your Parents' Committee")),
+				TextCell(model, "No of Males and Females on your Parents' Committee"),
 				ts.TableHeaderStyle(TextCell(model, "M")),
 				NumberCell(model, "PC.Members.M"),
 				ts.TableHeaderStyle(TextCell(model, "F")),
