@@ -300,6 +300,15 @@ namespace surveybuilder
 				.Build(this, document);
 			NewPage(document);
 
+			var generalOutline = this.AddOutline(parentOutline, "General Comments");
+			AddOutline(generalOutline, "Final Comments");
+			AddOutline(generalOutline, "Certification");
+
+			document.Add(Heading_1("General Comments"));			
+			document = new GeneralComments()
+				.Build(this, document);
+			NewPage(document);
+
 
 			return document;
 		}
