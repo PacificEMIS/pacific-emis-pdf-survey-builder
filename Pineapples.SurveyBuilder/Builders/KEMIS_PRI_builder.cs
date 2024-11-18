@@ -285,9 +285,6 @@ namespace surveybuilder
 				.Build(this, document);
 			NewPage(document);
 
-			//document = new Wash().Build(this, document);
-			//NewPage(document);
-
 			var resourcesOutline = this.AddOutline(parentOutline, "School Resources");
 			document.Add(Heading_1("School Resources"));
 
