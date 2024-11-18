@@ -48,7 +48,7 @@ namespace surveybuilder
 		public Border Border { get; set; }
 
 		// background (for cells)
-		Color BackgroundColor { get; set; }
+		public Color BackgroundColor { get; set; }
 		public string BackgroundImage { get; set; }
 		public int Height = 0;
 		public int ColSpan = 1;
@@ -115,7 +115,8 @@ namespace surveybuilder
 				.SetMarginLeft(IndentationLeft)
 				.SetMarginRight(IndentationRight)
 				.SetMarginTop(SpacingBefore)
-				.SetMarginBottom(SpacingAfter);
+				.SetMarginBottom(SpacingAfter)
+				.SetBackgroundColor(BackgroundColor);
 
 			if (FontBold)
 				paragraph.SetBold();
@@ -301,6 +302,218 @@ namespace surveybuilder
 			});
 		}
 	}
+	#endregion
+
+	#region Table styles
+
+	/// <summary>
+	/// Represents a stylesheet for managing table styles in a PDF document.
+	/// This is done a bit more "directly" then the previous <see cref="PdfTextFieldStylesheet"/>
+	/// One style othe the other should be chosen and then remain consistent.
+	/// </summary>
+	public class PdfTableStylesheet
+	{
+		/// <summary>
+		/// A collection of base styles available for table elements.
+		/// </summary>
+		public PdfStylesheet styles = new PdfStylesheet();
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="PdfTableStylesheet"/> class.
+		/// Sets up predefined styles for table headers, header cells, and subheader cells.
+		/// </summary>
+		public PdfTableStylesheet()
+		{
+			// Define colors using hexadecimal values
+			// Colors eventually to move to a ThemeColors.cs (something like WebColors.cs but only necessary colors
+			// with better theming design
+			string color1 = "eaeaea"; // Light gray for potential use
+			string color2 = "cccccc"; // Medium gray for potential use
+			string color3 = "a8a8a8"; // Darker gray for subheader cells
+
+			// Define and add styles
+			styles.Add("tablebase",
+				new PdfStyle(styles["base"])
+				{
+					FontSize = 10
+				});
+
+			styles.Add("tableheader",
+				new PdfStyle(styles["base"])
+				{
+					FontSize = 10,
+					TextAlignment = TextAlignment.CENTER,
+					FontBold = true
+				});
+
+			styles.Add("tablerowheader",
+				new PdfStyle(styles["base"])
+				{
+					TextAlignment = TextAlignment.LEFT
+				});
+
+			styles.Add("tablerowheadertotal",
+				new PdfStyle(styles["tablerowheader"])
+				{
+					FontBold = true
+				});
+
+			styles.Add("tableheadercell",
+				new PdfStyle(styles["base"])
+				{
+					BackgroundColor = ColorConstants.LIGHT_GRAY
+				});
+
+			// Define and add a style for table subheader cells
+			styles.Add("tablesubheadercell",
+				new PdfStyle(styles["base"])
+				{
+					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color3)
+				});
+
+			styles.Add("gridbase",
+				new PdfStyle()
+				{
+					FontSize = 8
+				});
+
+			styles.Add("rowheader",
+				new PdfStyle(styles["gridbase"])
+				{
+					TextAlignment = TextAlignment.RIGHT,
+					LineSpacing = 1
+				});
+
+			styles.Add("rowheadertotal",
+				new PdfStyle(styles["rowheader"])
+				{
+					FontBold = true
+				});
+
+			styles.Add("colheader",
+				new PdfStyle(styles["gridbase"])
+				{
+					TextAlignment = TextAlignment.CENTER,
+					FontBold = true
+				});
+
+			styles.Add("genderheader",
+				new PdfStyle(styles["colheader"]) { FontSize = styles["colheader"].FontSize - 2 });
+
+		}
+
+		/// <summary>
+		/// Applies the "tablebase" style to a <see cref="Paragraph"/>.
+		/// </summary>
+		/// <param name="text">The text to apply the table base style to.</param>
+		/// <returns>A <see cref="Paragraph"/> styled as a table base.</returns>
+		public Paragraph TableBaseStyle(string text)
+		{
+			return styles.ApplyStyle("tablebase", text);
+		}
+
+		/// <summary>
+		/// Applies the "tableheader" style to a <see cref="Paragraph"/>.
+		/// </summary>
+		/// <param name="text">The text to apply the table header style to.</param>
+		/// <returns>A <see cref="Paragraph"/> styled as a table header.</returns>
+		public Paragraph TableHeaderStyle(string text)
+		{
+			return styles.ApplyStyle("tableheader", text);
+		}
+
+		/// <summary>
+		/// Applies the "tablerowheader" style to a <see cref="Paragraph"/>.
+		/// </summary>
+		/// <param name="text">The text to apply the table row header style to.</param>
+		/// <returns>A <see cref="Paragraph"/> styled as a table row header.</returns>
+		public Paragraph TableRowHeaderStyle(string text)
+		{
+			return styles.ApplyStyle("tablerowheader", text);
+		}
+
+		/// <summary>
+		/// Applies the "tablerowheadertotal" style to a <see cref="Paragraph"/>.
+		/// </summary>
+		/// <param name="text">The text to apply the table row header total style to.</param>
+		/// <returns>A <see cref="Paragraph"/> styled as a table row header total.</returns>
+		public Paragraph TableRowHeaderTotalStyle(string text)
+		{
+			return styles.ApplyStyle("tablerowheadertotal", text);
+		}
+
+		/// <summary>
+		/// Applies the "tableheadercell" style to a <see cref="Cell"/>.
+		/// </summary>
+		/// <param name="cell">The cell to apply the table header cell style to.</param>
+		/// <returns>A <see cref="Cell"/> styled as a table header cell.</returns>
+		public Cell TableHeaderStyle(Cell cell)
+		{
+			return styles.ApplyCell("tableheadercell", cell);
+		}
+
+		/// <summary>
+		/// Applies the "tablesubheadercell" style to a <see cref="Cell"/>.
+		/// </summary>
+		/// <param name="cell">The cell to apply the table subheader cell style to.</param>
+		/// <returns>A <see cref="Cell"/> styled as a table subheader cell.</returns>
+		public Cell TableSubHeaderStyle(Cell cell)
+		{
+			return styles.ApplyCell("tablesubheadercell", cell);
+		}
+
+		/// <summary>
+		/// Applies the "gridbase" style to a <see cref="Paragraph"/> containing text.
+		/// </summary>
+		/// <param name="text">The text to style as a grid base.</param>
+		/// <returns>A <see cref="Paragraph"/> styled with the "gridbase" style.</returns>
+		public Paragraph GridBase(string text)
+		{
+			return styles.ApplyStyle("gridbase", text);
+		}
+
+		/// <summary>
+		/// Applies the "rowheader" style to a <see cref="Paragraph"/> containing text.
+		/// </summary>
+		/// <param name="text">The text to style as a row header.</param>
+		/// <returns>A <see cref="Paragraph"/> styled with the "rowheader" style.</returns>
+		public Paragraph GridRowHeader(string text)
+		{
+			return styles.ApplyStyle("rowheader", text);
+		}
+
+		/// <summary>
+		/// Applies the "rowheadertotal" style to a <see cref="Paragraph"/> containing text.
+		/// </summary>
+		/// <param name="text">The text to style as a row header total.</param>
+		/// <returns>A <see cref="Paragraph"/> styled with the "rowheadertotal" style.</returns>
+		public Paragraph GridRowHeaderTotal(string text)
+		{
+			return styles.ApplyStyle("rowheadertotal", text);
+		}
+
+		/// <summary>
+		/// Applies the "colheader" style to a <see cref="Paragraph"/> containing text.
+		/// </summary>
+		/// <param name="text">The text to style as a column header.</param>
+		/// <returns>A <see cref="Paragraph"/> styled with the "colheader" style.</returns>
+		public Paragraph GridColHeader(string text)
+		{
+			return styles.ApplyStyle("colheader", text);
+		}
+
+		/// <summary>
+		/// Applies the "genderheader" style to a <see cref="Paragraph"/> containing text.
+		/// </summary>
+		/// <param name="text">The text to style as a gender header.</param>
+		/// <returns>A <see cref="Paragraph"/> styled with the "genderheader" style.</returns>
+		public Paragraph GridGenderHeader(string text)
+		{
+			return styles.ApplyStyle("genderheader", text);
+		}
+
+	}
 
 	#endregion
+
 }

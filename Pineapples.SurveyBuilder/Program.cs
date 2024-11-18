@@ -26,7 +26,7 @@ using System.Security.Cryptography;
 namespace surveybuilder
 {
 	class Program
-	{		
+	{
 		private static String DEST = System.IO.Path.Combine(ConfigurationManager.AppSettings["filesPath"], "LayoutFormFields.pdf");
 
 		static void Main()
@@ -51,36 +51,35 @@ namespace surveybuilder
 			stylesheet.Add("Heading 1", new PdfStyle(stylesheet["headingbase"])
 			{
 				FontSize = 24,
-				FontColor = ColorConstants.BLUE
+				//FontColor = ColorConstants.BLUE
 			});
 
 			// Define Heading 2 style
 			stylesheet.Add("Heading 2", new PdfStyle(stylesheet["headingbase"])
 			{
 				FontSize = 20,
-				FontColor = ColorConstants.RED
+				//FontColor = ColorConstants.RED
 			});
 
 			// Define Heading 3 style
 			stylesheet.Add("Heading 3", new PdfStyle(stylesheet["headingbase"])
 			{
-				FontSize = 18,
-				FontColor = ColorConstants.ORANGE
+				FontSize = 16,
+				//FontColor = ColorConstants.ORANGE
 			});
 
 			// Define Heading 4 style
 			stylesheet.Add("Heading 4", new PdfStyle(stylesheet["headingbase"])
 			{
-				FontSize = 16,
-				FontColor = ColorConstants.CYAN
+				FontSize = 12,
+				//FontColor = ColorConstants.CYAN
 			});
 
 			// Define Heading 5 style
 			stylesheet.Add("Heading 5", new PdfStyle(stylesheet["headingbase"])
 			{
-				FontSize = 14,
-
-				FontColor = ColorConstants.GREEN
+				FontSize = 12,
+				//FontColor = ColorConstants.GREEN
 			});
 
 			// Create a new PDF document
@@ -131,7 +130,7 @@ namespace surveybuilder
 
 			// Create a page break (start a new page)
 			pdf.AddNewPage();
-			
+
 
 			document.Add(new Paragraph("This is the 2 page."));
 			PdfTextFormField field2 = new TextFormFieldBuilder(pdf, "field2")

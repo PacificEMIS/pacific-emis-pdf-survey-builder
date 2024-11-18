@@ -77,12 +77,12 @@ namespace surveybuilder
 					{
 						string value = fld.Value.GetValueAsString();
 						String key = fld.Key;
-						while (!String.IsNullOrEmpty(key) && !Fields.ContainsKey(key))	
+						while (!String.IsNullOrEmpty(key) && !Fields.ContainsKey(key))
 						{
-								FormValue formValue = new FormValue(key, value);
-								Fields.Add(key, formValue);
-								key = formValue.ParentPath;
-								value = "";
+							FormValue formValue = new FormValue(key, value);
+							Fields.Add(key, formValue);
+							key = formValue.ParentPath;
+							value = "";
 						}
 					}
 				}
@@ -94,7 +94,7 @@ namespace surveybuilder
 			}
 		}
 
-		private PdfForm(Dictionary<string,FormValue> fields, string PdfFileName)
+		private PdfForm(Dictionary<string, FormValue> fields, string PdfFileName)
 		{
 			Fields = fields;
 			FileName = PdfFileName;
@@ -241,9 +241,9 @@ namespace surveybuilder
 		{
 
 			string[] parts = name.Split(new[] { '.', '!' }, 2);
-			string path = (!String.IsNullOrEmpty(parentPath)  ? $"{parentPath}.{parts[0]}" : parts[0]);
+			string path = (!String.IsNullOrEmpty(parentPath) ? $"{parentPath}.{parts[0]}" : parts[0]);
 
-			var currentfld = fields.Where(x => x.Value.Path == path).Count() ;
+			var currentfld = fields.Where(x => x.Value.Path == path).Count();
 			if (currentfld > 0)
 			{
 				// use it as the parent from here

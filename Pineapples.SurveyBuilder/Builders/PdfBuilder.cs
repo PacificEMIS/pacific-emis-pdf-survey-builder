@@ -30,8 +30,8 @@ namespace surveybuilder
 	{
 		public PdfStylesheet stylesheet;
 		public PdfDocument pdfDoc;
-		public Dictionary<string, List<KeyValuePair<string,string>>> lookups;
-
+		//public Dictionary<string, List<KeyValuePair<string, string>>> lookups;
+		public Dictionary<string, List<LookupEntry>> lookups;
 
 		public Boolean facingPages = false;
 
@@ -141,7 +141,8 @@ namespace surveybuilder
 
 		public void InitLookups()
 		{
-			lookups = new Dictionary<string, List<KeyValuePair<string, string>>>();
+			//lookups = new Dictionary<string, List<KeyValuePair<string, string>>>();
+			lookups = new Dictionary<string, List<LookupEntry>>();
 			AddLookups("core");
 		}
 		public void AddLookups(string lookupCollection)
@@ -202,9 +203,9 @@ namespace surveybuilder
 		public Paragraph Heading_3(string text, Document document = null)
 		{
 			var p = stylesheet.ApplyStyle("Heading 3", text);
-			if (document != null) 
-			{ 
-				document.Add(p); 
+			if (document != null)
+			{
+				document.Add(p);
 			}
 			return p;
 		}

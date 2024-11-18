@@ -7,17 +7,49 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Xml.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace surveybuilder
 {
-	public class CnObject
+	public class LookupEntry
 	{
+		/// <summary>
+		/// The primary code for the entry (e.g., "C" or equivalent key).
+		/// </summary>
 		public string C { get; set; }
+
+		/// <summary>
+		/// The primary name for the entry (e.g., "N" or equivalent key).
+		/// </summary>
 		public string N { get; set; }
+
+		/// <summary>
+		/// Additional metadata associated with this entry.
+		/// </summary>
+		public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+
+		/// <summary>
+		/// Filters a list of LookupEntry objects based on a set of criteria.
+		/// </summary>
+		/// <param name="entries">The list of LookupEntry objects to filter.</param>
+		/// <param name="criteria">A dictionary of key-value pairs representing the filter criteria.</param>
+		/// <returns>A filtered list of LookupEntry objects matching all criteria.</returns>
+		public static List<LookupEntry> FilterByMetadata(List<LookupEntry> entries, Dictionary<string, object> criteria)
+		{
+			return entries
+				.Where(entry =>
+					criteria.All(criterion =>
+						entry.Metadata.ContainsKey(criterion.Key) &&
+						entry.Metadata[criterion.Key]?.ToString() == criterion.Value?.ToString()))
+				.ToList();
+		}
 	}
+
+
+
 	public class RestApi
 	{
-		public Dictionary<string, List<KeyValuePair<string, string>>> GetFromRestService(string url)
+		public Dictionary<string, List<LookupEntry>> GetFromRestService(string url)
 		{
 			// Define the Fiddler proxy
 			var proxy = new System.Net.WebProxy("http://127.0.0.1:8888", false);
@@ -31,8 +63,6 @@ namespace surveybuilder
 			using (HttpClient client = new HttpClient(httpClientHandler))
 			{
 
-
-
 				// Ensure the URL is valid and can be reached over HTTPS.
 				client.BaseAddress = new Uri(url);
 
@@ -42,41 +72,87 @@ namespace surveybuilder
 					//client.DefaultRequestHeaders.Accept.Clear();
 					//client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/xml"));
 
-					// Send a GET request to the specified endpoint.
+					// Send a GET request to the specified endpoint
 					HttpResponseMessage response = client.GetAsync(client.BaseAddress).Result;
-
-					// Ensure the request was successful.
 					response.EnsureSuccessStatusCode();
 
-					// Read the response content as a string.
+					// Read the response content as a string
 					string responseBody = response.Content.ReadAsStringAsync().Result;
 
-					// representation of the Json returned by lookups/collection methods
-					Dictionary<string, CnObject[]> tmp = JsonConvert.DeserializeObject<Dictionary<string, CnObject[]>>(responseBody);
+					// Parse the JSON response dynamically
+					var tmp = JsonConvert.DeserializeObject<JObject>(responseBody);
 
-					var dic = new Dictionary<string, List<KeyValuePair<string, string>>>();
+					// Dictionary to store the parsed results with metadata
+					var dic = new Dictionary<string, List<LookupEntry>>();
 
-					dic = tmp.ToDictionary(
-						kvp => kvp.Key,
-						kvp => kvp.Value
-								.Select(cn => new KeyValuePair<string, string>(cn.C, cn.N))
-								.ToList()
-								);
+					// Iterate through each property in the JSON object
+					foreach (var property in tmp.Properties())
+					{
+						string key = property.Name; // e.g., "schoolTypes", "authorities"
+						JArray items = (JArray)property.Value;
+
+						var entryList = new List<LookupEntry>();
+
+						foreach (JObject item in items)
+						{
+							// Extract the main "Code" and "Name" values
+							string code = item.ContainsKey("C") ? item["C"]?.ToString() :
+										  item.ContainsKey("QualCode") ? item["QualCode"]?.ToString() :
+										  item.ContainsKey("mresName") ? item["mresName"]?.ToString() :
+										  item.ContainsKey("ToiletType") ? item["ToiletType"]?.ToString() : null;
+
+							string name = item.ContainsKey("N") ? item["N"]?.ToString() :
+										  item.ContainsKey("QualName") ? item["QualName"]?.ToString() :
+										  item.ContainsKey("mresName") ? item["mresName"]?.ToString() :
+										  item.ContainsKey("ToiletType") ? item["ToiletType"]?.ToString() : null;
+
+							// Create a new LookupEntry
+							var entry = new LookupEntry
+							{
+								C = code,
+								N = name
+							};
+
+							// Extract additional metadata
+							foreach (var additionalField in item.Properties())
+							{
+								string fieldName = additionalField.Name;
+
+								// Skip the primary "Code" and "Name" keys
+								if (fieldName == "C" || fieldName == "N" ||
+									fieldName == "QualCode" || fieldName == "QualName" ||
+									fieldName == "mresName" || fieldName == "ToiletType")
+								{
+									continue;
+								}
+
+								// Add other fields to Metadata
+								entry.Metadata[fieldName] = additionalField.Value?.ToObject<object>();
+							}
+
+							// Add the entry to the list
+							entryList.Add(entry);
+						}
+
+						// Add the processed list to the dictionary
+						dic[key] = entryList;
+					}
 
 					return dic;
 				}
 				catch (HttpRequestException e)
 				{
-					// Handle any HTTP request exceptions.
+					// Handle any HTTP request exceptions
 					Console.WriteLine($"Request error: {e.Message}");
 					throw;
 				}
 				catch (Exception e)
 				{
-					// Handle any other exceptions.
+					// Handle any other exceptions
 					Console.WriteLine($"Unexpected error: {e.Message}");
 					throw;
 				}
+
 			}
 		}
 	}

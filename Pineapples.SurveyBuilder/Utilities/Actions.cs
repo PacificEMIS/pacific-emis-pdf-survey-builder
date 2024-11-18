@@ -64,7 +64,7 @@ namespace itext4.Utilities
 
 		public static PdfAction NValidate(float min = 0, float max = 9999, bool integerRequired = true)
 		{
-			return PdfAction.CreateJavaScript(NValidateJs(min, max, integerRequired));	
+			return PdfAction.CreateJavaScript(NValidateJs(min, max, integerRequired));
 		}
 		public static string NValidateJs(float min, float max, bool integerRequired)
 		{

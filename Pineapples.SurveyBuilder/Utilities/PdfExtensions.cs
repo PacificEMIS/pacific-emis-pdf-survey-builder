@@ -38,7 +38,7 @@ namespace surveybuilder
 
 		// replace ' ' in a string with nonbreaking space
 
-		public static string Nbsp(this string str) 
+		public static string Nbsp(this string str)
 		{
 			string nonBreakingSpace = "\u00A0";
 			return str.Replace(" ", nonBreakingSpace);

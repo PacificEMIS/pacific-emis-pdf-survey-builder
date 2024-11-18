@@ -27,15 +27,16 @@ namespace surveybuilder
 
 	public class GenderedGridmaker
 	{
-		public List<KeyValuePair<string, string>> Columns;
-		public List<KeyValuePair<string, string>> Rows;
+		public List<LookupEntry> Columns;
+		public List<LookupEntry> Rows;
 		public string Tag;
 
 		public Boolean RowTotals;
 		public Boolean ColumnTotals;
 		public Boolean IncludeFirstColumn;
 
-		public PdfStylesheet gridstyles = new PdfStylesheet();
+		// Import common table/grid styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 
 		public int RowHeight = 12;
 
@@ -44,68 +45,46 @@ namespace surveybuilder
 			RowTotals = true;
 			ColumnTotals = true;
 			IncludeFirstColumn = false;
-
-			gridstyles.Add("gridbase",
-				new PdfStyle() { FontSize = 8 });
-			gridstyles.Add("rowheader",
-				new PdfStyle(gridstyles["gridbase"])
-				{
-					TextAlignment = TextAlignment.RIGHT,
-					LineSpacing = 1
-				});
-			gridstyles.Add("colheader",
-				new PdfStyle(gridstyles["gridbase"]) { TextAlignment = TextAlignment.CENTER });
-			gridstyles.Add("genderheader",
-				new PdfStyle(gridstyles["colheader"]) { FontSize = gridstyles["colheader"].FontSize - 2 });
-
-					}
+		}
 		public GenderedGridmaker(string name) { }
-
-		Paragraph rowheader(string text)
-		{
-			return gridstyles.ApplyStyle("rowheader", text);
-		}
-		Paragraph colheader(string text)
-		{
-			return gridstyles.ApplyStyle("colheader", text);
-		}
-		Paragraph genderheader(string text)
-		{
-			return gridstyles.ApplyStyle("genderheader", text);
-		}
 
 		public Table Make(PdfBuilder builder)
 		{
 			Console.WriteLine($"GenderedGrid: {Tag}");
-			//// dell models for table construction
+
+			string color1 = "eaeaea";
+			string color2 = "cccccc";
+			string color3 = "a8a8a8";
+
+			//// cell models for table construction
 			// Row headings and data fields
 			Cell oddmodel = new Cell().SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Blue"));
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color1));
 
-			Cell oddmodel2 = new Cell(1,2).SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Blue"));
+			Cell oddmodel2 = new Cell(1, 2).SetHeight(RowHeight)
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color1));
 
 			Cell evenmodel = new Cell().SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Teal"));
-			
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color2));
+
 			var totalmodel = new Cell()
 				.SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Orange"));
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 
-			var totalmodel2 = new Cell(1,2)
+			var totalmodel2 = new Cell(1, 2)
 				.SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Orange"));
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 
 			var colheadermodel = new Cell()
 				.SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Orange"));
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 
-			var colheadermodel2 = new Cell(1,2)
+			var colheadermodel2 = new Cell(1, 2)
 				.SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Orange"));
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 			var colheadermodel4 = new Cell(1, 4)
 				.SetHeight(RowHeight)
-				.SetBackgroundColor(Colors.WebColors.GetRGBColor("Orange"));
+				.SetBackgroundColor(Colors.WebColors.GetRGBColor(color3));
 
 			// Create a table with )
 			Table table = new Table(UnitValue.CreatePercentArray(Columns.Count * 2 + 1 + (RowTotals ? 4 : 0) + (IncludeFirstColumn ? 1 : 0)))
@@ -118,42 +97,42 @@ namespace surveybuilder
 			if (IncludeFirstColumn)
 			{
 				table.AddCell(
-					TextCell(colheadermodel, colheader("Age")));
+					TextCell(colheadermodel, ts.GridColHeader("Age")));
 			}
 
 			foreach (var kvp in Columns)
 			{
 				// rowspan is 2
 				table.AddCell(
-					TextCell(colheadermodel2 ,colheader(kvp.Value)));
+					TextCell(colheadermodel2, ts.GridColHeader(kvp.N)));
 
 			}
 			if (RowTotals)
 			{
-				table.AddCell(colheadermodel4.Clone(false).Add(colheader("Totals")));
+				table.AddCell(colheadermodel4.Clone(false).Add(ts.GridColHeader("Totals")));
 			}
 
 			// gender headings row
 			// Empty cell in the top-left corner
 			table.AddCell(new Cell().SetHeight(RowHeight));
-						
+
 			if (IncludeFirstColumn)
 			{
 				table.AddCell(
-					TextCell(colheadermodel, colheader("Name of Pre-School")));
+					TextCell(colheadermodel, ts.GridColHeader("Name of Pre-School")));
 			}
 
 			for (int i = 0; i < Columns.Count; i++)
 			{
 				// rowspan is 1
-				table.AddCell(new Cell().Add(genderheader("M")));
-				table.AddCell(new Cell().Add(genderheader("F")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("M")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("F")));
 			}
 			if (RowTotals)
 			{
-				table.AddCell(new Cell(1, 1).Add(genderheader("M")));
-				table.AddCell(new Cell(1, 1).Add(genderheader("F")));
-				table.AddCell(new Cell(1, 2).Add(colheader("Tot")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("M")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("F")));
+				table.AddCell(TextCell(colheadermodel2, ts.GridGenderHeader("Totals (M+F)")));
 			}
 
 
@@ -163,13 +142,15 @@ namespace surveybuilder
 				// first the row header
 				var cellmodel = (i % 2 == 0) ? evenmodel : oddmodel;
 				table.AddCell(cellmodel.Clone(false)
-					.Add(rowheader(Rows[i].Value.Nbsp()))
+					.Add(ts.GridRowHeader(Rows[i].N.Nbsp()))
 				);
 
 				if (IncludeFirstColumn)
 				{
-					table.AddCell(
-					TextCell(cellmodel, colheader("Test")));
+					string name = $"{Tag}.R.{i:00}.V";
+					Paragraph pp = new Paragraph();
+					//pp.SetNextRenderer(new GridDataFieldCellRenderer(cellmodel, name));
+					table.AddCell(cellmodel.Clone(false).Add(pp));
 				}
 
 				// Data fields for each row
@@ -204,13 +185,11 @@ namespace surveybuilder
 			if (ColumnTotals)
 			{
 				// gender totals
-				table.AddCell(totalmodel.Clone(false).Add(rowheader("Totals")));
-
 				if (IncludeFirstColumn)
 				{
-					table.AddCell(
-					TextCell(totalmodel, colheader("to merge")));
+					table.AddCell(new Cell().SetHeight(RowHeight));
 				}
+				table.AddCell(totalmodel.Clone(false).Add(ts.GridRowHeaderTotal("Totals")));
 
 				// Data fields for each row
 				for (int j = 0; j < Columns.Count; j++)
@@ -239,14 +218,11 @@ namespace surveybuilder
 			if (ColumnTotals)
 			{
 				// column totals
-
-				table.AddCell(new Cell(1, 1).Add(rowheader("Totals").SetHeight(RowHeight)));
-
 				if (IncludeFirstColumn)
 				{
-					table.AddCell(
-					TextCell(totalmodel, colheader("to merge")));
+					table.AddCell(new Cell().SetHeight(RowHeight));
 				}
+				table.AddCell(totalmodel.Clone(false).Add(ts.GridRowHeaderTotal("Totals (M+F)")));
 
 				for (int j = 0; j < Columns.Count; j++)
 				{
@@ -275,34 +251,33 @@ namespace surveybuilder
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.C.{i:00}.K")   // K for key
 					.CreateText();
-				txt.SetValue(Columns[i].Key);
+				txt.SetValue(Columns[i].C);
 				form.AddField(txt);
 			}
 			for (int i = 0; i < Columns.Count; i++)
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.C.{i:00}.V")   // K for key
 					.CreateText();
-				txt.SetValue(Columns[i].Value);
+				txt.SetValue(Columns[i].N);
 				form.AddField(txt);
 			}
 			for (int i = 0; i < Rows.Count; i++)
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.R.{i:00}.K")
 					.CreateText();
-				txt.SetValue(Rows[i].Key);
+				txt.SetValue(Rows[i].C);
 				form.AddField(txt);
 			}
 			for (int i = 0; i < Rows.Count; i++)
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.R.{i:00}.V")
 					.CreateText();
-				txt.SetValue(Rows[i].Value);
+				txt.SetValue(Rows[i].N);
 				form.AddField(txt);
 			}
 
 			return table
-				//.SetBackgroundColor(Colors.WebColors.GetRGBColor("ivory"))
-				.SetBorder(new Borders.SolidBorder(Colors.WebColors.GetRGBColor("lightblue"), 1));
+				.SetBorder(new Borders.SolidBorder(Colors.WebColors.GetRGBColor(color3), 1));
 			;
 		}
 	}
