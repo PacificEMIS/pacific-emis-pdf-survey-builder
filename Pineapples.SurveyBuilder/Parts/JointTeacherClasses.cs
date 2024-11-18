@@ -28,6 +28,7 @@ namespace surveybuilder
 			// Cell layout/styling models
 			var model = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 1, height: 18);
 			var model12 = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 2, height: 18);
+			var model13 = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 3, height: 18);
 			var model21 = CellStyleFactory.CreateCell(rowSpan: 2, colSpan: 1, height: 18);
 			var model21b = CellStyleFactory.CreateCell(rowSpan: 2, colSpan: 1, height: 40);
 
@@ -39,17 +40,17 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			// first row of headings
-			table.AddCell(ts.TableHeaderStyle(TextCell(model21, "Employment No")));
-			table.AddCell(ts.TableHeaderStyle(TextCell(model12, "Teacher Name")));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Employment No"))));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model12, ts.TableHeaderStyle("Teacher Name"))));
 
 			for (int j = 0; j < 6; j++)
 			{
-				table.AddCell(ts.TableHeaderStyle(TextCell(model21, $"Class {j + 1:0}")));
+				table.AddCell(ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle($"Class {j + 1:0}"))));
 			}
 
 			// second row of headings
-			table.AddCell(ts.TableHeaderStyle(TextCell(model, "Given Name")));
-			table.AddCell(ts.TableHeaderStyle(TextCell(model, "Family Name")));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Given Name"))));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Family Name"))));
 
 			// data rows
 			for (int i = 0; i <= 20; i++)
@@ -70,11 +71,11 @@ namespace surveybuilder
 			}
 
 			// Totals
-			table.AddCell(ts.TableHeaderStyle(TextCell(new Cell(1, 3), "Total Pupils")));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model13, ts.TableRowHeaderTotalStyle("Total Pupils"))));
 
 			for (int j = 0; j < 6; j++)
 			{
-				// TODO - Add support for read only NumberCell
+				// TODO - Add support for read only NumberCell (see gendered gridmaker)
 				table.AddCell(NumberCell(model, $"ClassJ.T.T.{j:00}.All"));
 			}
 

@@ -46,21 +46,21 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "")),
-				ts.TableHeaderStyle(TextCell(model, "On Site")),
-				ts.TableHeaderStyle(TextCell(model, "Off Site"))
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("On Site"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Off Site")))
 			);
 			table.AddRow(
-				TextCell(model, "No. of teachers that are provided with housing."),
+				TextCell(model, ts.TableBaseStyle("No. of teachers that are provided with housing.")),
 				NumberCell(model, "Housing.OnSite"),
 				NumberCell(model, "Housing.OffSite")
 			);
 			table.AddRow(
-				TextCell(model, "No. of teachers that are not provided with housing"),
+				TextCell(model, ts.TableBaseStyle("No. of teachers that are not provided with housing")),
 				NumberCell(model12, "Housing.N")
 			);
 			table.AddRow(
-				TextCell(model, "No. of teachers whose houses need significant maintenance."),
+				TextCell(model, ts.TableBaseStyle("No. of teachers whose houses need significant maintenance.")),
 				NumberCell(model12, "Housing.M")
 			);
 
@@ -126,7 +126,7 @@ namespace surveybuilder
 					PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
 
 					tableTHTConditions.AddRow(
-						TextCell(model, $"{lookupRes.N}"),
+						TextCell(model, ts.TableBaseStyle($"{lookupRes.N}")),
 						NumberCell(model, fieldNum),
 						SelectCell(model, rgrp, "G"),
 						SelectCell(model, rgrp, "F"),

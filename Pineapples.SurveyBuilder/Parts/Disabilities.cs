@@ -40,66 +40,66 @@ namespace surveybuilder
 			table.SetMarginTop(5);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, new Paragraph(new Text(@"Type of functional difficulty or disability").AddStyle(new Style().SetBold())))),
-				ts.TableHeaderStyle(TextCell(model, new Paragraph(new Text(@"Description").AddStyle(new Style().SetBold()))))
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Type of functional difficulty or disability"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Description")))
 			);
 
 			table.AddRow(
-				TextCell(model, "Blind"),
-				TextCell(model, "Total absence of vision.")
+				TextCell(model, ts.TableBaseStyle("Blind")),
+				TextCell(model, ts.TableBaseStyle("Total absence of vision."))
 			);
 
 			table.AddRow(
-				TextCell(model, "Seeing difficulty"),
-				TextCell(model, "Difficulty seeing things close up or far away, like objects, faces or pictures. "
-				+ @"If a student wears glasses that correct their vision, they are not classified as having seeing difficulty.")
+				TextCell(model, ts.TableBaseStyle("Seeing difficulty")),
+				TextCell(model, ts.TableBaseStyle("Difficulty seeing things close up or far away, like objects, faces or pictures. "
+				+ @"If a student wears glasses that correct their vision, they are not classified as having seeing difficulty."))
 			);
 
 			table.AddRow(
-				TextCell(model, "Deaf"),
-				TextCell(model, "Total loss of hearing")
+				TextCell(model, ts.TableBaseStyle("Deaf")),
+				TextCell(model, ts.TableBaseStyle("Total loss of hearing"))
 			);
 
 			table.AddRow(
-				TextCell(model, "Hearing difficulty"),
-				TextCell(model, "Partial loss of hearing; difficulty hearing sounds like peoples’ voices or music.")
+				TextCell(model, ts.TableBaseStyle("Hearing difficulty")),
+				TextCell(model, ts.TableBaseStyle("Partial loss of hearing; difficulty hearing sounds like peoples’ voices or music."))
 			);
 
 			table.AddRow(
-				TextCell(model, "Behaviour / Concentration / Socialisation / Hyperactive"),
-				TextCell(model, "Difficulty controlling his / her own behaviour, and/or focusing and concentrating, "
-			+ "and / or accepting changes in routine, and / or making friends.")
+				TextCell(model, ts.TableBaseStyle("Behaviour / Concentration / Socialisation / Hyperactive")),
+				TextCell(model, ts.TableBaseStyle("Difficulty controlling his / her own behaviour, and/or focusing and concentrating, "
+			+ "and / or accepting changes in routine, and / or making friends."))
 			);
 
 			table.AddRow(
-				TextCell(model, "Speaking"),
-				TextCell(model, "Difficulty being understood when speaking (in the language that is most usual for the student)")
+				TextCell(model, ts.TableBaseStyle("Speaking")),
+				TextCell(model, ts.TableBaseStyle("Difficulty being understood when speaking (in the language that is most usual for the student)"))
 			);
 
 			table.AddRow(
-				TextCell(model, "Gross motor"),
-				TextCell(model, "Difficulty walking or climbing stairs")
+				TextCell(model, ts.TableBaseStyle("Gross motor")),
+				TextCell(model, ts.TableBaseStyle("Difficulty walking or climbing stairs"))
 			);
 
 			table.AddRow(
-				TextCell(model, "Fine motor"),
-				TextCell(model, "Difficulty using hands and fingers, such as picking up small objects")
+				TextCell(model, ts.TableBaseStyle("Fine motor")),
+				TextCell(model, ts.TableBaseStyle("Difficulty using hands and fingers, such as picking up small objects"))
 			);
 
 			table.AddRow(
-				TextCell(model, "Learning / intellectual"),
-				TextCell(model, "Difficulty with general intellectual functions such as learning and remembering")
+				TextCell(model, ts.TableBaseStyle("Learning / intellectual")),
+				TextCell(model, ts.TableBaseStyle("Difficulty with general intellectual functions such as learning and remembering"))
 			);
 
 			table.AddRow(
-				TextCell(model, "Specific learning disability (dyslexia)"),
-				TextCell(model, "Restrictions in one or a few specific activities related to writing, spelling, "
-			+ "understanding, or reading, including decoding and comprehension.")
+				TextCell(model, ts.TableBaseStyle("Specific learning disability (dyslexia)")),
+				TextCell(model, ts.TableBaseStyle("Restrictions in one or a few specific activities related to writing, spelling, "
+			+ "understanding, or reading, including decoding and comprehension."))
 			);
 
 			table.AddRow(
-				TextCell(model, "Multiple difficulties / disabilities"),
-				TextCell(model, "The student has more than one of the above types of difficulties")
+				TextCell(model, ts.TableBaseStyle("Multiple difficulties / disabilities")),
+				TextCell(model, ts.TableBaseStyle("The student has more than one of the above types of difficulties"))
 			);
 
 			document.Add(table);

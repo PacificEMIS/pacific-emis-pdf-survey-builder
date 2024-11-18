@@ -36,15 +36,15 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "")),
-				ts.TableHeaderStyle(TextCell(model, "Size (m²)"))
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Size (m²)")))
 			);
 			table.AddRow(
-				TextCell(model, "Size of pupil playground (m²)"),
+				TextCell(model, ts.TableBaseStyle("Size of pupil playground (m²)")),
 				NumberCell(model, "Site.Playground.Size")
 			);
 			table.AddRow(
-				TextCell(model, "Size of school farm or garden (m²)"),
+				TextCell(model, ts.TableBaseStyle("Size of school farm or garden (m²)")),
 				NumberCell(model, "Site.Garden.Size")
 			);
 
@@ -63,18 +63,18 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			table2.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "")),
-				ts.TableHeaderStyle(TextCell(model, "Yes")),
-				ts.TableHeaderStyle(TextCell(model, "No"))
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table2.AddRow(
-				TextCell(model, "School Site is securely fenced (Y / N)"),
+				TextCell(model, ts.TableBaseStyle("School Site is securely fenced (Y / N)")),
 				YesCell(model, rgrp1),
 				NoCell(model, rgrp1)
 			);
 			table2.AddRow(
-				TextCell(model, "In the area in which your school is located, is there access to piped water, "
-				+ "town power and waste disposal services (town sever, septic pump out and garbage collection)?"),
+				TextCell(model, ts.TableBaseStyle("In the area in which your school is located, is there access to piped water, "
+				+ "town power and waste disposal services (town sever, septic pump out and garbage collection)?")),
 				YesCell(model, rgrp2),
 				NoCell(model, rgrp2)
 			);

@@ -23,6 +23,8 @@ using iText.Kernel.Colors;
 using iText.Kernel.Pdf.Canvas;
 using iText.Forms.Fields.Properties;
 using iText.Kernel.Pdf.Filespec;
+using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -33,32 +35,19 @@ namespace surveybuilder
 		public int[] Values;
 		public CheckBoxType[] Types;
 		public string Tag;
-		private PdfStylesheet gridstyles = new PdfStylesheet();
-		private int RowHeight = 15;
-
+		// Import common table/grid styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 
 		public CheckBoxPickmaker()
 		{
-
-			gridstyles.Add("gridbase",
-				new PdfStyle() { FontSize = 10 });
-			gridstyles.Add("rowheader",
-				new PdfStyle(gridstyles["gridbase"])
-				{
-					TextAlignment = TextAlignment.RIGHT,
-					LineSpacing = 1
-				});
-			gridstyles.Add("colheader",
-				new PdfStyle(gridstyles["gridbase"]) { TextAlignment = TextAlignment.CENTER });
-			gridstyles.Add("genderheader",
-				new PdfStyle(gridstyles["colheader"]) { FontSize = gridstyles["colheader"].FontSize - 2 });
-
 			Types = new CheckBoxType[] { };
-
 		}
 
 		public Document Make(PdfBuilder builder, Document document)
 		{
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
+
 			Console.WriteLine($"Checkbox picker: {Tag}");
 			PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, Tag)
 				.CreateRadioGroup();
@@ -72,7 +61,7 @@ namespace surveybuilder
 
 			for (int i = 0; i < Names.Length; i++)
 			{
-				table.AddCell(new Cell().SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY).Add(colheader(Names[i])));
+				table.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(Names[i]))));
 			}
 
 			for (int i = 0; i < Names.Length; i++)
@@ -99,15 +88,6 @@ namespace surveybuilder
 			rgrp.SetFieldFlags(0);
 
 			return document;
-		}
-
-		Paragraph rowheader(string text)
-		{
-			return gridstyles.ApplyStyle("rowheader", text);
-		}
-		Paragraph colheader(string text)
-		{
-			return gridstyles.ApplyStyle("colheader", text);
 		}
 
 		private void Lint(Document document)

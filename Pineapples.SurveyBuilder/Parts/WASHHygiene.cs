@@ -68,12 +68,12 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table.AddRow(
-				TextCell(model, "Is hand washing practiced at the school?"),
+				TextCell(model, ts.TableBaseStyle("Is hand washing practiced at the school?")),
 				YesCell(model, rgrp1),
 				NoCell(model, rgrp1)
 			);
 			table.AddRow(
-				TextCell(model, "Is toothbrushing practiced at the school?"),
+				TextCell(model, ts.TableBaseStyle("Is toothbrushing practiced at the school?")),
 				YesCell(model, rgrp2),
 				NoCell(model, rgrp2)
 			);
@@ -100,17 +100,17 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table2.AddRow(
-				TextCell(model, "Shower room in student toilets"),
+				TextCell(model, ts.TableBaseStyle("Shower room in student toilets")),
 				YesCell(model, rgrpF1),
 				NoCell(model, rgrpF1)
 			);
 			table2.AddRow(
-				TextCell(model, "Space for menstrual hygiene in girls’ toilets"),
+				TextCell(model, ts.TableBaseStyle("Space for menstrual hygiene in girls’ toilets")),
 				YesCell(model, rgrpF2),
 				NoCell(model, rgrpF2)
 			);
 			table2.AddRow(
-				TextCell(model, "Rubbish tin with lid in toilets "),
+				TextCell(model, ts.TableBaseStyle("Rubbish tin with lid in toilets ")),
 				YesCell(model, rgrpF3),
 				NoCell(model, rgrpF3)
 			);

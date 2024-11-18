@@ -25,8 +25,6 @@ namespace surveybuilder
 				.Add(@"Complete the following table for every teacher that is teaching at your school who is not listed in the previous table.")
 			);
 
-			//document.Add(table);
-
 			return document;
 		}
 	}

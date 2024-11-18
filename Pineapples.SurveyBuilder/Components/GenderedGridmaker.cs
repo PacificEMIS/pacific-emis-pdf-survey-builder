@@ -35,7 +35,8 @@ namespace surveybuilder
 		public Boolean ColumnTotals;
 		public Boolean IncludeFirstColumn;
 
-		public PdfStylesheet gridstyles = new PdfStylesheet();
+		// Import common table/grid styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 
 		public int RowHeight = 12;
 
@@ -44,35 +45,8 @@ namespace surveybuilder
 			RowTotals = true;
 			ColumnTotals = true;
 			IncludeFirstColumn = false;
-
-			gridstyles.Add("gridbase",
-				new PdfStyle() { FontSize = 8 });
-			gridstyles.Add("rowheader",
-				new PdfStyle(gridstyles["gridbase"])
-				{
-					TextAlignment = TextAlignment.RIGHT,
-					LineSpacing = 1
-				});
-			gridstyles.Add("colheader",
-				new PdfStyle(gridstyles["gridbase"]) { TextAlignment = TextAlignment.CENTER });
-			gridstyles.Add("genderheader",
-				new PdfStyle(gridstyles["colheader"]) { FontSize = gridstyles["colheader"].FontSize - 2 });
-
 		}
 		public GenderedGridmaker(string name) { }
-
-		Paragraph rowheader(string text)
-		{
-			return gridstyles.ApplyStyle("rowheader", text);
-		}
-		Paragraph colheader(string text)
-		{
-			return gridstyles.ApplyStyle("colheader", text);
-		}
-		Paragraph genderheader(string text)
-		{
-			return gridstyles.ApplyStyle("genderheader", text);
-		}
 
 		public Table Make(PdfBuilder builder)
 		{
@@ -123,19 +97,19 @@ namespace surveybuilder
 			if (IncludeFirstColumn)
 			{
 				table.AddCell(
-					TextCell(colheadermodel, colheader("Age")));
+					TextCell(colheadermodel, ts.GridColHeader("Age")));
 			}
 
 			foreach (var kvp in Columns)
 			{
 				// rowspan is 2
 				table.AddCell(
-					TextCell(colheadermodel2, colheader(kvp.N)));
+					TextCell(colheadermodel2, ts.GridColHeader(kvp.N)));
 
 			}
 			if (RowTotals)
 			{
-				table.AddCell(colheadermodel4.Clone(false).Add(colheader("Totals")));
+				table.AddCell(colheadermodel4.Clone(false).Add(ts.GridColHeader("Totals")));
 			}
 
 			// gender headings row
@@ -145,20 +119,20 @@ namespace surveybuilder
 			if (IncludeFirstColumn)
 			{
 				table.AddCell(
-					TextCell(colheadermodel, colheader("Name of Pre-School")));
+					TextCell(colheadermodel, ts.GridColHeader("Name of Pre-School")));
 			}
 
 			for (int i = 0; i < Columns.Count; i++)
 			{
 				// rowspan is 1
-				table.AddCell(TextCell(colheadermodel, genderheader("M")));
-				table.AddCell(TextCell(colheadermodel, genderheader("F")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("M")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("F")));
 			}
 			if (RowTotals)
 			{
-				table.AddCell(TextCell(colheadermodel, genderheader("M")));
-				table.AddCell(TextCell(colheadermodel, genderheader("F")));
-				table.AddCell(TextCell(colheadermodel2, genderheader("Totals (M+F)")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("M")));
+				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("F")));
+				table.AddCell(TextCell(colheadermodel2, ts.GridGenderHeader("Totals (M+F)")));
 			}
 
 
@@ -168,7 +142,7 @@ namespace surveybuilder
 				// first the row header
 				var cellmodel = (i % 2 == 0) ? evenmodel : oddmodel;
 				table.AddCell(cellmodel.Clone(false)
-					.Add(rowheader(Rows[i].N.Nbsp()))
+					.Add(ts.GridRowHeader(Rows[i].N.Nbsp()))
 				);
 
 				if (IncludeFirstColumn)
@@ -215,7 +189,7 @@ namespace surveybuilder
 				{
 					table.AddCell(new Cell().SetHeight(RowHeight));
 				}
-				table.AddCell(totalmodel.Clone(false).Add(rowheader("Totals")));
+				table.AddCell(totalmodel.Clone(false).Add(ts.GridRowHeaderTotal("Totals")));
 
 				// Data fields for each row
 				for (int j = 0; j < Columns.Count; j++)
@@ -248,7 +222,7 @@ namespace surveybuilder
 				{
 					table.AddCell(new Cell().SetHeight(RowHeight));
 				}
-				table.AddCell(totalmodel.Clone(false).Add(rowheader("Totals (M+F)")));
+				table.AddCell(totalmodel.Clone(false).Add(ts.GridRowHeaderTotal("Totals (M+F)")));
 
 				for (int j = 0; j < Columns.Count; j++)
 				{

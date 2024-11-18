@@ -27,9 +27,9 @@ namespace surveybuilder
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
-			var model12 = CellStyleFactory.TwoColumn;
+			var model12 = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 2, applyHeight: false);
 			var model13 = CellStyleFactory.ThreeColumn;
-			var model21 = CellStyleFactory.TwoRowOneColumn;
+			var model21 = CellStyleFactory.CreateCell(rowSpan: 2, colSpan: 1, applyHeight: false);
 
 			// Toilets
 			document.Add(builder.Heading_3("Toilets"));
@@ -90,7 +90,7 @@ namespace surveybuilder
 				PdfButtonFormField rgrpWheelchairToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDWheelchairC).CreateRadioGroup();
 
 				tableToilets.AddRow(
-					TextCell(model, toiletType.N), // fieldK/fieldV missing
+					TextCell(model, ts.TableBaseStyle(toiletType.N)), // fieldK/fieldV missing
 					NumberCell(model, fieldDPupilM),
 					NumberCell(model, fieldDPupilF),
 					SelectCell(model, rgrpPupilToiletC, "G"),

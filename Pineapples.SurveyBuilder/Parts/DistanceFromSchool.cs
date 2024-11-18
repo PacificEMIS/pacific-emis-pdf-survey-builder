@@ -26,6 +26,8 @@ namespace surveybuilder
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
+			var model13 = CellStyleFactory.ThreeColumn;
+			var model21 = CellStyleFactory.TwoRowOneColumn;
 
 			document.Add(new Paragraph(@"Record all pupils according to the distance they have to travel to reach the school "
 			+ "and their means of transport."));
@@ -35,13 +37,13 @@ namespace surveybuilder
 
 			// first row of headings
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(new Cell(2, 1), "Distance")),
-				ts.TableHeaderStyle(TextCell(new Cell(1, 3), "Number of Pupil"))
+				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Distance"))),
+				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Number of Pupil")))
 			);
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "On Foot")),
-				ts.TableHeaderStyle(TextCell(model, "Transport")),
-				ts.TableHeaderStyle(TextCell(model, "Total"))
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("On Foot"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Transport"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Total")))
 			);
 			// second row of headings
 
@@ -51,7 +53,7 @@ namespace surveybuilder
 			foreach (var item in distanceCodes)
 			{
 				table.AddRow(
-					TextCell(model, item.N),
+					TextCell(model, ts.TableRowHeaderStyle(item.N)),
 					NumberCell(model, $"DT.D.{i:00}.00.All"),
 					NumberCell(model, $"DT.D.{i:00}.01.All"),
 					NumberCell(model, $"DT.T.{i:00}.T.All")
@@ -60,11 +62,11 @@ namespace surveybuilder
 			}
 
 			// Totals
-			table.AddCell(ts.TableHeaderStyle(TextCell(model, "Total")));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableRowHeaderTotalStyle("Total"))));
 
 			for (int j = 0; j < 3; j++)
 			{
-				// TODO - Add support for read only NumberCell
+				// TODO - Add support for read only NumberCell (See gendered grid)
 				table.AddCell(NumberCell(model, $"DT.T.T.{j:00}.All"));
 			}
 

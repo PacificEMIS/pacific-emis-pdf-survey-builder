@@ -53,20 +53,20 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			tableCertification.AddRow(
-				TextCell(model, "Principal’s Name:"),
+				TextCell(model, ts.TableRowHeaderStyle("Principal’s Name:")),
 				InputCell(model, "Survey.PrincipalName")
 			);
 			tableCertification.AddRow(
-				TextCell(model, "Signature:"),
+				TextCell(model, ts.TableRowHeaderStyle("Signature:")),
 				InputCell(model, "Survey.PrincipalSignature")
 			);
 
 			tableCertification.AddRow(
-				TextCell(model, "I certify information presented is accurate and complete:"),
+				TextCell(model, ts.TableRowHeaderStyle("I certify information presented is accurate and complete:")),
 				YesCell(model, grp)
 			);
 			tableCertification.AddRow(
-				TextCell(model, "Date Completed:"),
+				TextCell(model, ts.TableRowHeaderStyle("Date Completed:")),
 				DateCell(model, "Survey.DateCompleted")
 			);
 

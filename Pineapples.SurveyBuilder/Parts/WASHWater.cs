@@ -28,6 +28,7 @@ namespace surveybuilder
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
+			var modelb = CellStyleFactory.DefaultNoHeight;
 
 			document.Add(builder.Heading_3("Water Supply"));
 
@@ -42,7 +43,7 @@ namespace surveybuilder
 			int totalColumns = wstCount + 1;
 
 			// Define the percentage for the first column
-			float firstColumnWidth = 40f; // First column gets 30% of the width
+			float firstColumnWidth = 40f; // First column gets 40% of the width
 
 			// Calculate the remaining width and distribute it equally among the other columns
 			float remainingWidth = 100f - firstColumnWidth;
@@ -61,7 +62,7 @@ namespace surveybuilder
 				.UseAllAvailableWidth();
 
 			// Headers headers
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Water Supply"))));
+			tableWST.AddCell(ts.TableHeaderStyle(TextCell(modelb, ts.TableHeaderStyle("Water Supply"))));
 
 			// Add water supply type values dynamically to the table
 			int wstI = 0;
@@ -70,12 +71,12 @@ namespace surveybuilder
 				// Headers
 				// TODO need to include the field key
 				string fieldK = $"Resource.Water.R.{wstI:00}.K";
-				tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(waterSupplyType.N))));
+				tableWST.AddCell(ts.TableHeaderStyle(TextCell(modelb, ts.TableHeaderStyle(waterSupplyType.N))));
 				wstI++;
 			}
 
 			// Number Row
-			tableWST.AddCell(TextCell(model, "Number"));
+			tableWST.AddCell(TextCell(model, ts.TableBaseStyle("Number")));
 			for (int i = 0; i < wstCount; i++)
 			{
 				string fieldNum = $"Resource.Water.D.{i:00}.Num";
@@ -83,7 +84,7 @@ namespace surveybuilder
 			}
 
 			// Total Capacity in Litres Row
-			tableWST.AddCell(TextCell(model, "Total Capacity in Litres"));
+			tableWST.AddCell(TextCell(model, ts.TableBaseStyle("Total Capacity in Litres")));
 			for (int i = 0; i < wstCount; i++)
 			{
 				// TODO does not handle the water source types where it makes no sense to record the capacity
@@ -93,7 +94,7 @@ namespace surveybuilder
 			}
 
 			// Tick if properly covered/protected Row
-			tableWST.AddCell(TextCell(model, "Tick if properly covered/protected"));
+			tableWST.AddCell(TextCell(model, ts.TableBaseStyle("Tick if properly covered/protected")));
 			for (int i = 0; i < wstCount; i++)
 			{
 				string fieldNum = $"Resource.Water.D.{i:00}.Protected";
@@ -149,19 +150,19 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			tableWaterTreatment.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Water Treatment Details (if treated)")),
-				ts.TableHeaderStyle(TextCell(model, "Answer"))
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Water Treatment Details (if treated)"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Answer")))
 			);
 			tableWaterTreatment.AddRow(
-				TextCell(model, "Date tested:"),
+				TextCell(model, ts.TableBaseStyle("Date tested:")),
 				DateCell(model, "Wash.Water.Test.Date")
 			);
 			tableWaterTreatment.AddRow(
-				TextCell(model, "Tested by"),
+				TextCell(model, ts.TableBaseStyle("Tested by")),
 				InputCell(model, "Wash.Water.Test.By")
 			);
 			tableWaterTreatment.AddRow(
-				TextCell(model, "Total Coliform found"),
+				TextCell(model, ts.TableBaseStyle("Total Coliform found")),
 				NumberCell(model, "Wash.Water.Test.Result")
 			);
 

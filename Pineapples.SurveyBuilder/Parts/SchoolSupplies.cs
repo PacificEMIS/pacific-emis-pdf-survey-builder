@@ -80,12 +80,12 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table.AddRow(
-				TextCell(model, "Have you received new curriculum materials for Years 1 & 2?"),
+				TextCell(model, ts.TableBaseStyle("Have you received new curriculum materials for Years 1 & 2?")),
 				YesCell(model, rgrp1),
 				NoCell(model, rgrp1)
 			);
 			table.AddRow(
-				TextCell(model, "Have you started using them in the classroom?"),
+				TextCell(model, ts.TableBaseStyle("Have you started using them in the classroom?")),
 				YesCell(model, rgrp2),
 				NoCell(model, rgrp2)
 			);

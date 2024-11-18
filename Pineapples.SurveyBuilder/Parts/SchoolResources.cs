@@ -101,7 +101,7 @@ namespace surveybuilder
 					PdfButtonFormField rgrpC = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
 
 					tableSRTConditions.AddRow(
-						TextCell(model, $"{lookupRes.N}"),
+						TextCell(model, ts.TableBaseStyle($"{lookupRes.N}")),
 						YesCell(model, rgrpAvail),
 						NoCell(model, rgrpAvail),
 						NumberCell(model, fieldNum),
@@ -129,7 +129,7 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table.AddRow(
-				TextCell(model, "Does your school have access to internet or to a device like RACHEL*"),
+				TextCell(model, ts.TableBaseStyle("Does your school have access to internet or to a device like RACHEL*")),
 				YesCell(model, rgrp1),
 				NoCell(model, rgrp1)
 			);

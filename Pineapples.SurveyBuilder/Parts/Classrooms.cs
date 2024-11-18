@@ -45,7 +45,7 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			table.AddRow(
-				TextCell(model, "Total number of classrooms"),
+				TextCell(model, ts.TableRowHeaderStyle("Total number of classrooms")),
 				NumberCell(model, "Survey.ClassroomCount")
 			);
 
@@ -83,7 +83,7 @@ namespace surveybuilder
 			// Could dynamically generate types of material...
 
 			tableMaterial.AddRow(
-					TextCell(model, "Permanent"),
+					TextCell(model, ts.TableRowHeaderStyle("Permanent")),
 					NumberCell(model, "Survey.ClassroomCountP.Num"),
 					SelectCell(model, rgrpP, "G"),
 					SelectCell(model, rgrpP, "F"),
@@ -91,7 +91,7 @@ namespace surveybuilder
 				);
 
 			tableMaterial.AddRow(
-					TextCell(model, "Semi-Permanent"),
+					TextCell(model, ts.TableRowHeaderStyle("Semi-Permanent")),
 					NumberCell(model, "Survey.ClassroomCountSP.Num"),
 					SelectCell(model, rgrpSP, "G"),
 					SelectCell(model, rgrpSP, "F"),
@@ -99,7 +99,7 @@ namespace surveybuilder
 				);
 
 			tableMaterial.AddRow(
-					TextCell(model, "Traditional"),
+					TextCell(model, ts.TableRowHeaderStyle("Traditional")),
 					NumberCell(model, "Survey.ClassroomCountT.Num"),
 					SelectCell(model, rgrpT, "G"),
 					SelectCell(model, rgrpT, "F"),
