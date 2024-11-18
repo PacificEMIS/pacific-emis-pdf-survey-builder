@@ -19,7 +19,7 @@ namespace surveybuilder
 {
 	public class DistanceFromSchool
 	{
-		public Document Build(KEMIS_PRI_Builder builder, Document document, List<KeyValuePair<string, string>> distanceCodes)
+		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> distanceCodes)
 		{
 			document.Add(new Paragraph(@"Record all pupils according to the distance they have to travel to reach the school "
 			+ "and their means of transport."));
@@ -41,7 +41,7 @@ namespace surveybuilder
 			int i = 0;
 			foreach (var item in distanceCodes)
 			{
-				table.AddCell(new Cell().Add(new Paragraph(item.Value)));
+				table.AddCell(new Cell().Add(new Paragraph(item.N)));
 				table.AddCell(NumberCell(model, $"DT.D.{i:00}.00.All"));
 				table.AddCell(NumberCell(model, $"DT.D.{i:00}.01.All"));
 				table.AddCell(NumberCell(model, $"DT.T.{i:00}.T.All"));

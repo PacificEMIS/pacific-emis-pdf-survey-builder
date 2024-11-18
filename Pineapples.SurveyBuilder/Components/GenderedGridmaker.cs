@@ -27,8 +27,8 @@ namespace surveybuilder
 
 	public class GenderedGridmaker
 	{
-		public List<KeyValuePair<string, string>> Columns;
-		public List<KeyValuePair<string, string>> Rows;
+		public List<LookupEntry> Columns;
+		public List<LookupEntry> Rows;
 		public string Tag;
 
 		public Boolean RowTotals;
@@ -130,7 +130,7 @@ namespace surveybuilder
 			{
 				// rowspan is 2
 				table.AddCell(
-					TextCell(colheadermodel2, colheader(kvp.Value)));
+					TextCell(colheadermodel2, colheader(kvp.N)));
 
 			}
 			if (RowTotals)
@@ -168,7 +168,7 @@ namespace surveybuilder
 				// first the row header
 				var cellmodel = (i % 2 == 0) ? evenmodel : oddmodel;
 				table.AddCell(cellmodel.Clone(false)
-					.Add(rowheader(Rows[i].Value.Nbsp()))
+					.Add(rowheader(Rows[i].N.Nbsp()))
 				);
 
 				if (IncludeFirstColumn)
@@ -277,28 +277,28 @@ namespace surveybuilder
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.C.{i:00}.K")   // K for key
 					.CreateText();
-				txt.SetValue(Columns[i].Key);
+				txt.SetValue(Columns[i].C);
 				form.AddField(txt);
 			}
 			for (int i = 0; i < Columns.Count; i++)
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.C.{i:00}.V")   // K for key
 					.CreateText();
-				txt.SetValue(Columns[i].Value);
+				txt.SetValue(Columns[i].N);
 				form.AddField(txt);
 			}
 			for (int i = 0; i < Rows.Count; i++)
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.R.{i:00}.K")
 					.CreateText();
-				txt.SetValue(Rows[i].Key);
+				txt.SetValue(Rows[i].C);
 				form.AddField(txt);
 			}
 			for (int i = 0; i < Rows.Count; i++)
 			{
 				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.R.{i:00}.V")
 					.CreateText();
-				txt.SetValue(Rows[i].Value);
+				txt.SetValue(Rows[i].N);
 				form.AddField(txt);
 			}
 

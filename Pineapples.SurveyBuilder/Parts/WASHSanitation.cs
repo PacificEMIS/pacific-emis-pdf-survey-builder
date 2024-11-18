@@ -22,7 +22,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHSanitation() { }
 
-		public Document Build(KEMIS_PRI_Builder builder, Document document, List<KeyValuePair<string, string>> toiletTypes)
+		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> toiletTypes)
 		{
 
 			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
@@ -102,7 +102,7 @@ namespace surveybuilder
 				PdfButtonFormField rgrpWheelchairToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDWheelchairC).CreateRadioGroup();
 
 				tableToilets.AddRow(
-					TextCell(model, toiletType.Value), // fieldK/fieldV missing
+					TextCell(model, toiletType.N), // fieldK/fieldV missing
 					NumberCell(model, fieldDPupilM),
 					NumberCell(model, fieldDPupilF),
 					SelectCell(model, rgrpPupilToiletC, "G"),

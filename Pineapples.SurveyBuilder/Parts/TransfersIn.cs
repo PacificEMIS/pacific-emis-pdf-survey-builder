@@ -19,7 +19,7 @@ namespace surveybuilder
 {
 	public class TransfersIn
 	{
-		public Document Build(KEMIS_PRI_Builder builder, Document document, GenderedGridmaker grd, List<KeyValuePair<string, string>> islands)
+		public Document Build(KEMIS_PRI_Builder builder, Document document, GenderedGridmaker grd, List<LookupEntry> islands)
 		{
 			document.Add(new Paragraph()
 				.Add(@"Record the number of pupils that transferred in from another islands "

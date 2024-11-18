@@ -23,7 +23,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHWater() { }
 
-		public Document Build(KEMIS_PRI_Builder builder, Document document, List<KeyValuePair<string, string>> waterSupplyTypes)
+		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> waterSupplyTypes)
 		{
 			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
 			var model = new Cell()
@@ -85,7 +85,7 @@ namespace surveybuilder
 				// Headers
 				// TODO need to include the field key
 				string fieldK = $"Resource.Water.R.{wstI:00}.K";
-				tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(waterSupplyType.Value))));
+				tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(waterSupplyType.N))));
 				wstI++;
 			}
 

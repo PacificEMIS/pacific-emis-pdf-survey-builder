@@ -30,6 +30,7 @@ namespace surveybuilder
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
+			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
 			var model = new Cell()
 				.SetHeight(20)
 				.SetVerticalAlignment(VerticalAlignment.MIDDLE)

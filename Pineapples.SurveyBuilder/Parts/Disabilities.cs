@@ -19,7 +19,7 @@ namespace surveybuilder
 {
 	public class Disabilities
 	{
-		public Document Build(KEMIS_PRI_Builder builder, Document document, GenderedGridmaker grd, List<KeyValuePair<string, string>> disabilities)
+		public Document Build(KEMIS_PRI_Builder builder, Document document, GenderedGridmaker grd, List<LookupEntry> disabilities)
 		{
 			document.Add(new Paragraph()
 				.Add(new Text(@"Notes: ").AddStyle(new Style().SetBold()))

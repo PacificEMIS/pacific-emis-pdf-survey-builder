@@ -54,7 +54,7 @@ namespace surveybuilder
 			dataHost = ConfigurationManager.AppSettings["emisUrl"]; // dataHost = $"https://kemis-test.pacific-emis.org";
 			InitLookups();
 			AddLookups("student");
-			AddLookups("censusworkbook");
+			AddLookups("censuspdf");
 
 
 			Document document = new Document(pdfDoc, PageSize.A4);
@@ -99,17 +99,34 @@ namespace surveybuilder
 			// Prepare grid makers common to several sections in the document
 			GenderedGridmaker grd = new GenderedGridmaker();
 
+			// Moved to KeyValuePair to a custom LookupEntry class which can also hold metadata.
+			//var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
+			//				.Select(n => new KeyValuePair<string, string>(n, n))
+			//				.ToList();
 			var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
-							.Select(n => new KeyValuePair<string, string>(n, n))
+							.Select(n => new LookupEntry
+							{
+								C = n, // Set the primary code (C)
+								N = n  // Set the primary name (N)
+							})
 							.ToList();
 
-			var classLevels = new List<KeyValuePair<string, string>>();
-			classLevels.Add(new KeyValuePair<string, string>("P1", "Class 1"));
-			classLevels.Add(new KeyValuePair<string, string>("P2", "Class 2"));
-			classLevels.Add(new KeyValuePair<string, string>("P3", "Class 3"));
-			classLevels.Add(new KeyValuePair<string, string>("P4", "Class 4"));
-			classLevels.Add(new KeyValuePair<string, string>("P5", "Class 5"));
-			classLevels.Add(new KeyValuePair<string, string>("P6", "Class 6"));
+
+			//var classLevels = new List<KeyValuePair<string, string>>();
+			//classLevels.Add(new KeyValuePair<string, string>("P1", "Class 1"));
+			//classLevels.Add(new KeyValuePair<string, string>("P2", "Class 2"));
+			//classLevels.Add(new KeyValuePair<string, string>("P3", "Class 3"));
+			//classLevels.Add(new KeyValuePair<string, string>("P4", "Class 4"));
+			//classLevels.Add(new KeyValuePair<string, string>("P5", "Class 5"));
+			//classLevels.Add(new KeyValuePair<string, string>("P6", "Class 6"));
+			var classLevels = new List<LookupEntry>();
+
+			classLevels.Add(new LookupEntry { C = "P1", N = "Class 1" });
+			classLevels.Add(new LookupEntry { C = "P2", N = "Class 2" });
+			classLevels.Add(new LookupEntry { C = "P3", N = "Class 3" });
+			classLevels.Add(new LookupEntry { C = "P4", N = "Class 4" });
+			classLevels.Add(new LookupEntry { C = "P5", N = "Class 5" });
+			classLevels.Add(new LookupEntry { C = "P6", N = "Class 6" });
 
 			grd.Rows = rows;
 			grd.Columns = classLevels;
@@ -272,12 +289,12 @@ namespace surveybuilder
 			//NewPage(document);
 
 			var resourcesOutline = this.AddOutline(parentOutline, "School Resources");
-			document.Add(Heading_1("School Reources"));
+			document.Add(Heading_1("School Resources"));
 
 			AddOutline(resourcesOutline, "School Resources");
 			document.Add(Heading_2("School Resources"));
 			document = new SchoolResources()
-				.Build(this, document);
+				.Build(this, document, lookups["metaResourceDefinitions"]);
 			NewPage(document);
 
 			AddOutline(resourcesOutline, "School Supplies");

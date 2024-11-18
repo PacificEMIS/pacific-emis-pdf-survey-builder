@@ -23,17 +23,32 @@ namespace surveybuilder
 		{
 
 			GenderedGridmaker grd = new GenderedGridmaker();
+			//var rows = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }
+			//				.Select(n => new KeyValuePair<string, string>(n, n))
+			//				.ToList();
 			var rows = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }
-							.Select(n => new KeyValuePair<string, string>(n, n))
+							.Select(n => new LookupEntry
+							{
+								C = n, // Set the primary code (C)
+								N = n  // Set the primary name (N)
+							})
 							.ToList();
+
 			grd.Rows = rows;
 
-			var ages = new List<KeyValuePair<string, string>>();
+			//var ages = new List<KeyValuePair<string, string>>();
 
-			ages.Add(new KeyValuePair<string, string>("5", "5"));
-			ages.Add(new KeyValuePair<string, string>("6", "6"));
-			ages.Add(new KeyValuePair<string, string>("7", "7"));
-			ages.Add(new KeyValuePair<string, string>("8", "8"));
+			//ages.Add(new KeyValuePair<string, string>("5", "5"));
+			//ages.Add(new KeyValuePair<string, string>("6", "6"));
+			//ages.Add(new KeyValuePair<string, string>("7", "7"));
+			//ages.Add(new KeyValuePair<string, string>("8", "8"));
+			var ages = new List<LookupEntry>();
+
+			ages.Add(new LookupEntry { C = "5", N = "5" });
+			ages.Add(new LookupEntry { C = "6", N = "6" });
+			ages.Add(new LookupEntry { C = "7", N = "7" });
+			ages.Add(new LookupEntry { C = "8", N = "8" });
+
 			grd.Columns = ages;
 
 			document.Add(new Paragraph()
