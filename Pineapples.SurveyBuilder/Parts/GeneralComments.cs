@@ -45,16 +45,15 @@ namespace surveybuilder
 						
 			builder.Heading_2("Certification", document);
 
-			Table tableCertification = new Table(UnitValue.CreatePercentArray(new float[] { 70, 30 }))
+			document.Add(new Paragraph(@"All information presented in this survey must be complete and accurate and "
+			+ @"you must certify to that it is complete and accurate to the best of your knowled knowledge and belief."));
+
+			Table tableCertification = new Table(UnitValue.CreatePercentArray(new float[] { 60, 40 }))
 						.UseAllAvailableWidth();
 
 			PdfButtonFormField grp = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.PrincipalCertification")
 				.CreateRadioGroup();
 
-			tableCertification.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Certification Details")),
-				ts.TableHeaderStyle(TextCell(model, "Answer"))
-			);
 			tableCertification.AddRow(
 				TextCell(model, "Principal’s Name:"),
 				InputCell(model, "Survey.PrincipalName")
@@ -65,7 +64,7 @@ namespace surveybuilder
 			);
 
 			tableCertification.AddRow(
-				TextCell(model, "I certify that the information presented is accurate and complete*:"),
+				TextCell(model, "I certify information presented is accurate and complete:"),
 				YesCell(model, grp)
 			);
 			tableCertification.AddRow(
@@ -73,10 +72,7 @@ namespace surveybuilder
 				DateCell(model, "Survey.DateCompleted")
 			);
 
-			document.Add(tableCertification);
-
-			document.Add(new Paragraph(@"* All information presented in this survey is accurate and complete to the best "
-			+ @"of my knowledge and belief."));
+			document.Add(tableCertification);			
 
 			return document;
 		}
