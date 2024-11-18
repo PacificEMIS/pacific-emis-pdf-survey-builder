@@ -19,6 +19,8 @@ namespace surveybuilder
 {
 	public class SchoolSite
 	{
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
 			var model = new Cell()
@@ -34,6 +36,10 @@ namespace surveybuilder
 			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 80, 20 }))
 						.UseAllAvailableWidth();
 
+			table.AddRow(
+				ts.TableHeaderStyle(TextCell(model, "")),
+				ts.TableHeaderStyle(TextCell(model, "Size (m²)"))
+			);
 			table.AddRow(
 				TextCell(model, "Size of pupil playground (m²)"),
 				NumberCell(model, "Site.Playground.Size")
@@ -58,9 +64,9 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			table2.AddRow(
-				TextCell(model, ""),
-				TextCell(model, "Yes"),
-				TextCell(model, "No")
+				ts.TableHeaderStyle(TextCell(model, "")),
+				ts.TableHeaderStyle(TextCell(model, "Yes")),
+				ts.TableHeaderStyle(TextCell(model, "No"))
 			);
 			table2.AddRow(
 				TextCell(model, "School Site is securely fenced (Y / N)"),

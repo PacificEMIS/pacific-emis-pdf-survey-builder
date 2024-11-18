@@ -18,6 +18,8 @@ namespace surveybuilder
 {
 	public class WASHHygiene
 	{
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHHygiene() { }
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
@@ -75,9 +77,9 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			table.AddRow(
-				TextCell(model, ""),
-				TextCell(model, "Yes"),
-				TextCell(model, "No")
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table.AddRow(
 				TextCell(model, "Is hand washing practiced at the school?"),
@@ -107,9 +109,9 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			table2.AddRow(
-				TextCell(model, ""),
-				TextCell(model, "Yes"),
-				TextCell(model, "No")
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table2.AddRow(
 				TextCell(model, "Shower room in student toilets"),

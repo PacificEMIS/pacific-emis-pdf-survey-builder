@@ -139,9 +139,9 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			table.AddRow(
-				TextCell(model, ""),
-				TextCell(model, "Yes"),
-				TextCell(model, "No")
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
 			);
 			table.AddRow(
 				TextCell(model, "Does your school have access to internet or to a device like RACHEL*"),

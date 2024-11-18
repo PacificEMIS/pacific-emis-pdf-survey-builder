@@ -20,6 +20,8 @@ namespace surveybuilder
 
 	public class SchoolInfo
 	{
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public SchoolInfo() { }
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
@@ -39,45 +41,45 @@ namespace surveybuilder
 
 			//AddRow is an extension method in PdfExtensions
 			table.AddRow(
-				TextCell(model, "School Name"),
+				ts.TableHeaderStyle(TextCell(model, "School Name")),
 				InputCell(model2, "Survey.SchoolName", 50)
 			);
 
 			table.AddRow(
-				TextCell(model, "Registered Number"),
+				ts.TableHeaderStyle(TextCell(model, "Registered Number")),
 				InputCell(model2, "Survey.SchoolNo", 20)
 			);
 
 			table.AddRow(
-				TextCell(model, "Header Teacher's Name"),
-				TextCell(model, "First:"),
+				ts.TableHeaderStyle(TextCell(model, "Header Teacher's Name")),
+				ts.TableHeaderStyle(TextCell(model, "First:")),
 				InputCell(model, "Survey.HtGiven")
 			);
 
 			table.AddRow(
-				TextCell(model, ""),
-				TextCell(model, "Last:"),
+				ts.TableHeaderStyle(TextCell(model, "")),
+				ts.TableHeaderStyle(TextCell(model, "Last:")),
 				InputCell(model, "Survey.HtFamily", 20)
 			);
 
 			table.AddRow(
-				TextCell(model, ""),
-				TextCell(model, "Mobile #:"),
+				ts.TableHeaderStyle(TextCell(model, "")),
+				ts.TableHeaderStyle(TextCell(model, "Mobile #:")),
 				InputCell(model, "Survey.HtPh", 20)
 			);
 
 			table.AddRow(
-				TextCell(model, "School Email"),
+				ts.TableHeaderStyle(TextCell(model, "School Email")),
 				InputCell(model2, "Survey.SchoolEmail", 50)
 			);
 
 			table.AddRow(
-				TextCell(model, "School Phone"),
+				ts.TableHeaderStyle(TextCell(model, "School Phone")),
 				InputCell(model2, "Survey.SchoolPhone", 20)
 			);
 
 			table.AddRow(
-				TextCell(model, "Survey Year"),
+				ts.TableHeaderStyle(TextCell(model, "Survey Year")),
 				InputCell(model2, "Survey.SurveyYear", 4, "2024", true)
 			);
 
@@ -93,22 +95,22 @@ namespace surveybuilder
 				.CreateRadioGroup();
 
 			table.AddRow(
-				TextCell(model, "Does your school have a Parents' Committee"),
-				TextCell(model, "Yes"),
+				ts.TableHeaderStyle(TextCell(model, "Does your school have a Parents' Committee")),
+				ts.TableHeaderStyle(TextCell(model, "Yes")),
 				YesCell(model, rgrp),
-				TextCell(model, "No"),
+				ts.TableHeaderStyle(TextCell(model, "No")),
 				NoCell(model, rgrp)
 			);
 
 			table.AddRow(
-				TextCell(model, "If Yes, how many times did it meet last year?"),
+				ts.TableHeaderStyle(TextCell(model, "If Yes, how many times did it meet last year?")),
 				NumberCell(model4, "PC.Meet")
 			);
 			table.AddRow(
-				TextCell(model, "No of Males and Females on your Parents' Committee"),
-				TextCell(model, "M"),
+				ts.TableHeaderStyle(TextCell(model, "No of Males and Females on your Parents' Committee")),
+				ts.TableHeaderStyle(TextCell(model, "M")),
 				NumberCell(model, "PC.Members.M"),
-				TextCell(model, "F"),
+				ts.TableHeaderStyle(TextCell(model, "F")),
 				NumberCell(model, "PC.Members.F")
 
 			);
@@ -139,9 +141,13 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			table.AddRow(
-					TextCell(model, "Total number of pupils"),
-					NumberCell(model, "Survey.Pupils")
-				);
+				ts.TableHeaderStyle(TextCell(model, "")),
+				ts.TableHeaderStyle(TextCell(model, "Number"))
+			);
+			table.AddRow(
+				TextCell(model, "Total number of pupils"),
+				NumberCell(model, "Survey.Pupils")
+			);
 
 			table.AddRow(
 				TextCell(model, "Total number of classes"),

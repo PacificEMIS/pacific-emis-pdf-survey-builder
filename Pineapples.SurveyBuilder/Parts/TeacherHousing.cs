@@ -57,9 +57,9 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			table.AddRow(
-				TextCell(model, ""),
-				TextCell(model, "On Site"),
-				TextCell(model, "Off Site")
+				ts.TableHeaderStyle(TextCell(model, "")),
+				ts.TableHeaderStyle(TextCell(model, "On Site")),
+				ts.TableHeaderStyle(TextCell(model, "Off Site"))
 			);
 			table.AddRow(
 				TextCell(model, "No. of teachers that are provided with housing."),

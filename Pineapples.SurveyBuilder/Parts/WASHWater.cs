@@ -90,7 +90,7 @@ namespace surveybuilder
 			}
 
 			// Number Row
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, "Number")));
+			tableWST.AddCell(TextCell(model, "Number"));
 			for (int i = 0; i < wstCount; i++)
 			{
 				string fieldNum = $"Resource.Water.D.{i:00}.Num";
@@ -98,7 +98,7 @@ namespace surveybuilder
 			}
 
 			// Total Capacity in Litres Row
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, "Total Capacity in Litres")));
+			tableWST.AddCell(TextCell(model, "Total Capacity in Litres"));
 			for (int i = 0; i < wstCount; i++)
 			{
 				// TODO does not handle the water source types where it makes no sense to record the capacity
@@ -108,7 +108,7 @@ namespace surveybuilder
 			}
 
 			// Tick if properly covered/protected Row
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(model, "Tick if properly covered/protected")));
+			tableWST.AddCell(TextCell(model, "Tick if properly covered/protected"));
 			for (int i = 0; i < wstCount; i++)
 			{
 				string fieldNum = $"Resource.Water.D.{i:00}.Protected";
@@ -157,25 +157,26 @@ namespace surveybuilder
 			chk.Make(builder, document);
 
 			document.Add(new Paragraph()
-				.Add(@"For drinking water does the school practice water treatment?")
-			);
-			document.Add(new Paragraph()
-				.Add(@"If YES, provide details of the most recent test:")
+				.Add(@"For drinking water does the school practice water treatment? If YES, provide details of the most recent test:")
 			);
 
 			Table tableWaterTreatment = new Table(UnitValue.CreatePercentArray(new float[] { 70, 30 }))
 						.UseAllAvailableWidth();
 
 			tableWaterTreatment.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Date tested:")),
+				ts.TableHeaderStyle(TextCell(model, "Water Treatment Details (if treated)")),
+				ts.TableHeaderStyle(TextCell(model, "Answer"))
+			);
+			tableWaterTreatment.AddRow(
+				TextCell(model, "Date tested:"),
 				DateCell(model, "Wash.Water.Test.Date")
 			);
 			tableWaterTreatment.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Tested by")),
+				TextCell(model, "Tested by"),
 				InputCell(model, "Wash.Water.Test.By")
 			);
 			tableWaterTreatment.AddRow(
-				ts.TableHeaderStyle(TextCell(model, "Total Coliform found")),
+				TextCell(model, "Total Coliform found"),
 				NumberCell(model, "Wash.Water.Test.Result")
 			);
 

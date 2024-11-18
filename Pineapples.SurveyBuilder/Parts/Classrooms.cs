@@ -52,9 +52,9 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			table.AddRow(
-					TextCell(model, "Total number of classrooms"),
-					NumberCell(model, "Survey.ClassroomCount")
-				);
+				ts.TableHeaderStyle(TextCell(model, "Total number of classrooms")),
+				NumberCell(model, "Survey.ClassroomCount")
+			);
 
 			document.Add(table);
 

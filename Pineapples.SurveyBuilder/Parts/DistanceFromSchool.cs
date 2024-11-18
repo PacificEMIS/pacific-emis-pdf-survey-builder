@@ -19,6 +19,8 @@ namespace surveybuilder
 {
 	public class DistanceFromSchool
 	{
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> distanceCodes)
 		{
 			document.Add(new Paragraph(@"Record all pupils according to the distance they have to travel to reach the school "
@@ -30,27 +32,33 @@ namespace surveybuilder
 			Cell model = new Cell().SetHeight(18);
 
 			// first row of headings
-			table.AddCell(TextCell(new Cell(2, 1), "Distance"));
-			table.AddCell(TextCell(new Cell(1, 3), "Number of Pupil"));
+			table.AddRow(
+				ts.TableHeaderStyle(TextCell(new Cell(2, 1), "Distance")),
+				ts.TableHeaderStyle(TextCell(new Cell(1, 3), "Number of Pupil"))
+			);
+			table.AddRow(
+				ts.TableHeaderStyle(TextCell(model, "On Foot")),
+				ts.TableHeaderStyle(TextCell(model, "Transport")),
+				ts.TableHeaderStyle(TextCell(model, "Total"))
+			);
 			// second row of headings
-			table.AddCell(TextCell(model, "On Foot"));
-			table.AddCell(TextCell(model, "Transport"));
-			table.AddCell(TextCell(model, "Total"));
+			
 
 			// data rows
 			int i = 0;
 			foreach (var item in distanceCodes)
 			{
-				table.AddCell(new Cell().Add(new Paragraph(item.N)));
-				table.AddCell(NumberCell(model, $"DT.D.{i:00}.00.All"));
-				table.AddCell(NumberCell(model, $"DT.D.{i:00}.01.All"));
-				table.AddCell(NumberCell(model, $"DT.T.{i:00}.T.All"));
-
+				table.AddRow(
+					TextCell(model, item.N),
+					NumberCell(model, $"DT.D.{i:00}.00.All"),
+					NumberCell(model, $"DT.D.{i:00}.01.All"),
+					NumberCell(model, $"DT.T.{i:00}.T.All")
+				);				
 				i++;
 			}
 
 			// Totals
-			table.AddCell(TextCell(model, "Total"));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model, "Total")));
 
 			for (int j = 0; j < 3; j++)
 			{

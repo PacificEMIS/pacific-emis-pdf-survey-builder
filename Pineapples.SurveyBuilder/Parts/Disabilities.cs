@@ -19,8 +19,13 @@ namespace surveybuilder
 {
 	public class Disabilities
 	{
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document, GenderedGridmaker grd, List<LookupEntry> disabilities)
 		{
+			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
+			Cell model = new Cell();
+
 			document.Add(new Paragraph()
 				.Add(new Text(@"Notes: ").AddStyle(new Style().SetBold()))
 				.Add(@"This section provides definitions related to information in the table below. "
@@ -33,40 +38,68 @@ namespace surveybuilder
 			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 30, 70 }));
 			table.SetMarginTop(5);
 
-			table.AddCell(new Paragraph(new Text(@"Type of functional difficulty or disability").AddStyle(new Style().SetBold())));
-			table.AddCell(new Paragraph(new Text(@"Description").AddStyle(new Style().SetBold())));
-			table.AddCell("Blind");
-			table.AddCell("Total absence of vision.");
-			table.AddCell("Seeing difficulty");
-			table.AddCell("Difficulty seeing things close up or far away, like objects, faces or pictures. "
-				+ @"If a student wears glasses that correct their vision, they are not classified as having seeing difficulty.");
-			table.AddCell("Deaf");
-			table.AddCell("Total loss of hearing");
-			table.AddCell("Hearing difficulty");
-			table.AddCell("Partial loss of hearing; difficulty hearing sounds like peoples’ voices or music.");
+			table.AddRow(
+				ts.TableHeaderStyle(TextCell(model, new Paragraph(new Text(@"Type of functional difficulty or disability").AddStyle(new Style().SetBold())))),
+				ts.TableHeaderStyle(TextCell(model, new Paragraph(new Text(@"Description").AddStyle(new Style().SetBold()))))
+			);
 
-			table.AddCell("Behaviour / Concentration / Socialisation / Hyperactive");
-			table.AddCell("Difficulty controlling his / her own behaviour, and/or focusing and concentrating, "
-			+ "and / or accepting changes in routine, and / or making friends.");
+			table.AddRow(
+				TextCell(model, "Blind"),
+				TextCell(model, "Total absence of vision.")
+			);
 
-			table.AddCell("Speaking");
-			table.AddCell("Difficulty being understood when speaking (in the language that is most usual for the student)");
+			table.AddRow(
+				TextCell(model, "Seeing difficulty"),
+				TextCell(model, "Difficulty seeing things close up or far away, like objects, faces or pictures. "
+				+ @"If a student wears glasses that correct their vision, they are not classified as having seeing difficulty.")
+			);
 
-			table.AddCell("Gross motor");
-			table.AddCell("Difficulty walking or climbing stairs");
+			table.AddRow(
+				TextCell(model, "Deaf"),
+				TextCell(model, "Total loss of hearing")
+			);
 
-			table.AddCell("Fine motor");
-			table.AddCell("Difficulty using hands and fingers, such as picking up small objects");
+			table.AddRow(
+				TextCell(model, "Hearing difficulty"),
+				TextCell(model, "Partial loss of hearing; difficulty hearing sounds like peoples’ voices or music.")
+			);
 
-			table.AddCell("Learning / intellectual");
-			table.AddCell("Difficulty with general intellectual functions such as learning and remembering");
+			table.AddRow(
+				TextCell(model, "Behaviour / Concentration / Socialisation / Hyperactive"),
+				TextCell(model, "Difficulty controlling his / her own behaviour, and/or focusing and concentrating, "
+			+ "and / or accepting changes in routine, and / or making friends.")
+			);
 
-			table.AddCell("Specific learning disability (dyslexia)");
-			table.AddCell("Restrictions in one or a few specific activities related to writing, spelling, "
-			+ "understanding, or reading, including decoding and comprehension.");
+			table.AddRow(
+				TextCell(model, "Speaking"),
+				TextCell(model, "Difficulty being understood when speaking (in the language that is most usual for the student)")
+			);
 
-			table.AddCell("Multiple difficulties / disabilities");
-			table.AddCell("The student has more than one of the above types of difficulties");
+			table.AddRow(
+				TextCell(model, "Gross motor"),
+				TextCell(model, "Difficulty walking or climbing stairs")
+			);
+
+			table.AddRow(
+				TextCell(model, "Fine motor"),
+				TextCell(model, "Difficulty using hands and fingers, such as picking up small objects")
+			);
+
+			table.AddRow(
+				TextCell(model, "Learning / intellectual"),
+				TextCell(model, "Difficulty with general intellectual functions such as learning and remembering")
+			);
+
+			table.AddRow(
+				TextCell(model, "Specific learning disability (dyslexia)"),
+				TextCell(model, "Restrictions in one or a few specific activities related to writing, spelling, "
+			+ "understanding, or reading, including decoding and comprehension.")
+			);
+
+			table.AddRow(
+				TextCell(model, "Multiple difficulties / disabilities"),
+				TextCell(model, "The student has more than one of the above types of difficulties")
+			);
 
 			document.Add(table);
 
