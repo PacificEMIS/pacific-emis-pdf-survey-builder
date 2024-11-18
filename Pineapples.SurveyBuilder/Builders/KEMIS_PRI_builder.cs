@@ -261,7 +261,7 @@ namespace surveybuilder
 			AddOutline(infrastructureOutline, "Teacher Housing");
 			document.Add(Heading_2("Teacher Housing"));
 			document = new TeacherHousing()
-				.Build(this, document);
+				.Build(this, document, lookups["metaResourceDefinitions"]);
 			NewPage(document);
 
 			var washOutline = this.AddOutline(parentOutline, "Water, Sanitation and Hygiene");

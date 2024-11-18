@@ -28,7 +28,7 @@ namespace surveybuilder
 		{
 		}
 
-		public Document Build(KEMIS_PRI_Builder builder, Document document)
+		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> resources)
 		{
 			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
 			var model = new Cell()
@@ -101,23 +101,11 @@ namespace surveybuilder
 
 			// data rows
 			// Categories
+			// Currently the Resource Lookup C (keys) don't match the XML field so hard coded here.
 			var teacherHousingCategories = new Dictionary<string, string>
 			{
-				{ "Permanent", "TchHP" },
-				{ "Traditional", "TchHT" }
-			};
-
-			var teacherHousingTypes = new Dictionary<string, string>
-			{
-				{ "Permanent", "Kitchen, Living, Bath/Toilet" },
-				{ "Traditional", "Kitchen, Kiakia, Bath/Toilet" }
-			};
-
-			var teacherHousingConditions = new Dictionary<string, string>
-			{
-				{ "G", "Good" },
-				{ "F", "Fair" },
-				{ "P", "Poor" }
+				{ "Staff Housing Permanent", "TchHP" },
+				{ "Staff Housing Traditional", "TchHT" }
 			};
 
 			foreach (var kvp in teacherHousingCategories)
@@ -129,22 +117,33 @@ namespace surveybuilder
 					ts.TableSubHeaderStyle(TextCell(model15, ts.TableHeaderStyle($"{kvp.Key}")))
 				);
 
+				// Get the category resources
+				var catResFilter = new Dictionary<string, object>
+					{
+						{ "Cat", $"{kvp.Key}" },
+						{ "Surveyed", "True" }
+					};
+				List<LookupEntry> catResources = LookupEntry.FilterByMetadata(resources, catResFilter);
+
 				// Data fields for each row
-				for (int i = 0; i < 3; i++)
+				var i = 0;
+				foreach (var lookupRes in catResources)
 				{
 					string fieldK = $"Resource.{kvp.Key}.R.{i:00}.K";
+					string fieldA = $"Resource.{lookupRes.C}.D.{i:00}.A"; // Not used
 					string fieldNum = $"Resource.{kvp.Key}.D.{i:00}.Num";
 					string fieldC = $"Resource.{kvp.Key}.D.{i:00}.C";
 
 					PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
 
 					tableTHTConditions.AddRow(
-						TextCell(model, teacherHousingTypes[$"{kvp.Key}"] + $", {i + 1} Bedroom"),
+						TextCell(model, $"{lookupRes.N}"),
 						NumberCell(model, fieldNum),
 						SelectCell(model, rgrp, "G"),
 						SelectCell(model, rgrp, "F"),
 						SelectCell(model, rgrp, "P")
 					);
+					i++;
 				}
 			}
 
