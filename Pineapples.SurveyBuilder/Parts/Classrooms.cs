@@ -16,6 +16,7 @@ using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using iText.Kernel.Colors;
 using static System.Net.Mime.MediaTypeNames;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -25,24 +26,16 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Classrooms()
 		{
-			
+
 		}
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
-
-			var model = new Cell()
-				.SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model21 = new Cell(2, 1).SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model13 = new Cell(1, 3).SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
+			var model13 = CellStyleFactory.ThreeColumn;
+			var model21 = CellStyleFactory.TwoRowOneColumn;
 
 			// Classrooms
-
 			document.Add(new Paragraph()
 				.Add(@"How many classrooms are there at your school? Count all rooms in which tuition takes place.")
 			);

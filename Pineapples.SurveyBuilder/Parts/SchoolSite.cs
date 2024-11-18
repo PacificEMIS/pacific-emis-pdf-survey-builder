@@ -14,6 +14,7 @@ using iText.Forms;
 using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -23,10 +24,8 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
-			var model = new Cell()
-				.SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
 
 			document.Add(new Paragraph()
 				.Add(@"Record the size of your school site, playground and farm or garden. The unit of measure should be square metres. "

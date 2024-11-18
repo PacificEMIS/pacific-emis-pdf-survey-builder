@@ -14,6 +14,7 @@ using iText.Forms;
 using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -23,8 +24,8 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document, GenderedGridmaker grd, List<LookupEntry> disabilities)
 		{
-			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
-			Cell model = new Cell();
+			// Cell layout/styling models
+			var model = CellStyleFactory.DefaultNoHeight;
 
 			document.Add(new Paragraph()
 				.Add(new Text(@"Notes: ").AddStyle(new Style().SetBold()))

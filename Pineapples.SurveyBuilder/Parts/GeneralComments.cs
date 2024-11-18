@@ -14,6 +14,7 @@ using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -26,11 +27,8 @@ namespace surveybuilder
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
-
-			var model = new Cell()
-				.SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
 
 			builder.Heading_2("Final Comments", document);
 			document.Add(new Paragraph(@"If you would like to make any comments or provide additional information about your "
@@ -42,7 +40,7 @@ namespace surveybuilder
 			table.AddCell(ts.TableHeaderStyle(InputCell(new Cell().SetHeight(400), "Survey.Comment")));
 
 			document.Add(table);
-						
+
 			builder.Heading_2("Certification", document);
 
 			document.Add(new Paragraph(@"All information presented in this survey must be complete and accurate and "
@@ -72,7 +70,7 @@ namespace surveybuilder
 				DateCell(model, "Survey.DateCompleted")
 			);
 
-			document.Add(tableCertification);			
+			document.Add(tableCertification);
 
 			return document;
 		}

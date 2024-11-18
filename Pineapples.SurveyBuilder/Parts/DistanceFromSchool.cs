@@ -14,6 +14,7 @@ using iText.Forms;
 using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -23,13 +24,14 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> distanceCodes)
 		{
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
+
 			document.Add(new Paragraph(@"Record all pupils according to the distance they have to travel to reach the school "
 			+ "and their means of transport."));
 
 			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 40, 20, 20, 20 }))
 						.UseAllAvailableWidth();
-
-			Cell model = new Cell().SetHeight(18);
 
 			// first row of headings
 			table.AddRow(
@@ -42,7 +44,7 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, "Total"))
 			);
 			// second row of headings
-			
+
 
 			// data rows
 			int i = 0;
@@ -53,7 +55,7 @@ namespace surveybuilder
 					NumberCell(model, $"DT.D.{i:00}.00.All"),
 					NumberCell(model, $"DT.D.{i:00}.01.All"),
 					NumberCell(model, $"DT.T.{i:00}.T.All")
-				);				
+				);
 				i++;
 			}
 

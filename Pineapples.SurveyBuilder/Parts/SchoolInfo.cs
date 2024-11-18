@@ -14,6 +14,7 @@ using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -26,26 +27,18 @@ namespace surveybuilder
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
-
-
-			// make a table 6 columns grouped 3 1 2
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
+			var model12 = CellStyleFactory.TwoColumn;
+			var model14 = CellStyleFactory.FourColumn;
+			var model31 = CellStyleFactory.ThreeRowOneColumn;
 
 			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 35, 15, 50 }))
 						.UseAllAvailableWidth();
 
-			var model = new Cell().SetHeight(20);
-			var model12 = new Cell(1, 2).SetHeight(20);
-			var model14 = new Cell(1, 4).SetHeight(20);
-			var model31 = new Cell(3, 1).SetHeight(20);
-
 			builder.Heading_2("General Information", document);
 
 			//AddRow is an extension method in PdfExtensions
-			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model12, "Details")),
-				ts.TableHeaderStyle(TextCell(model, "Answer"))
-			);
-
 			table.AddRow(
 				TextCell(model12, "School Name"),
 				InputCell(model, "Survey.SchoolName", 50)

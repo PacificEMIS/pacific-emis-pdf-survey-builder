@@ -13,6 +13,7 @@ using iText.Kernel.Colors;
 using iText.Forms;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -24,23 +25,8 @@ namespace surveybuilder
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
-			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
-			var model = new Cell()
-				.SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model12 = new Cell(1, 2)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model21 = new Cell(2, 1)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model13 = new Cell(1, 3).SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model15 = new Cell(1, 5).SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
 
 			document.Add(new Paragraph()
 				.Add(@"What type of handwashing station is provided at the school.")

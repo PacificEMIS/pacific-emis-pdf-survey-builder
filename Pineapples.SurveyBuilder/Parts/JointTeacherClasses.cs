@@ -15,13 +15,21 @@ using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using Colors = iText.Kernel.Colors;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
 	public class JointTeacherClasses
 	{
+		// Import common table styles
+		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
+			// Cell layout/styling models
+			var model = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 1, height: 18);
+			var model12 = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 2, height: 18);
+			var model21 = CellStyleFactory.CreateCell(rowSpan: 2, colSpan: 1, height: 18);
+			var model21b = CellStyleFactory.CreateCell(rowSpan: 2, colSpan: 1, height: 40);
 
 			document.Add(new Paragraph(@"Enter the employment number and name of each teacher teaching a class where two teachers share the "
 			+ @"teaching of one class. Enter in the box opposite their name and the number of pupils enrolled in the "
@@ -30,29 +38,18 @@ namespace surveybuilder
 			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 4, 4, 4, 3, 3, 3, 3, 3, 3 }))
 						.UseAllAvailableWidth();
 
-			Cell model = new Cell().SetHeight(18);
-			Cell model21 = new Cell(2, 1).SetHeight(18);
-			Cell model2 = new Cell(2, 1).SetHeight(40);
-
 			// first row of headings
-			table.AddCell(TextCell(new Cell(2, 1), "Employment No")
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
-			table.AddCell(TextCell(new Cell(1, 2), "Teacher Name")
-				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model21, "Employment No")));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model12, "Teacher Name")));
 
 			for (int j = 0; j < 6; j++)
 			{
-				table.AddCell(TextCell(model21, $"Class {j + 1:0}")
-					.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-					.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
+				table.AddCell(ts.TableHeaderStyle(TextCell(model21, $"Class {j + 1:0}")));
 			}
 
 			// second row of headings
-			table.AddCell(TextCell(model, "Given Name")
-				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
-			table.AddCell(TextCell(model, "Family Name")
-				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model, "Given Name")));
+			table.AddCell(ts.TableHeaderStyle(TextCell(model, "Family Name")));
 
 			// data rows
 			for (int i = 0; i <= 20; i++)
@@ -63,7 +60,7 @@ namespace surveybuilder
 
 				for (int j = 0; j < 6; j++)
 				{
-					table.AddCell(NumberCell(model2, $"ClassJ.D.{i:00}.{j:00}.All"));
+					table.AddCell(NumberCell(model21b, $"ClassJ.D.{i:00}.{j:00}.All"));
 				}
 
 				table.AddCell(InputCell(model, $"ClassJ.D.{i:00}.T1.ID", 50));
@@ -73,8 +70,7 @@ namespace surveybuilder
 			}
 
 			// Totals
-			table.AddCell(TextCell(new Cell(1, 3), "Total Pupils")
-				.SetBackgroundColor(Colors.ColorConstants.LIGHT_GRAY));
+			table.AddCell(ts.TableHeaderStyle(TextCell(new Cell(1, 3), "Total Pupils")));
 
 			for (int j = 0; j < 6; j++)
 			{

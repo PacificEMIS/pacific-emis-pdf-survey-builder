@@ -16,6 +16,7 @@ using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using Org.BouncyCastle.Asn1.Cmp;
 using System.Collections;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -30,24 +31,12 @@ namespace surveybuilder
 
 		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> resources)
 		{
-			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
-			var model = new Cell()
-				.SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model12 = new Cell(1, 2)
-				.SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model21 = new Cell(2, 1).SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model13 = new Cell(1, 3).SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
-			var model15 = new Cell(1, 5).SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
+			var model12 = CellStyleFactory.TwoColumn;
+			var model13 = CellStyleFactory.ThreeColumn;
+			var model15 = CellStyleFactory.FiveColumn;
+			var model21 = CellStyleFactory.TwoRowOneColumn;
 
 			document.Add(new Paragraph()
 				.Add(@"Record the number of teachers with officially provided housing at your school.")

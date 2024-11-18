@@ -335,7 +335,7 @@ namespace surveybuilder
 			styles.Add("tableheader",
 				new PdfStyle(styles["base"])
 				{
-					FontSize = 12,
+					FontSize = 10,
 					TextAlignment = TextAlignment.CENTER
 				});
 
@@ -350,6 +350,19 @@ namespace surveybuilder
 				new PdfStyle(styles["base"])
 				{
 					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color3)
+				});
+
+			styles.Add("tableheadertext",
+				new PdfStyle(styles["base"])
+				{
+					FontSize = 10,
+					TextAlignment = TextAlignment.LEFT
+				});
+
+			styles.Add("tableheadertextcell",
+				new PdfStyle(styles["base"])
+				{
+					BackgroundColor = ColorConstants.WHITE
 				});
 		}
 
@@ -381,6 +394,26 @@ namespace surveybuilder
 		public Cell TableSubHeaderStyle(Cell cell)
 		{
 			return styles.ApplyCell("tablesubheadercell", cell);
+		}
+
+		/// <summary>
+		/// Applies the "tableheadertext" style to a <see cref="Paragraph"/>.
+		/// </summary>
+		/// <param name="text">The text to apply the table header style to.</param>
+		/// <returns>A <see cref="Paragraph"/> styled as a table header.</returns>
+		public Paragraph TableHeaderTextStyle(string text)
+		{
+			return styles.ApplyStyle("tableheadertext", text);
+		}
+
+		/// <summary>
+		/// Applies the "tableheadertextcell" style to a <see cref="Cell"/>.
+		/// </summary>
+		/// <param name="cell">The cell to apply the table header cell style to.</param>
+		/// <returns>A <see cref="Cell"/> styled as a table header cell.</returns>
+		public Cell TableHeaderTextStyle(Cell cell)
+		{
+			return styles.ApplyCell("tableheadertextcell", cell);
 		}
 	}
 

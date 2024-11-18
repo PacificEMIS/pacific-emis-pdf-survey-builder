@@ -156,6 +156,7 @@
     <Compile Include="Components\CheckBoxPickmaker.cs" />
     <Compile Include="Components\GenderedGridmaker.cs" />
     <Compile Include="Components\Gridmaker.cs" />
+    <Compile Include="Utilities\CellStyleFactory.cs" />
     <Compile Include="Utilities\HeaderFooterHandler.cs" />
     <Compile Include="Builders\KEMIS_PRI_builder.cs" />
     <Compile Include="Builders\PdfBuilder.cs" />

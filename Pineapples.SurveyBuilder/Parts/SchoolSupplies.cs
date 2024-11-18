@@ -14,6 +14,7 @@ using iText.Forms;
 using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
+using itext4.Utilities;
 
 namespace surveybuilder
 {
@@ -23,11 +24,8 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(KEMIS_PRI_Builder builder, Document document)
 		{
-			// TODO Move to reusable Cell stylesheets once all tables in survey complete the the cell styling is clear
-			var model = new Cell()
-				.SetHeight(20)
-				.SetVerticalAlignment(VerticalAlignment.MIDDLE)
-				.SetHorizontalAlignment(HorizontalAlignment.CENTER);
+			// Cell layout/styling models
+			var model = CellStyleFactory.Default;
 
 			document.Add(builder.Heading_3("School Supplies for Students"));
 
@@ -39,7 +37,7 @@ namespace surveybuilder
 
 			var chk = new CheckBoxPickmaker();
 			chk.Names = new string[] { "None Received", "Some Received", "Half Received", "Most Received", "All Received" };
-			chk.Values = new int[] { 0,1, 2, 3, 4 };
+			chk.Values = new int[] { 0, 1, 2, 3, 4 };
 			chk.Types = new CheckBoxType[] {CheckBoxType.SQUARE, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.CROSS };
 			chk.Tag = "Supplies.Student";
