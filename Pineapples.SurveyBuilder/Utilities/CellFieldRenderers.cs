@@ -28,9 +28,9 @@ namespace surveybuilder
 {
 
 	/// <summary>
-	/// Make a chekcbox in a table cell, that is part of a mutully exclusive group
+	/// Make a chekcbox in a table cell, that is part of a mutually exclusive group
 	/// Note that the rgrp element need to be created as a Radio Group, but then
-	/// call rgrp.SetFiieldFlgs(0) to get the expected behavoys and appearance of the group
+	/// call rgrp.SetFieldFlags(0) to get the expected behaviours and appearance of the group
 	/// of buttons
 	/// </summary>
 	public class CheckBoxGroupCellRenderer : CellRenderer
@@ -541,34 +541,16 @@ namespace surveybuilder
 	{
 		// the name of the combo box
 		protected internal String name;
-		protected internal string[][] optsarray;
+		protected internal PdfArray optsarray;
 
-		public ComboboxCellRenderer(Cell modelElement, string name, List<KeyValuePair<string, string>> options)
-			: base(modelElement)
-		{
-			this.name = name;
-
-			String[][] optionsArray = new String[options.Count][];
-			for (int i = 0; i < options.Count; i++)
-			{
-				var kv = options[i];
-				optionsArray[i] = new String[2];
-				optionsArray[i][0] = kv.Key;
-				optionsArray[i][1] = kv.Value;
-			}
-			this.optsarray = optionsArray;
-
-		}
-
-		public ComboboxCellRenderer(Cell modelElement, string name, string[][] optsarray)
+		public ComboboxCellRenderer(Cell modelElement, string name, PdfArray optsarray)
 				: base(modelElement)
 		{
 			this.name = name;
 			this.optsarray = optsarray;
 
 		}
-
-		// If renderer overflows on the next area, iText uses getNextRender() method to create a renderer for the overflow part.
+		// If renderer overflows on the next area, iText uses getNextRenderer() method to create a renderer for the overflow part.
 		// If getNextRenderer isn't overriden, the default method will be used and thus a default rather than custom
 		// renderer will be created
 		public override IRenderer GetNextRenderer()
