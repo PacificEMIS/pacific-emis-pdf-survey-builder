@@ -31,7 +31,7 @@ namespace surveybuilder
 		public PdfStylesheet stylesheet;
 		public PdfDocument pdfDoc;
 		//public Dictionary<string, List<KeyValuePair<string, string>>> lookups;
-		public Dictionary<string, List<LookupEntry>> lookups;
+		public LookupManager lookups;
 
 		public Boolean facingPages = false;
 
@@ -139,35 +139,7 @@ namespace surveybuilder
 			return document;
 		}
 
-		public void InitLookups()
-		{
-			//lookups = new Dictionary<string, List<KeyValuePair<string, string>>>();
-			lookups = new Dictionary<string, List<LookupEntry>>();
-			AddLookups("core");
-		}
-		public void AddLookups(string lookupCollection)
-		{
-			string endpoint = $"{dataHost}/api/lookups/collection/{lookupCollection}";
-
-			Console.WriteLine($"Reading lookups from {endpoint}");
-			try
-			{
-				RestApi api = new RestApi();
-				var tmp = api.GetFromRestService(endpoint);
-				foreach (var kvp in tmp)
-				{
-					if (!lookups.ContainsKey(kvp.Key))
-					{
-						lookups.Add(kvp.Key, kvp.Value);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error retrieving XML: {ex.Message}");
-
-			}
-		}
+		
 		// Utility functions for Bookmark
 		public PdfOutline AddOutline(PdfOutline parent, string text, int pageNo = 0)
 		{

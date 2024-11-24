@@ -6,6 +6,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using iText.Forms;
+
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Properties;
+using iText.Kernel.Geom;
+using iText.Layout.Renderer;
+using Colors = iText.Kernel.Colors;
+using Borders = iText.Layout.Borders;
+using iText.Kernel.Pdf.Action;
+using iText.IO.Font.Constants;
+using iText.Kernel.Font;
+using iText.Forms.Form.Element;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using iText.Kernel.Pdf.Navigation;
+using iText.Commons.Actions.Data;
+using static surveybuilder.CellMakers;
+using System.Runtime.CompilerServices;
+using System.Configuration;
+using iText.Kernel.XMP.Impl;
+using System.Text.RegularExpressions;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.ComponentModel.Design;
+using System.Security.Principal;
+using Org.BouncyCastle.Asn1.IsisMtt.X509;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
+using Org.BouncyCastle.Utilities;
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
+using System.Net.NetworkInformation;
+using iText.Layout.Borders;
+using iText.IO.Image;
+using iText.Kernel.Pdf.Canvas;
+using iText.IO.Font;
+using Newtonsoft.Json.Linq;
+
 
 namespace surveybuilder
 {
@@ -90,7 +125,7 @@ namespace surveybuilder
 
 
 		// combo box
-		public static Cell ComboCell(Cell cellmodel, string fieldname, List<KeyValuePair<string, string>> options,
+		public static Cell ComboCell(Cell cellmodel, string fieldname, PdfArray options,
 	string value = null, bool readOnly = false, bool hidden = false)
 		{
 			Paragraph pp = new Paragraph();

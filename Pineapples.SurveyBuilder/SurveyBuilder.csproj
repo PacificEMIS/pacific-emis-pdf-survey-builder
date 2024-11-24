@@ -160,6 +160,7 @@
     <Compile Include="Utilities\HeaderFooterHandler.cs" />
     <Compile Include="Builders\KEMIS_PRI_builder.cs" />
     <Compile Include="Builders\PdfBuilder.cs" />
+    <Compile Include="Utilities\LookupManager.cs" />
     <Compile Include="Utilities\PdfBuilders.cs" />
     <Compile Include="Utilities\PdfExtensions.cs" />
     <Compile Include="PdfForm.cs" />
