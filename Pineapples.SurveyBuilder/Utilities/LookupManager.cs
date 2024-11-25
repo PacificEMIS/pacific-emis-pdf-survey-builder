@@ -10,6 +10,14 @@ using iText.Kernel.Pdf;
 using iText.Layout.Element;
 using System.Runtime.CompilerServices;
 using surveybuilder;
+using iText.IO.Util;
+using iText.Kernel.Colors;
+using iText.Forms.Xfdf;
+using iText.IO.Font.Constants;
+using iText.Kernel.Font;
+using Org.BouncyCastle.Crypto.Engines;
+using iText.Forms.Fields.Properties;
+using System.Linq.Expressions;
 
 namespace surveybuilder
 {
@@ -19,7 +27,7 @@ namespace surveybuilder
 		string dataHost;
 		private Dictionary<string, List<LookupEntry>> lookups;
 		private Dictionary<string, PdfArray> opts;
-		private Dictionary<string, PdfObject> aps;
+		private Dictionary<(string, string, float, float, float, string), PdfDictionary> aps;
 
 		/// <summary>
 		/// Constructor for the LookupManager
@@ -62,7 +70,7 @@ namespace surveybuilder
 			}
 		}
 
-		
+
 		/// <summary>
 		///  Support the syntax lookups["lookupname"] on LookupManager class
 		/// </summary>
@@ -86,7 +94,7 @@ namespace surveybuilder
 		}
 		#endregion
 
-			#region Opts
+		#region Opts
 		/// <summary>
 		/// return a lookup list as a 2-dimensional PdfArray, that may be used as /Opt on a dropdown
 		/// </summary>
@@ -145,23 +153,209 @@ namespace surveybuilder
 		#endregion
 
 		#region Aps
+		/// <summary>
+		/// Retrieves an Appearance Dictionary for a checkbox. These are cached in the 
+		/// dictionary for reuse and are implemented as 'indirect' objects in the output PDF.
+		/// Appearance components are produced 'just-in-time' and are created hierarchically
+		/// W - a synthetic object that holds an /AP and corresponding /MK
+		/// AP - an AP object , has 2 parts /N and /D
+		/// N a normal appearance obect /N
+		/// D a 'downstate' appearance obect /D
+		/// /N has /Off and /<export> keys These contain actual rendering streams stored as 'n' 
+		/// /D has /Off and /<export> keys These contain actual rendering streams representing 
+		/// the mouse-down state stored as 'd' 
+		/// A top-level call to Ap (to create a W object) will return that object if already stored
+		/// in the aps dictionary.
+		/// If found found it is created by call Ap to get each consituent part. This process 
+		/// decends recursively creating and storing, or retrieving, each required component
+		/// The components are all created as indirect PdfDictionary objects
+		/// So in the output PDF, each value in the aps becomes a numbered object in the PDF, 
+		/// that is referenced by all the objects of which it is a component.
+		/// This appraoch is flexible, and eliminates any duplication in rendering code for checkboxes.
+		/// The /MK dictionary provides support for rendering when the user elects to use the
+		/// application-generated field highlighting. It ensures that the symbol in the checkbox 
+		/// remains constitent when focused, mouedown, or normal.
+		/// </summary>
+		/// <param name="typ">the CheckboxType determines the symbol in the checkbox when selected</param>
+		/// <param name="forecolor">color of the symbol</param>
+		/// <param name="export">export value for the checkbox. The checkbox may be part of a group
+		/// tied to the same field; each such checkbox uses a different export value</param>
+		/// <returns>A PdfDictionary with 2 properties: /AP the Appearance Directory, /MK the 'markup' node</returns>
+		public PdfDictionary Ap(CheckBoxType typ, iText.Kernel.Colors.Color forecolor, string export)
+		{
+			// if requesting a square, provided BLOCK implementation
 
+			string symbol = (typ == CheckBoxType.SQUARE ? "BLOCK" : CbString(typ));
+			return Ap(symbol, forecolor, export);
+		}
 
-		public PdfObject Ap(string key)
+		public PdfDictionary Ap(string symbol, iText.Kernel.Colors.Color forecolor, string export)
 		{
 			if (aps == null)
 			{
-				aps = new Dictionary<string, PdfObject>();
+				aps = new Dictionary<(string, string, float, float, float, string), PdfDictionary>();
+			}
+			return Ap("W", symbol, forecolor, export); // W stands for Widget
+
+		}
+		private PdfDictionary Ap(string mode, string symbol, iText.Kernel.Colors.Color forecolor, string export)
+		{
+			var apkey = (Mode: mode, Symbol: symbol,
+				Red: forecolor.GetColorValue()[0],
+				Green: forecolor.GetColorValue()[1],
+				Blue: forecolor.GetColorValue()[2], Export: export);
+
+			if (aps.TryGetValue(apkey, out var ap))
+			{
+				Console.WriteLine($"Found {apkey}");
+				return ap;
+			}
+			// now we have to make it
+			// make the empty Normal and Down representations for Off (ie empty)
+
+			PdfFont dingbatFont = PdfFontFactory.CreateFont(StandardFonts.ZAPFDINGBATS);
+			PdfDictionary result = new PdfDictionary();
+			const string OFF = "Off";
+
+			if (mode == "n")
+			{
+				// return the drawing part ie will be the value of /Off key, or /Export key
+				switch (symbol)
+				{
+					case "BLOCK":
+						// 
+						result = PdfForm.CheckBlock(pdfDoc, forecolor).GetPdfObject();
+						break;
+					case "":
+						// normal value for Off
+						result = PdfForm.CheckEmpty(pdfDoc).GetPdfObject();
+						break;
+					default:
+						result = PdfForm.CheckSymbol(pdfDoc, dingbatFont, symbol, forecolor).GetPdfObject();
+						break;
+
+				}
+				result.MakeIndirect(pdfDoc);
+				aps.Add(apkey, result);
+				return result;
 
 			}
-			if (aps.ContainsKey(key))
+			if (mode == "d")
 			{
-				return aps[key];
+				// return the drawing part for Down appearance
+				// ie will be the value of /Off key, or /Export key in the /D appearance
+				switch (symbol)
+				{
+					case "BLOCK":
+						// 
+						result = PdfForm.CheckBlockDown(pdfDoc).GetPdfObject();
+						break;
+					case "":
+						// normal value for Off
+						result = PdfForm.CheckEmptyDown(pdfDoc).GetPdfObject();
+						break;
+					default:
+						result = PdfForm.CheckSymbolDown(pdfDoc, dingbatFont, symbol).GetPdfObject();
+						break;
+
+				}
+				result.MakeIndirect(pdfDoc);
+				aps.Add(apkey, result);
+				return result;
+
 			}
-			// to do
+
+			if (mode == "N")
+			{
+				// get the normal view, with keys for both Off and export
+
+				// block key for export, Normal
+				var exportApp = Ap("n", symbol, forecolor, "");     // export not needed
+				var OffApp = Ap("n", "", ColorConstants.WHITE, "");		// white is just a placeholder
+				result.Put(new PdfName(export), exportApp);
+				result.Put(new PdfName(OFF), OffApp);
+				result.MakeIndirect(pdfDoc);
+				aps.Add(apkey, result);
+				return result;
+			}
+			if (mode == "D")
+			{
+				// get the normal view, with keys for both Off and export
+
+				// block key for export, Normal
+				var exportApp = Ap("d", symbol, ColorConstants.WHITE, "");     
+				var OffApp = Ap("d", "", ColorConstants.WHITE, "");				// export and forecolor not needed
+				result.Put(new PdfName(export), exportApp);
+				result.Put(new PdfName(OFF), OffApp);
+				result.MakeIndirect(pdfDoc);
+				aps.Add(apkey, result);
+				return result;
+			}
+			if (mode == "MK")
+			{
+				iText.Kernel.Colors.Color borderColor = ColorConstants.GRAY;
+				PdfDictionary mk = new PdfDictionary();
+				result.Put(PdfName.CA, new PdfString(symbol));
+				result.Put(PdfName.BC, new PdfArray(borderColor.GetColorValue()));
+				result.MakeIndirect(pdfDoc);
+				aps.Add(apkey, result);
+				return result;
+			}
+
+			if (mode == "AP")
+			{
+				
+				// get the /N part
+				PdfObject NApp = Ap("N", symbol, forecolor, export);
+				// coming down this path we really need the actual dingbat character to put in MK
+				PdfObject DApp = Ap("D", symbol, ColorConstants.WHITE, export); 
+				result.Put(PdfName.N, NApp);
+				result.Put(PdfName.D, DApp);
+				result.MakeIndirect(pdfDoc);
+				aps.Add(apkey, result);
+				
+				return result;
+			}
+			if (mode == "W")  // w for Widget
+			{
+				// this top level call returns a synthetic object including both the AP and MK 
+				// dictionaries of a check widget. They are separated and put in the right places
+				// the the Renderer
+				PdfObject ApDic = Ap("AP", symbol, forecolor, export);
+				PdfObject MkDic = Ap("MK", (symbol == "BLOCK" ? CbString(CheckBoxType.SQUARE) : symbol), forecolor, "");
+				result.Put(PdfName.AP, ApDic);
+				result.Put(PdfName.MK, MkDic);
+				result.MakeIndirect(pdfDoc);
+				aps.Add(apkey, result);
+				System.Console.WriteLine($"{aps.Count}");
+				return result;
+
+			}
 			return null;
 		}
 
+
+		// returnthe dingbat character for each checkbox type
+		private string CbString(CheckBoxType type)
+		{
+			switch (type)
+			{
+				case CheckBoxType.CHECK:
+					return "4";
+				case CheckBoxType.SQUARE:
+					return "n";
+				case CheckBoxType.CIRCLE:
+					return "l";
+				case CheckBoxType.DIAMOND:
+					return "u";
+				case CheckBoxType.STAR:
+					return "H";
+				case CheckBoxType.CROSS:
+					return "6";
+				default:
+					return "n";
+			}
+		}
 		#endregion
 
 

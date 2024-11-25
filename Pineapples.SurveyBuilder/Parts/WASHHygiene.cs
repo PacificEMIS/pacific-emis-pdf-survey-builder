@@ -34,7 +34,7 @@ namespace surveybuilder
 
 			var chk = new CheckBoxPickmaker();
 			chk.Names = new string[] { "Stand tap", "Tippy Tap", "Piped Water", "Basin With Tap", "None" };
-			chk.Values = new int[] { 1, 2, 3, 4, 0 };
+			chk.Values = new object[] { 1, 2, 3, 4, 0 };
 			chk.Types = new CheckBoxType[] {CheckBoxType.SQUARE, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.CROSS };
 			chk.Tag = "Wash.Handwashing.Type";
@@ -46,7 +46,7 @@ namespace surveybuilder
 
 			chk = new CheckBoxPickmaker();
 			chk.Names = new string[] { "Soap and water", "Water only", "Soap Only", "Neither" };
-			chk.Values = new int[] { 1, 2, 3, 0 };
+			chk.Values = new object[] { 1, 2, 3, 0 };
 			chk.Tag = "Wash.Handwashing.SoapAndWater";
 			chk.Make(builder, document);
 

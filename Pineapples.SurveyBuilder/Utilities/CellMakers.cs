@@ -40,6 +40,7 @@ using iText.IO.Image;
 using iText.Kernel.Pdf.Canvas;
 using iText.IO.Font;
 using Newtonsoft.Json.Linq;
+using iText.Kernel.Colors;
 
 
 namespace surveybuilder
@@ -49,29 +50,33 @@ namespace surveybuilder
 		#region cells for checkboxes
 		public static Cell YesCell(Cell cellmodel, PdfButtonFormField grp)
 		{
-			return CheckCell(cellmodel, grp, "Y", CheckBoxType.CHECK);
+			return CheckCell(cellmodel, grp, CheckBoxType.CHECK, ColorConstants.GREEN,"Y");
 		}
 		public static Cell NoCell(Cell cellmodel, PdfButtonFormField grp)
 		{
-			return CheckCell(cellmodel, grp, "N", CheckBoxType.CROSS);
+			return CheckCell(cellmodel, grp,CheckBoxType.CROSS, ColorConstants.RED, "N" );
 		}
 		public static Cell SelectCell(Cell cellmodel, PdfButtonFormField grp, string exportValue)
 		{
-			return CheckCell(cellmodel, grp, exportValue, CheckBoxType.SQUARE);
+			return CheckCell(cellmodel, grp, CheckBoxType.SQUARE, ColorConstants.GRAY, exportValue );
 		}
 
-		public static Cell CheckCell(Cell cellmodel, PdfButtonFormField grp, object value,
+		public static Cell CheckCell(Cell cellmodel, PdfButtonFormField grp, string exportValue,
 			CheckBoxType typ)
+		{
+			return CheckCell(cellmodel, grp, typ, ColorConstants.GRAY, exportValue);
+		}
+		public static Cell CheckCell(Cell cellmodel, PdfButtonFormField grp, 
+			CheckBoxType typ, Color forecolor, string export )
 		{
 			Cell cell = cellmodel.Clone(false);
 
 			Paragraph pp = new Paragraph();
-			pp.SetNextRenderer(new CheckBoxGroupCellRenderer(cell, grp, value.ToString()
-				, typ));
+			PdfDictionary ap = lookups.Ap(typ, forecolor, export);
+			pp.SetNextRenderer(new CheckBoxGroupCellRenderer(cell, grp, ap));
 
 			return cell.Add(pp);
 		}
-
 		#endregion
 
 		#region cells for numeric inputs
@@ -149,5 +154,14 @@ namespace surveybuilder
 			cell.Add(pp);
 			return cell;
 		}
+
+
+
+		private static LookupManager lookups;
+		public static void SetLookups(LookupManager lkp)
+		{
+			lookups = lkp;
+		}
+
 	}
 }

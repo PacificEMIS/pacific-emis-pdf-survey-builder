@@ -110,13 +110,15 @@ namespace surveybuilder
 			);
 
 			string[] Columns = { "Excellent", "Very Good", "Satisfactory", "Poor", "Very Bad" };
-			int[] values = { 4, 3, 2, 1, 0 };
+			object[] values = { 4, 3, 2, 1, 0 };
 
 			var chk = new CheckBoxPickmaker();
 			chk.Names = Columns;
 			chk.Values = values;
-			chk.Types = new CheckBoxType[] {CheckBoxType.CHECK, CheckBoxType.SQUARE
+			 
+			chk.Types = new CheckBoxType[] {CheckBoxType.STAR, CheckBoxType.SQUARE
 					,CheckBoxType.CIRCLE,CheckBoxType.DIAMOND,CheckBoxType.CROSS };
+			chk.Colors = new Color[] { ColorConstants.ORANGE };
 			chk.Tag = "Wash.Water.Rating";
 			chk.Make(builder, document);
 
@@ -128,7 +130,8 @@ namespace surveybuilder
 
 			chk = new CheckBoxPickmaker();
 			chk.Names = new string[] { "Rainwater", "Groundwater", "Desalinated water", "Bottled water" };
-			chk.Values = new int[] { 1, 2, 3, 4 };
+			chk.Values = new object[] { 1, 2, 3, 4 };
+			chk.DefaultColor = ColorConstants.PINK;
 			chk.Tag = "Wash.Water.Source";
 			chk.Make(builder, document);
 
@@ -138,7 +141,8 @@ namespace surveybuilder
 
 			chk = new CheckBoxPickmaker();
 			chk.Names = new string[] { "Boiling", "Chlorination", "SODIS", "No water treatment" };
-			chk.Values = new int[] { 1, 2, 3, 4 };
+			chk.Values = new object[] { 1, 2, 3, 4 };
+			chk.Colors = new Color[] { ColorConstants.PINK, null, ColorConstants.ORANGE };
 			chk.Tag = "Wash.Water.Treatment";
 			chk.Make(builder, document);
 

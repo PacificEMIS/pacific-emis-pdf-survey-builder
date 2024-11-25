@@ -40,6 +40,8 @@ namespace surveybuilder
 		protected internal String export;
 		protected internal PdfButtonFormField rgrp;
 
+		protected PdfDictionary ap;
+
 		protected internal CheckBoxType chktype;
 
 		public CheckBoxGroupCellRenderer(Cell modelElement, PdfButtonFormField rgrp, string export
@@ -52,13 +54,19 @@ namespace surveybuilder
 			this.rgrp = rgrp;
 			this.chktype = chktype;
 		}
+		public CheckBoxGroupCellRenderer(Cell modelElement, PdfButtonFormField rgrp, PdfDictionary ap)
+			: base(modelElement)
+		{
+			this.ap = ap;
+			this.rgrp = rgrp;
+		}
 
 		// If renderer overflows on the next area, iText uses getNextRender() method to create a renderer for the overflow part.
 		// If getNextRenderer isn't overriden, the default method will be used and thus a default rather than custom
 		// renderer will be created
 		public override IRenderer GetNextRenderer()
 		{
-			return new CheckBoxGroupCellRenderer((Cell)modelElement, rgrp, export, chktype);
+			return new CheckBoxGroupCellRenderer((Cell)modelElement, rgrp,ap);
 		}
 
 		public override void Draw(DrawContext drawContext)
@@ -80,23 +88,14 @@ namespace surveybuilder
 				.SetWidgetRectangle(rect)
 				.CreateCheckBox();
 
-			chkbtn
-				.SetCheckType(chktype)
-				.SetValue(export);
-
 			var w = chkbtn.GetFirstFormAnnotation();
 
-			w.SetBorderColor(ColorConstants.LIGHT_GRAY)
-				.SetBorderWidth(1);
+			PdfDictionary wdic = w.GetPdfObject();
+			PdfDictionary apDic = ap.GetAsDictionary(PdfName.AP);
+			PdfDictionary mkDic = ap.GetAsDictionary(PdfName.MK);
 
-			// draw the border here - tryng to do it in the annotation later
-			// forces a regenerate, which in turn loses the checkbox type 
-			// refer to DrawCheckBoxAndSaveAppearance in PdfFormAnnotation
-			//PdfCanvas canvas = drawContext.GetCanvas();
-			/// note the above action on the annotation here fixes it
-			//canvas.Rectangle(rect)
-			//		.SetStrokeColor(ColorConstants.LIGHT_GRAY)
-			//		.Stroke();
+			wdic.Put(PdfName.AP, apDic);
+			wdic.Put(PdfName.MK, mkDic);
 
 			rgrp.AddKid(chkbtn);
 			rgrp.SetValue(String.Empty);
