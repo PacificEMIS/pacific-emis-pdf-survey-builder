@@ -16,7 +16,6 @@ using iText.IO.Image;
 using iText.Kernel.Pdf.Canvas;
 using iText.IO.Font;
 
-
 namespace surveybuilder
 {
 	public class KEMIS_PRI_Builder : PdfBuilder
@@ -33,6 +32,7 @@ namespace surveybuilder
 			lookups = new LookupManager(pdfDoc, dataHost);
 			lookups.AddLookups("student");
 			lookups.AddLookups("censuspdf");
+			CellMakers.SetLookups(lookups);    // make all the lookup strutures availabe to cell makers
 
 			Document document = new Document(pdfDoc, PageSize.A4);
 			SetFacingPages(true);
@@ -77,9 +77,6 @@ namespace surveybuilder
 			GenderedGridmaker grd = new GenderedGridmaker();
 
 			// Moved to KeyValuePair to a custom LookupEntry class which can also hold metadata.
-			//var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
-			//				.Select(n => new KeyValuePair<string, string>(n, n))
-			//				.ToList();
 			var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
 							.Select(n => new LookupEntry
 							{
@@ -89,13 +86,6 @@ namespace surveybuilder
 							.ToList();
 
 
-			//var classLevels = new List<KeyValuePair<string, string>>();
-			//classLevels.Add(new KeyValuePair<string, string>("P1", "Class 1"));
-			//classLevels.Add(new KeyValuePair<string, string>("P2", "Class 2"));
-			//classLevels.Add(new KeyValuePair<string, string>("P3", "Class 3"));
-			//classLevels.Add(new KeyValuePair<string, string>("P4", "Class 4"));
-			//classLevels.Add(new KeyValuePair<string, string>("P5", "Class 5"));
-			//classLevels.Add(new KeyValuePair<string, string>("P6", "Class 6"));
 			var classLevels = new List<LookupEntry>();
 
 			classLevels.Add(new LookupEntry { C = "P1", N = "Class 1" });

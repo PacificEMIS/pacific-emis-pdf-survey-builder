@@ -8,7 +8,12 @@ using iText.Forms;
 using iText.Forms.Fields;
 using iText.Layout;
 using iText.Kernel.Pdf;
-
+using System.Windows;
+using iText.Kernel.Colors;
+using iText.Kernel.Font;
+using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Pdf.Xobject;
+using iText.Kernel.Geom;
 
 public class FormValue
 {
@@ -266,5 +271,129 @@ namespace surveybuilder
 		}
 
 		#endregion
+
+		#region Appearance creation utilities
+
+		/// <summary>
+		///  to be determined best place to put all this.....
+		/// </summary>
+		/// <returns></returns>
+		private static Color DefaultBackColor()
+		{
+			return new DeviceRgb((float)253 / 256, (float)245 / 256, (float)230 / 256);
+		}
+		private static Color DefaultDownBackColor()
+		{
+			return new DeviceRgb((float)160 / 256, (float)160 / 256, (float)160 / 256);
+		}
+
+		/// <summary>
+		/// Create a bordered checkbox, containing a symbol in a given font (usually Dingbats)
+		/// </summary>
+		/// <param name="pdfDoc">the host pdfDocument</param>
+		/// <param name="charFont">the font (usually Dingbats</param>
+		/// <param name="symbol">symbol to centre in the checkbox</param>
+		/// <param name="color">color of the symbol</param>
+		/// <returns></returns>
+		public static PdfFormXObject CheckSymbol(PdfDocument pdfDoc, PdfFont charFont, string symbol, Color color)
+		{
+			return DrawCheckAppearance(pdfDoc, charFont, symbol, color, DefaultBackColor());
+		}
+		public static PdfFormXObject CheckSymbolDown(PdfDocument pdfDoc, PdfFont charFont, string symbol)
+		{
+			return DrawCheckAppearance(pdfDoc, charFont, symbol, ColorConstants.BLACK, DefaultDownBackColor());
+		}
+
+		/// <summary>
+		/// Create a bordered checkbox, containing a solid colored rectangle
+		/// </summary>
+		/// <param name="pdfDoc">the host pdfDocument</param>
+		/// <param name="color">color of the rectangular block</param>
+		/// <returns></returns>
+		public static PdfFormXObject CheckBlock(PdfDocument pdfDoc, Color blockcolor)
+		{
+
+			return DrawBlockAppearance(pdfDoc, blockcolor, DefaultBackColor());
+		}
+		public static PdfFormXObject CheckBlockDown(PdfDocument pdfDoc)
+		{
+
+			return DrawBlockAppearance(pdfDoc, ColorConstants.BLACK, DefaultDownBackColor());
+		}
+
+		public static PdfFormXObject CheckEmpty(PdfDocument pdfDoc)
+		{
+
+			return DrawCheckAppearance(pdfDoc, null, String.Empty, ColorConstants.BLACK, DefaultBackColor());
+		}
+		public static PdfFormXObject CheckEmptyDown(PdfDocument pdfDoc)
+		{
+
+			return DrawCheckAppearance(pdfDoc, null, String.Empty, ColorConstants.BLACK, DefaultDownBackColor());
+		}
+
+
+		private static PdfFormXObject DrawCheckAppearance(PdfDocument pdfDoc, PdfFont charFont, string symbol, Color color, Color backcolor)
+		{
+			// Create the form XObject (appearance stream)
+			PdfFormXObject appearance = new PdfFormXObject(new Rectangle(0, 0, 20, 20));
+			PdfCanvas canvas = new PdfCanvas(appearance, pdfDoc);
+
+			iText.Kernel.Colors.Color borderColor = ColorConstants.GRAY;
+
+
+			// Set the border color and draw the border (rectangle)
+			canvas.SetLineWidth(3)                    // Set border thickness
+				  .SetStrokeColor(borderColor)         // Set the color of the border
+				  .SetFillColor(backcolor)
+				  .Rectangle(0, 0, 20, 20)             // Draw a rectangle (border)
+				  .FillStroke();                           // Apply the stroke (border)
+
+			// Now draw the dingbat symbol
+			// Set the font, size, and color for the symbol
+			if (symbol.Length > 0)
+			{
+
+				canvas.BeginText()
+					  .SetFontAndSize(charFont, 18)       // Set font size
+					  .SetColor(color, true)                 // Set the color of the text
+					  .MoveText(3, 4)                        // Adjust positioning as needed
+					  .ShowText(symbol)                      // Write the dingbat symbol
+					  .EndText();
+			}
+			return appearance;
+		}
+		private static PdfFormXObject DrawBlockAppearance(PdfDocument pdfDoc, Color color, Color backcolor)
+		{
+			// Create the form XObject (appearance stream)
+			PdfFormXObject appearance = new PdfFormXObject(new Rectangle(0, 0, 20, 20));
+			PdfCanvas canvas = new PdfCanvas(appearance, pdfDoc);
+
+			iText.Kernel.Colors.Color borderColor = ColorConstants.GRAY;
+
+
+			// Set the border color and draw the border (rectangle)
+			canvas.SetLineWidth(3)                    // Set border thickness
+				  .SetStrokeColor(borderColor)         // Set the color of the border
+				  .SetFillColor(backcolor)       //old lace
+				  .Rectangle(0, 0, 20, 20)             // Draw a rectangle (border)
+				  .FillStroke()
+				  .SetFillColor(color)
+				  .Rectangle(5, 5, 10, 10)             // Draw a rectangle (border)
+				  .Fill();                           // Apply the stroke (border)
+			return appearance;
+		}
+
+		public static PdfDictionary CheckMK(string symbol)
+		{
+			iText.Kernel.Colors.Color borderColor = ColorConstants.GRAY;
+			PdfDictionary mk = new PdfDictionary();
+			mk.Put(PdfName.CA, new PdfString(symbol));
+			mk.Put(PdfName.BC, new PdfArray(borderColor.GetColorValue()));
+			return mk;
+		}
+
+		#endregion
+
 	}
 }

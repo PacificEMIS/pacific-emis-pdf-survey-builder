@@ -25,15 +25,40 @@ using iText.Forms.Fields.Properties;
 using iText.Kernel.Pdf.Filespec;
 using static surveybuilder.CellMakers;
 using itext4.Utilities;
+using System.Net.Http.Headers;
 
 namespace surveybuilder
 {
-
+	/// <summary>
+	/// Calss to create a set of mutually exclusive checkboxes bound to multiple export values
+	/// </summary>
 	public class CheckBoxPickmaker
 	{
-		public string[] Names;
-		public int[] Values;
+		/// <summary>
+		/// Names to appear in first row of table, over the checkbox. The size of this array determnes
+		/// the number of columns in the table
+		/// </summary>
+		public string[] Names;		
+		/// <summary>
+		/// The export values. Must be 1 export value for each name
+		/// </summary>
+		public object[] Values;
+
+		/// <summary>
+		/// The checkbox symbol may be specified individually in Types array, or by the single DefaultType
+		/// If neither, default SQUARE is used
+		/// If Types.Length < Names.Length, or if aany element in types is null, the default is used 
+		/// fo missing values
+		/// </summary>
 		public CheckBoxType[] Types;
+		public CheckBoxType DefaultType;
+		/// <summary>
+		/// Colors for each checkbox symbol, or DefaultColor for all. If neither, a default is provided.
+		/// Default is used for missing items in Colors array. 
+		/// </summary>
+		public Color[] Colors;
+		public Color DefaultColor;
+
 		public string Tag;
 		// Import common table/grid styles
 		PdfTableStylesheet ts = new PdfTableStylesheet();
@@ -41,6 +66,9 @@ namespace surveybuilder
 		public CheckBoxPickmaker()
 		{
 			Types = new CheckBoxType[] { };
+			Colors = new Color[] {};
+			DefaultType = CheckBoxType.SQUARE;
+			DefaultColor = ColorConstants.DARK_GRAY;
 		}
 
 		public Document Make(PdfBuilder builder, Document document)
@@ -63,17 +91,13 @@ namespace surveybuilder
 			{
 				table.AddCell(ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(Names[i]))));
 			}
-
 			for (int i = 0; i < Names.Length; i++)
 			{
-				Rectangle rect = new Rectangle(50 + 100 * i, 200, 40, 40);
-				Cell cell = new Cell().SetHeight(50);
-
-				Paragraph pp = new Paragraph().SetFontColor(Colors.ColorConstants.GREEN);
-				pp.SetNextRenderer(new CheckBoxGroupCellRenderer(cell, rgrp, Values[i].ToString()
-					, (Types.Length > 0) ? Types[i] : CheckBoxType.SQUARE));
-
-				table.AddCell(new Cell().SetHeight(50).Add(pp));
+				CheckBoxType type = (i >= Types.Length ? DefaultType : Types[i]);
+				Color color = (i >= Colors.Length? DefaultColor : Colors[i]??DefaultColor);
+				//Cell outCell = CellMakers.SelectCell(model, rgrp, Values[i]);
+				Cell outCell = CellMakers.CheckCell(model, rgrp, type, color, Values[i].ToString());
+				table.AddCell(outCell);
 
 			}
 			var form = PdfFormCreator.GetAcroForm(builder.pdfDoc, true);
@@ -90,10 +114,6 @@ namespace surveybuilder
 			return document;
 		}
 
-		private void Lint(Document document)
-		{
-			//various experiments at coloring a checkbox symbol - NOT USED
-		}
 
 		// returnthe dingbat character for each checkbox type
 		private string CbString(CheckBoxType type)
@@ -117,4 +137,5 @@ namespace surveybuilder
 			}
 		}
 	}
+	
 }
