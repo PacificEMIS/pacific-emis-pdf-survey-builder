@@ -29,9 +29,8 @@ namespace surveybuilder
 
 	/// <summary>
 	/// Make a chekcbox in a table cell, that is part of a mutually exclusive group
-	/// Note that the rgrp element need to be created as a Radio Group, but then
-	/// call rgrp.SetFieldFlags(0) to get the expected behaviours and appearance of the group
-	/// of buttons
+	/// Note that the rgrp element needs to be created as a Radio Group, 
+	/// and the 'checkboxes start life as radio buttons with a customised Appearance Dictionary
 	/// </summary>
 	public class CheckBoxGroupCellRenderer : CellRenderer
 	{
@@ -54,9 +53,10 @@ namespace surveybuilder
 			this.rgrp = rgrp;
 			this.chktype = chktype;
 		}
-		public CheckBoxGroupCellRenderer(Cell modelElement, PdfButtonFormField rgrp, PdfDictionary ap)
+		public CheckBoxGroupCellRenderer(Cell modelElement, PdfButtonFormField rgrp, PdfDictionary ap, object export)
 			: base(modelElement)
 		{
+			this.export = export.ToString();
 			this.ap = ap;
 			this.rgrp = rgrp;
 		}
@@ -66,7 +66,7 @@ namespace surveybuilder
 		// renderer will be created
 		public override IRenderer GetNextRenderer()
 		{
-			return new CheckBoxGroupCellRenderer((Cell)modelElement, rgrp,ap);
+			return new CheckBoxGroupCellRenderer((Cell)modelElement, rgrp,ap, export);
 		}
 
 		public override void Draw(DrawContext drawContext)
@@ -81,27 +81,26 @@ namespace surveybuilder
 			// Define the position of a check box that measures 20 by 20
 			Rectangle rect = new Rectangle(x - r, y - r, 2 * r, 2 * r);
 
-			var cb = new CheckBox("tmp");
+			var chkbtn = new RadioFormFieldBuilder(thisDoc, "tmp")
+				.CreateRadioButton(export, rect);
 
-			var chkbtn = new CheckBoxFormFieldBuilder(thisDoc, rgrp.GetFieldName().ToString())
+			/// call rgrp.SetFieldFlags(0) to get the expected behaviours and appearance of the group
+			/// of buttons - Allows toggling and removes the radio group flag 
+			rgrp.SetFieldFlags(0);
 
-				.SetWidgetRectangle(rect)
-				.CreateCheckBox();
-
-			var w = chkbtn.GetFirstFormAnnotation();
-
-			PdfDictionary wdic = w.GetPdfObject();
+			PdfDictionary wdic = chkbtn.GetPdfObject();
 			PdfDictionary apDic = ap.GetAsDictionary(PdfName.AP);
 			PdfDictionary mkDic = ap.GetAsDictionary(PdfName.MK);
 
 			wdic.Put(PdfName.AP, apDic);
 			wdic.Put(PdfName.MK, mkDic);
+			wdic.Put(PdfName.AS, new PdfName("Off"));
 
 			rgrp.AddKid(chkbtn);
-			rgrp.SetValue(String.Empty);
-
 			// this would seem to add rgrp over and over,
 			// but it is necessary in order for this widget to get drawn
+			// Note that some widgets seems to end up in Kids twice. this is resolved by a clean up
+			// pass at the end of each builder.
 			PdfAcroForm.GetAcroForm(thisDoc, true).AddField(rgrp);
 
 			base.Draw(drawContext);

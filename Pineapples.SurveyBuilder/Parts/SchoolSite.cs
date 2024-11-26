@@ -80,9 +80,6 @@ namespace surveybuilder
 			);
 
 			document.Add(table2);
-			rgrp1.SetFieldFlags(0);
-			rgrp2.SetFieldFlags(0);
-
 			return document;
 		}
 	}
