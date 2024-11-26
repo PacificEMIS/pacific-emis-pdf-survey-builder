@@ -73,7 +73,7 @@ namespace surveybuilder
 
 			Paragraph pp = new Paragraph();
 			PdfDictionary ap = lookups.Ap(typ, forecolor, export);
-			pp.SetNextRenderer(new CheckBoxGroupCellRenderer(cell, grp, ap));
+			pp.SetNextRenderer(new CheckBoxGroupCellRenderer(cell, grp, ap, export));
 
 			return cell.Add(pp);
 		}

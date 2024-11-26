@@ -112,7 +112,6 @@ namespace surveybuilder
 
 			);
 			document.Add(table);
-			rgrp.SetFieldFlags(0);
 
 			builder.Heading_2("Community Support", document);
 

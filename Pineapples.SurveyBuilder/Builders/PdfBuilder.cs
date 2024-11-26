@@ -139,7 +139,35 @@ namespace surveybuilder
 			return document;
 		}
 
-		
+		/// <summary>
+		/// common cleanup routine for any form
+		/// </summary>
+		public virtual void Finalise()
+		{
+			// logic to clear up any duplicates found in Kids
+			IDictionary<string, PdfFormField> flds = PdfAcroForm.GetAcroForm(pdfDoc, true).GetAllFormFields();
+
+			var buttons = flds
+				.Where(fx => (fx.Value is PdfButtonFormField && fx.Value.GetKids() != null))
+				.ToDictionary(fx => fx.Key, fx => fx.Value);
+
+			Console.WriteLine($"{buttons.Count()}");
+			foreach (var btn in buttons.Values)
+			{
+				Console.WriteLine(btn.GetFieldName());
+				PdfButtonFormField rgrp = btn as PdfButtonFormField;
+				PdfArray kidsArray = rgrp.GetKids();
+				HashSet<PdfObject> uniqueKids = new HashSet<PdfObject>(kidsArray);
+				kidsArray.Clear();
+				foreach (var kid in uniqueKids)
+				{
+					kidsArray.Add(kid);
+				}
+			}
+
+
+		}
+
 		// Utility functions for Bookmark
 		public PdfOutline AddOutline(PdfOutline parent, string text, int pageNo = 0)
 		{

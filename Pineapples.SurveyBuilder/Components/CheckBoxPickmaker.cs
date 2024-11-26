@@ -107,10 +107,6 @@ namespace surveybuilder
 			var fields = form.GetAllFormFields();
 
 			document.Add(table);
-			// now all the fields are created, together with their annotations. We can clean up....
-			// THIS is how you turn off the Radio flag, and hence get real toggle off
-			rgrp.SetFieldFlags(0);
-
 			return document;
 		}
 

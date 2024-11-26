@@ -275,8 +275,7 @@ namespace surveybuilder
 			document = new GeneralComments()
 				.Build(this, document);
 			NewPage(document);
-
-
+			Finalise();
 			return document;
 		}
 
