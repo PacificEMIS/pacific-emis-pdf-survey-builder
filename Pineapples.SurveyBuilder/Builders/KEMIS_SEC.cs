@@ -18,14 +18,18 @@ using iText.IO.Font;
 
 namespace surveybuilder
 {
-	public class KEMIS_PRI_Builder : PdfBuilder
+	public class KEMIS_SEC : PdfBuilder
 	{
-		public KEMIS_PRI_Builder(PdfStylesheet stylesheet, PdfDocument pdfDoc) : base(stylesheet, pdfDoc)
+		public KEMIS_SEC()
 		{
 
 		}
+		public override void Initialise(PdfStylesheet stylesheet, PdfDocument pdfDoc)
+		{
+			base.Initialise(stylesheet, pdfDoc);
+		}
 
-		public new Document Build()
+		public override Document Build()
 		{
 			dataHost = ConfigurationManager.AppSettings["emisUrl"]; // dataHost = $"https://kemis-test.pacific-emis.org";
 			
@@ -59,7 +63,7 @@ namespace surveybuilder
 			canvas.BeginText()
 				  .SetFontAndSize(customFont2, 32)
 				  .MoveText(50, 150) // (x, y) position for the text
-				  .ShowText("2024")
+				  .ShowText("2024 (Secondary)")
 				  .SetFontAndSize(customFont, 12)
 				  .MoveText(448, -90) // Adjust for the next line of text if needed
 				  .ShowText("07112024") // Version
@@ -77,7 +81,7 @@ namespace surveybuilder
 			GenderedGridmaker grd = new GenderedGridmaker();
 
 			// Moved to KeyValuePair to a custom LookupEntry class which can also hold metadata.
-			var rows = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
+			var rows = new string[] { "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22" }
 							.Select(n => new LookupEntry
 							{
 								C = n, // Set the primary code (C)
@@ -86,14 +90,16 @@ namespace surveybuilder
 							.ToList();
 
 
-			var classLevels = new List<LookupEntry>();
-
-			classLevels.Add(new LookupEntry { C = "P1", N = "Class 1" });
-			classLevels.Add(new LookupEntry { C = "P2", N = "Class 2" });
-			classLevels.Add(new LookupEntry { C = "P3", N = "Class 3" });
-			classLevels.Add(new LookupEntry { C = "P4", N = "Class 4" });
-			classLevels.Add(new LookupEntry { C = "P5", N = "Class 5" });
-			classLevels.Add(new LookupEntry { C = "P6", N = "Class 6" });
+			var classLevels = new List<LookupEntry>()
+			{
+				new LookupEntry() {C = "JS1", N = "Form 1" },
+				new LookupEntry() { C = "JS2", N = "Form 2" },
+				new LookupEntry() { C = "JS3", N = "Form 3" },
+				new LookupEntry() { C = "SS1", N = "Form 4" },
+				new LookupEntry() { C = "SS2", N = "Form 5" },
+				new LookupEntry() { C = "SS3", N = "Form 6" },
+				new LookupEntry() { C = "SS4", N = "Form 7" }
+			};
 
 			grd.Rows = rows;
 			grd.Columns = classLevels;

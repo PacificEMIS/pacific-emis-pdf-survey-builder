@@ -15,7 +15,7 @@ using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using Colors = iText.Kernel.Colors;
-using itext4.Utilities;
+using surveybuilder.Utilities;
 
 namespace surveybuilder
 {
@@ -23,7 +23,7 @@ namespace surveybuilder
 	{
 		// Import common table styles
 		PdfTableStylesheet ts = new PdfTableStylesheet();
-		public Document Build(KEMIS_PRI_Builder builder, Document document)
+		public Document Build(PdfBuilder builder, Document document)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 1, height: 18);

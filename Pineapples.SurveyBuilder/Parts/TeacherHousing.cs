@@ -16,7 +16,7 @@ using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using Org.BouncyCastle.Asn1.Cmp;
 using System.Collections;
-using itext4.Utilities;
+using surveybuilder.Utilities;
 
 namespace surveybuilder
 {
@@ -29,7 +29,7 @@ namespace surveybuilder
 		{
 		}
 
-		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> resources)
+		public Document Build(PdfBuilder builder, Document document, List<LookupEntry> resources)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;

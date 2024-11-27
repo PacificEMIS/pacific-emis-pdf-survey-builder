@@ -26,7 +26,7 @@ using iText.Kernel.Pdf.Navigation;
 namespace surveybuilder
 {
 
-	public class PdfBuilder
+	public abstract class PdfBuilder:IBuilder
 	{
 		public PdfStylesheet stylesheet;
 		public PdfDocument pdfDoc;
@@ -41,16 +41,21 @@ namespace surveybuilder
 		// header and footer
 
 
+		// IBuilder interface
 
-		public PdfBuilder(PdfStylesheet stylesheet, PdfDocument pdfDoc)
+		public virtual string Description
+		{
+			get
+			{
+				return "Provide a description for this builder by overriding IBuilder:Description";
+			}
+		}
+
+		public virtual void Initialise(PdfStylesheet stylesheet, PdfDocument pdfDoc)
 		{
 			this.stylesheet = stylesheet;
 			this.pdfDoc = pdfDoc;
 		}
-
-		public PdfBuilder(PdfDocument pdfDoc) { this.pdfDoc = pdfDoc; }
-		public PdfBuilder(PdfStylesheet stylesheet) { this.stylesheet = stylesheet; }
-
 
 
 		private string pageHeaderLeft;
@@ -131,7 +136,7 @@ namespace surveybuilder
 			return document;
 		}
 
-		public Document Build()
+		public virtual Document Build()
 		{
 			Document document = new Document(pdfDoc, PageSize.A4);
 			Paragraph p = new Paragraph("Override Build in PDF Builder to generate your PDF");

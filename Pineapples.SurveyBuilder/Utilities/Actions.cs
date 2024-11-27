@@ -20,7 +20,7 @@ using iText.Forms.Form.Element;
 using System.Reflection;
 using System.CodeDom;
 
-namespace itext4.Utilities
+namespace surveybuilder.Utilities
 {
 	internal class Actions
 	{
