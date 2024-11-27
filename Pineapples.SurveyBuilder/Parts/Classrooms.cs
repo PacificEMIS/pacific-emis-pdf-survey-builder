@@ -16,7 +16,7 @@ using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using iText.Kernel.Colors;
 using static System.Net.Mime.MediaTypeNames;
-using itext4.Utilities;
+using surveybuilder.Utilities;
 
 namespace surveybuilder
 {
@@ -28,7 +28,7 @@ namespace surveybuilder
 		{
 
 		}
-		public Document Build(KEMIS_PRI_Builder builder, Document document)
+		public Document Build(PdfBuilder builder, Document document)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;

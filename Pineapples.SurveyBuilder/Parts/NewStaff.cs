@@ -19,7 +19,7 @@ namespace surveybuilder
 {
 	public class NewStaff
 	{
-		public Document Build(KEMIS_PRI_Builder builder, Document document)
+		public Document Build(PdfBuilder builder, Document document)
 		{
 			document.Add(new Paragraph()
 				.Add(@"Complete the following table for every teacher that is teaching at your school who is not listed in the previous table.")

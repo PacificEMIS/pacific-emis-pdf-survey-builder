@@ -19,7 +19,7 @@ namespace surveybuilder
 {
 	public class PSA
 	{
-		public Document Build(KEMIS_PRI_Builder builder, Document document)
+		public Document Build(PdfBuilder builder, Document document)
 		{
 
 			GenderedGridmaker grd = new GenderedGridmaker();

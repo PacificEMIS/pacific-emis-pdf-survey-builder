@@ -22,6 +22,12 @@ using iText.Forms.Fields.Merging;
 using iText.Forms.Form;
 using iText.Layout.Borders;
 using System.Security.Cryptography;
+using CommandLine;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Dynamic;
 
 namespace surveybuilder
 {
@@ -29,8 +35,48 @@ namespace surveybuilder
 	{
 		private static String DEST = System.IO.Path.Combine(ConfigurationManager.AppSettings["filesPath"], "LayoutFormFields.pdf");
 
-		static void Main()
+		static void Main(string[] args)
 		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+
+			// Find all types implementing IBuilder
+			var builderTypes = assembly.GetTypes()
+									   .Where(t => typeof(IBuilder).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
+
+			// Create the dictionary
+			Dictionary<string, string> builderDescriptions = new Dictionary<string, string>();
+
+			foreach (var type in builderTypes)
+			{
+				// Create an instance of the class
+				if (Activator.CreateInstance(type) is IBuilder instance)
+				{
+					builderDescriptions[type.Name] = instance.Description;
+				}
+			}
+			
+			// Print the dictionary
+			foreach (var kvp in builderDescriptions)
+			{
+				Console.WriteLine($"Class: {kvp.Key}, Description: {kvp.Value}");
+			}
+
+			Parser.Default.ParseArguments<Options>(args)
+				.WithParsed(RunWithOptions)
+				.WithNotParsed(HandleParseError);
+		}
+
+		static void HandleParseError(IEnumerable<Error> errs)
+		{
+			Console.WriteLine("Error parsing arguments.Press <ENTER> to exit");
+			Console.ReadLine();
+
+		}
+
+		static void RunWithOptions(Options opts)
+		{
+			Console.WriteLine($"Form: {opts.Form}");
+			// Add your application logic here.
 
 
 			PdfStylesheet stylesheet = new PdfStylesheet();
@@ -85,19 +131,39 @@ namespace surveybuilder
 			// Create a new PDF document
 			string dest = System.IO.Path.Combine(ConfigurationManager.AppSettings["filesPath"], "kiri2024.pdf");
 
-			PdfWriter writer = new PdfWriter(dest);
-			// helps for *very* low level debugging
-			writer.SetCompressionLevel(CompressionConstants.NO_COMPRESSION);
+			// Verbose mode helps for low level debugging
+			WriterProperties wprops = new WriterProperties()
+				.SetCompressionLevel(opts.Verbose?CompressionConstants.NO_COMPRESSION:CompressionConstants.BEST_COMPRESSION)
+				.SetFullCompressionMode(!opts.Verbose);
+				
+
+			PdfWriter writer = new PdfWriter(dest, wprops);
 
 			PdfDocument pdfDoc = new PdfDocument(writer);
 
-			//Document document = new Document(pdfDoc);
-
-			Document document = new KEMIS_PRI_Builder(stylesheet, pdfDoc).Build();
+			// now use form to create the class
+			// Create an instance of the class
+			IBuilder builder = CreateBuilderInstance(opts.Form);
+			builder.Initialise(stylesheet, pdfDoc);
+			Document document = builder.Build();
 
 			document.Close();
 			Console.WriteLine("Completed");
 
+		}
+
+		static IBuilder CreateBuilderInstance(string className)
+		{
+			// Get the current assembly
+			var assembly = typeof(Program).Assembly;
+
+			string namespacename = typeof(Program).Namespace;
+			// Get the full type name
+			var type = assembly.GetType($"{namespacename}.{className}", true, true);
+			//var type = builderTypes.Where(type => (type.Name == "KEMIS_SEC"))
+			//	.First();
+			// Create an instance of the type
+			return (IBuilder)Activator.CreateInstance(type);
 		}
 
 		static void HierarchyTest(PdfDocument pdfDoc)

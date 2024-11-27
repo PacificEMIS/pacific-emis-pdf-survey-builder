@@ -14,7 +14,7 @@ using iText.Forms;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
 using System.Net;
-using itext4.Utilities;
+using surveybuilder.Utilities;
 
 namespace surveybuilder
 {
@@ -24,7 +24,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHWater() { }
 
-		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> waterSupplyTypes)
+		public Document Build(PdfBuilder builder, Document document, List<LookupEntry> waterSupplyTypes)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;

@@ -13,7 +13,7 @@ using iText.Kernel.Colors;
 using iText.Forms;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
-using itext4.Utilities;
+using surveybuilder.Utilities;
 
 namespace surveybuilder
 {
@@ -23,7 +23,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHSanitation() { }
 
-		public Document Build(KEMIS_PRI_Builder builder, Document document, List<LookupEntry> toiletTypes)
+		public Document Build(PdfBuilder builder, Document document, List<LookupEntry> toiletTypes)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
