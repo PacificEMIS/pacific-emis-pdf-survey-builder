@@ -24,7 +24,7 @@ namespace surveybuilder
 
 		string Description { get; }
 
-		void Initialise(PdfStylesheet stylesheet, PdfDocument pdfDoc);
+		void Initialise(Options options, PdfDocument pdfDoc);
 
 	}
 }

@@ -15,6 +15,7 @@ using static iText.IO.Codec.TiffWriter;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
 using surveybuilder.Utilities;
+using iText.Kernel.Pdf;
 
 namespace surveybuilder
 {
@@ -25,7 +26,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public SchoolInfo() { }
 
-		public Document Build(PdfBuilder builder, Document document)
+		public Document Build(PdfBuilder builder, Document document, PdfOutline schoolInfoOutline)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
@@ -35,7 +36,7 @@ namespace surveybuilder
 
 			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 35, 15, 50 }))
 						.UseAllAvailableWidth();
-
+			builder.AddOutline(document, schoolInfoOutline, "General Information");
 			builder.Heading_2("General Information", document);
 
 			//AddRow is an extension method in PdfExtensions
@@ -82,6 +83,7 @@ namespace surveybuilder
 
 			document.Add(table);
 
+			builder.AddOutline(document, schoolInfoOutline, "Parent's Committee");
 			builder.Heading_2("Parents' Committee", document);
 			document.Add(new Paragraph(@"Record the details of the school's Parents Committee."));
 
@@ -113,6 +115,7 @@ namespace surveybuilder
 			);
 			document.Add(table);
 
+			builder.AddOutline(document, schoolInfoOutline, "Community Support");
 			builder.Heading_2("Community Support", document);
 
 			string prompt = @"On the scale below rate the level of support your school receives from the local community.";
@@ -128,6 +131,9 @@ namespace surveybuilder
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.SQUARE };
 			chk.Tag = "PC.Support";
 			chk.Make(builder, document);
+
+
+			builder.AddOutline(document, schoolInfoOutline, "Overall School Structure");
 
 			builder.Heading_2("Overall School Structure", document);
 			prompt = @"Record the following summary details about the overall structure of your school.";

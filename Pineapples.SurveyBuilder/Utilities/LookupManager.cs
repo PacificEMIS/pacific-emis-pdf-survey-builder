@@ -21,6 +21,40 @@ using System.Linq.Expressions;
 
 namespace surveybuilder
 {
+	public class LookupEntry
+	{
+		/// <summary>
+		/// The primary code for the entry (e.g., "C" or equivalent key).
+		/// </summary>
+		public string C { get; set; }
+
+		/// <summary>
+		/// The primary name for the entry (e.g., "N" or equivalent key).
+		/// </summary>
+		public string N { get; set; }
+
+		/// <summary>
+		/// Additional metadata associated with this entry.
+		/// </summary>
+		public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
+
+		/// <summary>
+		/// Filters a list of LookupEntry objects based on a set of criteria.
+		/// </summary>
+		/// <param name="entries">The list of LookupEntry objects to filter.</param>
+		/// <param name="criteria">A dictionary of key-value pairs representing the filter criteria.</param>
+		/// <returns>A filtered list of LookupEntry objects matching all criteria.</returns>
+		public static List<LookupEntry> FilterByMetadata(List<LookupEntry> entries, Dictionary<string, object> criteria)
+		{
+			return entries
+				.Where(entry =>
+					criteria.All(criterion =>
+						entry.Metadata.ContainsKey(criterion.Key) &&
+						entry.Metadata[criterion.Key]?.ToString() == criterion.Value?.ToString()))
+				.ToList();
+		}
+	}
+
 	public class LookupManager
 	{
 		PdfDocument pdfDoc;
@@ -45,7 +79,10 @@ namespace surveybuilder
 		}
 
 		#region Lookup Lists
-
+		/// <summary>
+		/// Adds a set of loookup tables to the manager, using a Rest call
+		/// </summary>
+		/// <param name="lookupCollection">Corresponds to the collection endpoint in api/lookups/collection</param>
 		public void AddLookups(string lookupCollection)
 		{
 			string endpoint = $"{dataHost}/api/lookups/collection/{lookupCollection}";
@@ -65,7 +102,22 @@ namespace surveybuilder
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error retrieving XML: {ex.Message}");
+				Console.WriteLine($"Error retrieving lookups {lookupCollection}: {ex.Message}");
+				throw ex;
+
+			}
+		}
+		public void AddList(string listName, List<LookupEntry> lookupList)
+		{
+
+			Console.WriteLine($"Adding lookup list '{listName}'");
+			try
+			{
+				lookups.Add(listName, lookupList);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error Adding list '{lookupList}': {ex.Message}");
 
 			}
 		}
@@ -207,7 +259,7 @@ namespace surveybuilder
 
 			if (aps.TryGetValue(apkey, out var ap))
 			{
-				Console.WriteLine($"Found {apkey}");
+//				Console.WriteLine($"Found {apkey}");
 				return ap;
 			}
 			// now we have to make it
@@ -327,7 +379,7 @@ namespace surveybuilder
 				result.Put(PdfName.MK, MkDic);
 				result.MakeIndirect(pdfDoc);
 				aps.Add(apkey, result);
-				System.Console.WriteLine($"{aps.Count}");
+				//System.Console.WriteLine($"{aps.Count}");
 				return result;
 
 			}

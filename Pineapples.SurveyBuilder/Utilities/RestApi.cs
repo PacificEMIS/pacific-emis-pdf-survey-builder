@@ -11,40 +11,6 @@ using Newtonsoft.Json.Linq;
 
 namespace surveybuilder
 {
-	public class LookupEntry
-	{
-		/// <summary>
-		/// The primary code for the entry (e.g., "C" or equivalent key).
-		/// </summary>
-		public string C { get; set; }
-
-		/// <summary>
-		/// The primary name for the entry (e.g., "N" or equivalent key).
-		/// </summary>
-		public string N { get; set; }
-
-		/// <summary>
-		/// Additional metadata associated with this entry.
-		/// </summary>
-		public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
-
-		/// <summary>
-		/// Filters a list of LookupEntry objects based on a set of criteria.
-		/// </summary>
-		/// <param name="entries">The list of LookupEntry objects to filter.</param>
-		/// <param name="criteria">A dictionary of key-value pairs representing the filter criteria.</param>
-		/// <returns>A filtered list of LookupEntry objects matching all criteria.</returns>
-		public static List<LookupEntry> FilterByMetadata(List<LookupEntry> entries, Dictionary<string, object> criteria)
-		{
-			return entries
-				.Where(entry =>
-					criteria.All(criterion =>
-						entry.Metadata.ContainsKey(criterion.Key) &&
-						entry.Metadata[criterion.Key]?.ToString() == criterion.Value?.ToString()))
-				.ToList();
-		}
-	}
-
 
 
 	public class RestApi
