@@ -21,28 +21,22 @@ using System.Numerics;
 using System.Data.Common;
 using System.Xml.Linq;
 using iText.Kernel.Pdf.Navigation;
-
+using System.Web.UI.WebControls.Expressions;
+using System.Configuration;
 
 namespace surveybuilder
 {
-
-	public abstract class PdfBuilder:IBuilder
+	public abstract class PdfBuilder : IBuilder
 	{
 		public PdfStylesheet stylesheet;
 		public PdfDocument pdfDoc;
 		//public Dictionary<string, List<KeyValuePair<string, string>>> lookups;
 		public LookupManager lookups;
+		public Options options;
 
 		public Boolean facingPages = false;
 
-		// also add the data factory in here
-		public string dataHost;
-
-		// header and footer
-
-
 		// IBuilder interface
-
 		public virtual string Description
 		{
 			get
@@ -51,9 +45,59 @@ namespace surveybuilder
 			}
 		}
 
-		public virtual void Initialise(PdfStylesheet stylesheet, PdfDocument pdfDoc)
+		public virtual void Initialise(Options options, PdfDocument pdfDoc)
 		{
+			PdfStylesheet stylesheet = new PdfStylesheet();
+
+			// Define the base style for headings
+			PdfStyle headingbase = new PdfStyle()
+			{
+				FontBold = true,
+				KeepWithNext = true,  // Headings often keep with the next paragraph
+				SpacingBefore = 10,   // Add some space before the heading
+				SpacingAfter = 5      // Add some space after the heading
+			};
+
+			// Add the base style for headings to the stylesheet
+			stylesheet.Add("headingbase", headingbase);
+
+			// Define Heading 1 style
+			stylesheet.Add("Heading 1", new PdfStyle(stylesheet["headingbase"])
+			{
+				FontSize = 24,
+				//FontColor = ColorConstants.BLUE
+			});
+
+			// Define Heading 2 style
+			stylesheet.Add("Heading 2", new PdfStyle(stylesheet["headingbase"])
+			{
+				FontSize = 20,
+				//FontColor = ColorConstants.RED
+			});
+
+			// Define Heading 3 style
+			stylesheet.Add("Heading 3", new PdfStyle(stylesheet["headingbase"])
+			{
+				FontSize = 16,
+				//FontColor = ColorConstants.ORANGE
+			});
+
+			// Define Heading 4 style
+			stylesheet.Add("Heading 4", new PdfStyle(stylesheet["headingbase"])
+			{
+				FontSize = 12,
+				//FontColor = ColorConstants.CYAN
+			});
+
+			// Define Heading 5 style
+			stylesheet.Add("Heading 5", new PdfStyle(stylesheet["headingbase"])
+			{
+				FontSize = 12,
+				//FontColor = ColorConstants.GREEN
+			});
+
 			this.stylesheet = stylesheet;
+			this.options = options;
 			this.pdfDoc = pdfDoc;
 		}
 
@@ -156,10 +200,9 @@ namespace surveybuilder
 				.Where(fx => (fx.Value is PdfButtonFormField && fx.Value.GetKids() != null))
 				.ToDictionary(fx => fx.Key, fx => fx.Value);
 
-			Console.WriteLine($"{buttons.Count()}");
+			Console.WriteLine($"Final touches...");
 			foreach (var btn in buttons.Values)
 			{
-				Console.WriteLine(btn.GetFieldName());
 				PdfButtonFormField rgrp = btn as PdfButtonFormField;
 				PdfArray kidsArray = rgrp.GetKids();
 				HashSet<PdfObject> uniqueKids = new HashSet<PdfObject>(kidsArray);
@@ -173,19 +216,33 @@ namespace surveybuilder
 
 		}
 
+		#region Bookmarks and Outline
 		// Utility functions for Bookmark
-		public PdfOutline AddOutline(PdfOutline parent, string text, int pageNo = 0)
+		PdfDestination CurrentDestination(Document document)
 		{
-			if (pageNo == 0)
-			{
-				pageNo = this.pdfDoc.GetNumberOfPages();
-			}
-			var po = new PdfString(pageNo.ToString());
+			// this bounding box is the remaining area on the current page
+			var bbox = document.GetRenderer().GetCurrentArea().GetBBox();
+			// y is at the botttom of the page
+			//and height is ThenBy remain part of the page not yet used
+			float y = bbox.GetY() + bbox.GetHeight();
+
+			// Create a destination at this point
+			return PdfExplicitDestination.CreateXYZ(
+				pdfDoc.GetLastPage(), // Current page
+				0,                 // X coordinate (left edge)
+				y,                 // Y coordinate (top of the table)
+				1                  // Zoom level
+			);
+
+		}
+		public PdfOutline AddOutline(Document document, PdfOutline parent, string text)
+		{
 			var newOutline = parent.AddOutline(text);
-			newOutline.AddDestination(PdfDestination.MakeDestination(po));
+			newOutline.AddDestination(CurrentDestination(document));
 			return newOutline;
 		}
 
+		#endregion
 		// some wrappers around the style sheet
 
 		public Paragraph Heading_1(string text)
@@ -226,7 +283,23 @@ namespace surveybuilder
 		}
 
 
+		#region Javascript
 
+		public virtual void LoadJs()
+		{
+			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
+
+			string jsPath = System.IO.Path.Combine(options.PineapplesPath, @"Pineapples.Client\assets\pdfSurvey\js");
+
+			foreach (string jsfile in System.IO.Directory.GetFiles(jsPath))
+			{
+				string jscriptText = System.IO.File.ReadAllText(jsfile);
+				PdfDictionary jscript = iText.Kernel.Pdf.Action.PdfAction
+					.CreateJavaScript(jscriptText).GetPdfObject();
+				javaScriptNameTree.AddEntry(System.IO.Path.GetFileName(jsfile), jscript);
+			}
+
+		}
+		#endregion
 	}
-
 }

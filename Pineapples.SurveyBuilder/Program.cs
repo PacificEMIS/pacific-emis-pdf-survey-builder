@@ -39,8 +39,20 @@ namespace surveybuilder
 		{
 			Assembly assembly = Assembly.GetExecutingAssembly();
 
-			// Find all types implementing IBuilder
-			var builderTypes = assembly.GetTypes()
+			// Retrieve the attributes
+			string title = ((AssemblyTitleAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyTitleAttribute)))?.Title ?? "No Title Defined";
+			string description = ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyDescriptionAttribute)))?.Description ?? "No Description Defined";
+			string version = assembly.GetName().Version?.ToString() ?? "No Version Defined";
+			string copyright = ((AssemblyCopyrightAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyCopyrightAttribute)))?.Copyright ?? "No Copyright Defined";
+
+			// Write them to the console
+			Console.WriteLine($"{title} Version {version}");
+			Console.WriteLine($"{copyright}"); 
+			Console.WriteLine($"Description: {description}");
+
+
+		// Find all types implementing IBuilder
+		var builderTypes = assembly.GetTypes()
 									   .Where(t => typeof(IBuilder).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
 
 			// Create the dictionary
@@ -54,11 +66,12 @@ namespace surveybuilder
 					builderDescriptions[type.Name] = instance.Description;
 				}
 			}
-			
+
 			// Print the dictionary
+			Console.WriteLine($"Available forms:");
 			foreach (var kvp in builderDescriptions)
 			{
-				Console.WriteLine($"Class: {kvp.Key}, Description: {kvp.Value}");
+				Console.WriteLine($"{kvp.Key}: {kvp.Value}");
 			}
 
 			Parser.Default.ParseArguments<Options>(args)
@@ -75,81 +88,46 @@ namespace surveybuilder
 
 		static void RunWithOptions(Options opts)
 		{
-			Console.WriteLine($"Form: {opts.Form}");
+			string dest = System.IO.Path.Combine(opts.OutputPath, $"{opts.Form}.pdf");
+
+			Console.WriteLine("Options:");
+			Console.WriteLine($"Selected Form: {opts.Form}");
+			Console.WriteLine($"Pacific Emis Url: {opts.EmisUrl}");
+			Console.WriteLine($"Pineapples Path: {opts.PineapplesPath}");
+			Console.WriteLine($"Output Path: {opts.OutputPath}");
+			Console.WriteLine($"Output Pdf: {dest}");
+			Console.WriteLine("Verbose mode:" + (opts.Verbose ? "On" : "Off"));
+			Console.WriteLine();
 			// Add your application logic here.
-
-
-			PdfStylesheet stylesheet = new PdfStylesheet();
-
-			// Define the base style for headings
-			PdfStyle headingbase = new PdfStyle()
-			{
-				FontBold = true,
-				KeepWithNext = true,  // Headings often keep with the next paragraph
-				SpacingBefore = 10,   // Add some space before the heading
-				SpacingAfter = 5      // Add some space after the heading
-			};
-
-			// Add the base style for headings to the stylesheet
-			stylesheet.Add("headingbase", headingbase);
-
-			// Define Heading 1 style
-			stylesheet.Add("Heading 1", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 24,
-				//FontColor = ColorConstants.BLUE
-			});
-
-			// Define Heading 2 style
-			stylesheet.Add("Heading 2", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 20,
-				//FontColor = ColorConstants.RED
-			});
-
-			// Define Heading 3 style
-			stylesheet.Add("Heading 3", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 16,
-				//FontColor = ColorConstants.ORANGE
-			});
-
-			// Define Heading 4 style
-			stylesheet.Add("Heading 4", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 12,
-				//FontColor = ColorConstants.CYAN
-			});
-
-			// Define Heading 5 style
-			stylesheet.Add("Heading 5", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 12,
-				//FontColor = ColorConstants.GREEN
-			});
-
-			// Create a new PDF document
-			string dest = System.IO.Path.Combine(ConfigurationManager.AppSettings["filesPath"], "kiri2024.pdf");
 
 			// Verbose mode helps for low level debugging
 			WriterProperties wprops = new WriterProperties()
-				.SetCompressionLevel(opts.Verbose?CompressionConstants.NO_COMPRESSION:CompressionConstants.BEST_COMPRESSION)
+				.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
 				.SetFullCompressionMode(!opts.Verbose);
-				
+
 
 			PdfWriter writer = new PdfWriter(dest, wprops);
-
 			PdfDocument pdfDoc = new PdfDocument(writer);
 
 			// now use form to create the class
 			// Create an instance of the class
 			IBuilder builder = CreateBuilderInstance(opts.Form);
-			builder.Initialise(stylesheet, pdfDoc);
-			Document document = builder.Build();
+			builder.Initialise(opts, pdfDoc);
 
-			document.Close();
-			Console.WriteLine("Completed");
+			try
+			{
+				Document document = builder.Build();
+				document.Close();
+				Console.WriteLine($"COMPLETED: {dest} created");
 
+				Console.ReadKey();
+
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine($"Error: {e.Message}");
+				Console.ReadKey();
+			}
 		}
 
 		static IBuilder CreateBuilderInstance(string className)
