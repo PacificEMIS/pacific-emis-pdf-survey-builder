@@ -155,6 +155,7 @@
     <Compile Include="Builders\IBuilder.cs" />
     <Compile Include="Builders\KEMIS_SEC.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="Parts\Dormitories.cs" />
     <Compile Include="Parts\GeneralComments.cs" />
     <Compile Include="Parts\SchoolSupplies.cs" />
     <Compile Include="Parts\SchoolResources.cs" />

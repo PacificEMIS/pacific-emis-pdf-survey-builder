@@ -42,7 +42,6 @@ using iText.IO.Font;
 using Newtonsoft.Json.Linq;
 using iText.Kernel.Colors;
 
-
 namespace surveybuilder
 {
 	public class CellMakers
@@ -50,11 +49,11 @@ namespace surveybuilder
 		#region cells for checkboxes
 		public static Cell YesCell(Cell cellmodel, PdfButtonFormField grp)
 		{
-			return CheckCell(cellmodel, grp, CheckBoxType.CHECK, ColorConstants.GREEN,"Y");
+			return CheckCell(cellmodel, grp, CheckBoxType.CHECK, NamedColors.DarkGreen,"Y");
 		}
 		public static Cell NoCell(Cell cellmodel, PdfButtonFormField grp)
 		{
-			return CheckCell(cellmodel, grp,CheckBoxType.CROSS, ColorConstants.RED, "N" );
+			return CheckCell(cellmodel, grp,CheckBoxType.CROSS, NamedColors.DarkRed, "N" );
 		}
 		public static Cell SelectCell(Cell cellmodel, PdfButtonFormField grp, string exportValue)
 		{

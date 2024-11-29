@@ -116,23 +116,6 @@ namespace surveybuilder
 				.Build(this, document, grd, lookups["islands"]);
 			NewPage(document);
 
-
-			AddOutline(document, enrolOutline, "Pre-School Attendance");
-			document.Add(Heading_2("Pupils Who Have Attended Pre-School"));
-			document = new PSA()
-				.Build(this, document);
-			NewPage(document);
-
-			AddOutline(document, enrolOutline, "Single Teacher Classes");
-			document.Add(Heading_2("Single Teacher Classes"));
-			document = new SingleTeacherClasses().Build(this, document);
-			NewPage(document);
-
-			AddOutline(document, enrolOutline, "Joint Teacher Classes");
-			document.Add(Heading_2("Joint Teacher Classes"));
-			document = new JointTeacherClasses().Build(this, document);
-			NewPage(document);
-
 			#endregion
 
 			#region *********** Staff *************
@@ -159,6 +142,12 @@ namespace surveybuilder
 			AddOutline(document, infrastructureOutline, "Classrooms");
 			document.Add(Heading_2("Classrooms"));
 			document = new Classrooms()
+				.Build(this, document);
+			NewPage(document);
+
+			AddOutline(document, infrastructureOutline, "Dormitories");
+			document.Add(Heading_2("Dormitories"));
+			document = new Dormitories()
 				.Build(this, document);
 			NewPage(document);
 
