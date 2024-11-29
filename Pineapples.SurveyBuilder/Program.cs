@@ -47,12 +47,15 @@ namespace surveybuilder
 
 			// Write them to the console
 			Console.WriteLine($"{title} Version {version}");
-			Console.WriteLine($"{copyright}"); 
-			Console.WriteLine($"Description: {description}");
+			Console.WriteLine($"{description}");
+			Console.WriteLine($"{copyright}");
+			Console.WriteLine(new String('-',80));
+			Console.WriteLine();
 
 
-		// Find all types implementing IBuilder
-		var builderTypes = assembly.GetTypes()
+
+			// Find all types implementing IBuilder
+			var builderTypes = assembly.GetTypes()
 									   .Where(t => typeof(IBuilder).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
 
 			// Create the dictionary
@@ -73,6 +76,7 @@ namespace surveybuilder
 			{
 				Console.WriteLine($"{kvp.Key}: {kvp.Value}");
 			}
+			Console.WriteLine();
 
 			Parser.Default.ParseArguments<Options>(args)
 				.WithParsed(RunWithOptions)

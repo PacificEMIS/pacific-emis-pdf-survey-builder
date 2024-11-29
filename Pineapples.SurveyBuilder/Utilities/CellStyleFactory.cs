@@ -82,6 +82,11 @@ namespace surveybuilder.Utilities
 		/// Predefined style for a cell spanning three rows and one column.
 		/// </summary>
 		public static Cell ThreeRowOneColumn => CreateCell(3, 1);
+
+		/// <summary>
+		/// Predefined style for a cell spanning two rows and two columns.
+		/// </summary>
+		public static Cell TwoRowTwoColumn => CreateCell(2, 2);
 	}
 
 }

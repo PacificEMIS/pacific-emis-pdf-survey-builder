@@ -15,6 +15,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Collections.Generic;
 
 using System;
+using System.Linq;
 
 
 namespace surveybuilder
@@ -449,7 +450,15 @@ namespace surveybuilder
 		/// <returns>A <see cref="Cell"/> styled as a table header cell.</returns>
 		public Cell TableHeaderStyle(Cell cell)
 		{
+			foreach (var element in cell.GetChildren()
+						.Where(x => x.GetType() == typeof(Paragraph)))
+			{
+				Paragraph p = (Paragraph) element;
+				styles.ApplyStyle("tableheader", p);
+			}
+
 			return styles.ApplyCell("tableheadercell", cell);
+
 		}
 
 		/// <summary>
