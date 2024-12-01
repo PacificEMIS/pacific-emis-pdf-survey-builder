@@ -30,7 +30,7 @@ namespace surveybuilder
 		}
 		public Document Build(PdfBuilder builder, Document document)
 		{
-			Console.WriteLine("Dormitories");
+			Console.WriteLine("Part: Dormitories");
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model1_20 = CellStyleFactory.CreateCell(1, 20);

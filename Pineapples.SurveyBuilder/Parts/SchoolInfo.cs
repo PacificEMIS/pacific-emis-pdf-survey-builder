@@ -28,6 +28,7 @@ namespace surveybuilder
 
 		public Document Build(PdfBuilder builder, Document document, PdfOutline schoolInfoOutline)
 		{
+			Console.WriteLine("Part: SchoolInfo");
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model12 = CellStyleFactory.TwoColumn;
