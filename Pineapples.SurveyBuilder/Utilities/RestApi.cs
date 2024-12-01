@@ -15,7 +15,7 @@ namespace surveybuilder
 
 	public class RestApi
 	{
-		public Dictionary<string, List<LookupEntry>> GetFromRestService(string url)
+		public Dictionary<string, LookupList> GetFromRestService(string url)
 		{
 			// Define the Fiddler proxy
 			var proxy = new System.Net.WebProxy("http://127.0.0.1:8888", false);
@@ -49,7 +49,7 @@ namespace surveybuilder
 					var tmp = JsonConvert.DeserializeObject<JObject>(responseBody);
 
 					// Dictionary to store the parsed results with metadata
-					var dic = new Dictionary<string, List<LookupEntry>>();
+					var dic = new Dictionary<string, LookupList>();
 
 					// Iterate through each property in the JSON object
 					foreach (var property in tmp.Properties())
@@ -57,7 +57,7 @@ namespace surveybuilder
 						string key = property.Name; // e.g., "schoolTypes", "authorities"
 						JArray items = (JArray)property.Value;
 
-						var entryList = new List<LookupEntry>();
+						var entryList = new LookupList();
 
 						foreach (JObject item in items)
 						{

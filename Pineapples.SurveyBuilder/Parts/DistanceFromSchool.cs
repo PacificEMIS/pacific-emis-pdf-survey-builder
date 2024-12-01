@@ -22,7 +22,7 @@ namespace surveybuilder
 	{
 		// Import common table styles
 		PdfTableStylesheet ts = new PdfTableStylesheet();
-		public Document Build(PdfBuilder builder, Document document, List<LookupEntry> distanceCodes)
+		public Document Build(PdfBuilder builder, Document document, LookupList distanceCodes)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;

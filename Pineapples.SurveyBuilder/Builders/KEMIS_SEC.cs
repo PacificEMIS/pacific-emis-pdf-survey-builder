@@ -55,6 +55,7 @@ namespace surveybuilder
 			/**************************************************************************/
 			/* Begin Pdf output														  */
 			/**************************************************************************/
+			lookups["teacherQuals"].PrintAll();
 
 			CoverPage(document, "Secondary");
 
@@ -114,11 +115,12 @@ namespace surveybuilder
 			document.Add(Heading_2("Transfers In"));
 			document = new TransfersIn()
 				.Build(this, document, grd, lookups["islands"]);
-			NewPage(document);
+			
 
 			#endregion
 
 			#region *********** Staff *************
+			NewPage(document, PageSize.A4.Rotate());
 			var staffOutline = this.AddOutline(document, parentOutline, "School Staff Information");
 			document.Add(Heading_1("School Staff Information"));
 
@@ -231,10 +233,10 @@ namespace surveybuilder
 								C = n, // Set the primary code (C)
 								N = n  // Set the primary name (N)
 							})
-							.ToList();
-			lookups.AddList("ages", ages);
+							.ToLookupList();
+			lookups.Add("ages", ages);
 
-			var classLevels = new List<LookupEntry>()
+			var classLevels = new LookupList()
 			{
 				new LookupEntry() {C = "JS1", N = "Form 1" },
 				new LookupEntry() { C = "JS2", N = "Form 2" },
@@ -245,11 +247,23 @@ namespace surveybuilder
 				new LookupEntry() { C = "SS4", N = "Form 7" }
 			};
 
-			lookups.AddList("classLevels", classLevels);
+			lookups.Add("classLevels", classLevels);
+
+			// teacher roles vary across school types
+
+			LookupList tmp = lookups["schoolTypeRoles"]
+							.FilterByMetadata("T", "CS");       // use values for combined sec school
+			lookups.Add("filteredRoles", tmp);
+			tmp = lookups["teacherQualGroups"]
+							.FilterByMetadata("E", true);       // use values for combined sec school
+			lookups.Add("qualEd", tmp);
+			tmp = lookups["teacherQualGroups"]
+				.FilterByMetadata("E", false);       // use values for combined sec school
+			lookups.Add("qualN", tmp);
 		}
 
 
 	}
-
+	
 
 }

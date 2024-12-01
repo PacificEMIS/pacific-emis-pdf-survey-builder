@@ -23,7 +23,7 @@ namespace surveybuilder
 	{
 		// Import common table styles
 		PdfTableStylesheet ts = new PdfTableStylesheet();
-		public Document Build(PdfBuilder builder, Document document, List<LookupEntry> resources)
+		public Document Build(PdfBuilder builder, Document document, LookupList resources)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
@@ -86,7 +86,7 @@ namespace surveybuilder
 						{ "Cat", $"{kvp.Key}" },
 						{ "Surveyed", "True" }
 					};
-				List<LookupEntry> catResources = LookupEntry.FilterByMetadata(resources, catResFilter);
+				LookupList catResources = resources.FilterByMetadata(catResFilter);
 
 				// Data fields for each row
 				var i = 0;

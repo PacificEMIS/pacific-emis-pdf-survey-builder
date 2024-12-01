@@ -32,7 +32,7 @@ namespace surveybuilder
 								C = n, // Set the primary code (C)
 								N = n  // Set the primary name (N)
 							})
-							.ToList();
+							.ToLookupList();
 
 			grd.Rows = rows;
 
@@ -42,7 +42,7 @@ namespace surveybuilder
 			//ages.Add(new KeyValuePair<string, string>("6", "6"));
 			//ages.Add(new KeyValuePair<string, string>("7", "7"));
 			//ages.Add(new KeyValuePair<string, string>("8", "8"));
-			var ages = new List<LookupEntry>();
+			var ages = new LookupList();
 
 			ages.Add(new LookupEntry { C = "5", N = "5" });
 			ages.Add(new LookupEntry { C = "6", N = "6" });

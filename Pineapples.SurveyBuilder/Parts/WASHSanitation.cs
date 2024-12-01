@@ -23,7 +23,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHSanitation() { }
 
-		public Document Build(PdfBuilder builder, Document document, List<LookupEntry> toiletTypes)
+		public Document Build(PdfBuilder builder, Document document, LookupList toiletTypes)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
