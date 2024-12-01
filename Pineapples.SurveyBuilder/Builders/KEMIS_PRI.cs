@@ -266,17 +266,17 @@ namespace surveybuilder
 		{
 
 			// Moved to KeyValuePair to a custom LookupEntry class which can also hold metadata.
-			var ages = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
+			LookupList ages = new string[] { "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15" }
 							.Select(n => new LookupEntry
 							{
 								C = n, // Set the primary code (C)
 								N = n  // Set the primary name (N)
 							})
-							.ToList();
-			lookups.AddList("ages", ages);
+							.ToLookupList();
+			lookups.Add("ages", ages);
 
 
-			var classLevels = new List<LookupEntry>()
+			var classLevels = new LookupList()
 			{
 
 			new LookupEntry { C = "P1", N = "Class 1" },
@@ -286,7 +286,7 @@ namespace surveybuilder
 			new LookupEntry { C = "P5", N = "Class 5" },
 			new LookupEntry { C = "P6", N = "Class 6" }
 			};
-			lookups.AddList("classLevels", classLevels);
+			lookups.Add("classLevels", classLevels);
 		}
 
 	}

@@ -38,28 +38,67 @@ namespace surveybuilder
 		/// </summary>
 		public Dictionary<string, object> Metadata { get; set; } = new Dictionary<string, object>();
 
+		public override string ToString()
+		{
+			string m = string.Join(",", Metadata.Keys.ToArray());
+			return $"{C}: {N} ({m})";
+		}
+	}
+
+	public class LookupList : List<LookupEntry>
+	{
+
+		public LookupList() : base() { }
+
+		public LookupList(IEnumerable<LookupEntry> entries)
+		{
+			AddRange(entries); // Adds all entries to this LookupList
+		}
+
+		// Add a helper method to find an entry by key
+		public LookupEntry FindByCode(string code)
+		{
+			return this.FirstOrDefault(entry => entry.C == code);
+		}
+
+		// Add a method to print all entries
+		public void PrintAll()
+		{
+			foreach (var entry in this)
+			{
+				Console.WriteLine(entry);
+			}
+		}
 		/// <summary>
 		/// Filters a list of LookupEntry objects based on a set of criteria.
 		/// </summary>
 		/// <param name="entries">The list of LookupEntry objects to filter.</param>
 		/// <param name="criteria">A dictionary of key-value pairs representing the filter criteria.</param>
 		/// <returns>A filtered list of LookupEntry objects matching all criteria.</returns>
-		public static List<LookupEntry> FilterByMetadata(List<LookupEntry> entries, Dictionary<string, object> criteria)
+		public LookupList FilterByMetadata(Dictionary<string, object> criteria)
 		{
-			return entries
+			return this
 				.Where(entry =>
 					criteria.All(criterion =>
 						entry.Metadata.ContainsKey(criterion.Key) &&
 						entry.Metadata[criterion.Key]?.ToString() == criterion.Value?.ToString()))
-				.ToList();
+				.ToLookupList();
+		}
+		// simpler case - 1 criterion
+		public LookupList FilterByMetadata(string key, object value)
+		{
+			Dictionary<string, object> criteria = new Dictionary<string, object>()
+			{
+				{ key, value }
+			};
+			return FilterByMetadata(criteria);
 		}
 	}
-
-	public class LookupManager
+	public class LookupManager:Dictionary<string, LookupList>
 	{
 		PdfDocument pdfDoc;
 		string dataHost;
-		private Dictionary<string, List<LookupEntry>> lookups;
+		
 		private Dictionary<string, PdfArray> opts;
 		private Dictionary<(string, string, float, float, float, string), PdfDictionary> aps;
 
@@ -74,7 +113,6 @@ namespace surveybuilder
 		{
 			this.pdfDoc = pdfDoc;
 			this.dataHost = dataHost;
-			lookups = new Dictionary<string, List<LookupEntry>>();
 			AddLookups("core");
 		}
 
@@ -94,9 +132,9 @@ namespace surveybuilder
 				var tmp = api.GetFromRestService(endpoint);
 				foreach (var kvp in tmp)
 				{
-					if (!lookups.ContainsKey(kvp.Key))
+					if (!this.ContainsKey(kvp.Key))
 					{
-						lookups.Add(kvp.Key, kvp.Value);
+						base.Add(kvp.Key, kvp.Value);
 					}
 				}
 			}
@@ -107,13 +145,12 @@ namespace surveybuilder
 
 			}
 		}
-		public void AddList(string listName, List<LookupEntry> lookupList)
+		public new void Add(string listName, LookupList lookupList)
 		{
-
 			Console.WriteLine($"Adding lookup list '{listName}'");
 			try
 			{
-				lookups.Add(listName, lookupList);
+				base.Add(listName, lookupList);
 			}
 			catch (Exception ex)
 			{
@@ -122,26 +159,11 @@ namespace surveybuilder
 			}
 		}
 
-
-		/// <summary>
-		///  Support the syntax lookups["lookupname"] on LookupManager class
-		/// </summary>
-		/// <param name="key">name of lookuop list</param>
-		/// <returns>the lookup list</returns>
-		/// <exception cref="KeyNotFoundException"></exception>
-		public List<LookupEntry> this[string key]
+		public void PrintAll()
 		{
-			get
+			foreach (string key in this.Keys)
 			{
-				if (lookups.TryGetValue(key, out var value))
-				{
-					return value;
-				}
-				throw new KeyNotFoundException($"Key '{key}' not found in lookups.");
-			}
-			set
-			{
-				lookups[key] = value;
+				Console.WriteLine(key);
 			}
 		}
 		#endregion
@@ -163,7 +185,7 @@ namespace surveybuilder
 			{
 				return opts[key];
 			}
-			if (!lookups.ContainsKey(key))
+			if (!this.ContainsKey(key))
 			{
 				throw new KeyNotFoundException($"Key '{key}' not found in lookups.");
 			}
@@ -178,7 +200,7 @@ namespace surveybuilder
 		/// <returns>PdfArray</returns>
 		private PdfArray OptFromLookup(string key)
 		{
-			List<LookupEntry> lkps = lookups[key];
+			LookupList lkps = this[key];
 
 			PdfArray outerArray = new PdfArray();
 			// empty option - without this you cannot clear the dropdown
@@ -412,4 +434,13 @@ namespace surveybuilder
 
 
 	}
+
+	public static class LookupExtensions
+	{
+		public static LookupList ToLookupList(this IEnumerable<LookupEntry> entries)
+		{
+			return new LookupList(entries);
+		}
+	}
+
 }

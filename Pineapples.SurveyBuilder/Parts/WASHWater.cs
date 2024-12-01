@@ -24,7 +24,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHWater() { }
 
-		public Document Build(PdfBuilder builder, Document document, List<LookupEntry> waterSupplyTypes)
+		public Document Build(PdfBuilder builder, Document document, LookupList waterSupplyTypes)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;

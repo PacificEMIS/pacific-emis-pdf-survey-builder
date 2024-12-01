@@ -27,8 +27,8 @@ namespace surveybuilder
 
 	public class GenderedGridmaker
 	{
-		public List<LookupEntry> Columns;
-		public List<LookupEntry> Rows;
+		public LookupList Columns;
+		public LookupList Rows;
 		public string Tag;
 
 		public Boolean RowTotals;

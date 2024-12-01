@@ -22,7 +22,7 @@ namespace surveybuilder
 	{
 		// Import common table styles
 		PdfTableStylesheet ts = new PdfTableStylesheet();
-		public Document Build(PdfBuilder builder, Document document, GenderedGridmaker grd, List<LookupEntry> disabilities)
+		public Document Build(PdfBuilder builder, Document document, GenderedGridmaker grd, LookupList disabilities)
 		{
 			// Cell layout/styling models
 			var model = CellStyleFactory.DefaultNoHeight;

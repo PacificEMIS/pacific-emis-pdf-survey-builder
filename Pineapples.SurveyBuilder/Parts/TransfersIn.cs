@@ -19,7 +19,7 @@ namespace surveybuilder
 {
 	public class TransfersIn
 	{
-		public Document Build(PdfBuilder builder, Document document, GenderedGridmaker grd, List<LookupEntry> islands)
+		public Document Build(PdfBuilder builder, Document document, GenderedGridmaker grd, LookupList islands)
 		{
 			document.Add(new Paragraph()
 				.Add(@"Record the number of pupils that transferred in from another islands "
