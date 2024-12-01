@@ -154,7 +154,16 @@ namespace surveybuilder
 			return cell;
 		}
 
-
+		public static Cell NestedTableCell(Cell cellmodel, Table subTable)
+		{
+			Cell cell = cellmodel.Clone(false);
+			cell.SetHeight(null);
+			cell.SetMaxHeight(null);
+			cell.SetPaddingTop(5);
+			cell.SetPaddingBottom(5);
+			cell.Add(subTable);
+			return cell;
+		}
 
 		private static LookupManager lookups;
 		public static void SetLookups(LookupManager lkp)

@@ -36,6 +36,16 @@ namespace surveybuilder
 		}
 
 
+		public static Table AddHeaderRow(this Table tbl, PdfTableStylesheet ts, params Cell[] row)
+		{
+			
+			foreach (var cell in row)
+			{
+				tbl.AddHeaderCell(ts.TableHeaderStyle(cell));
+			}
+			return tbl;
+		}
+
 		// replace ' ' in a string with nonbreaking space
 
 		public static string Nbsp(this string str)
