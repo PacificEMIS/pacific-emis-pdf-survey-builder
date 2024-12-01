@@ -23,6 +23,8 @@ using System.Xml.Linq;
 using iText.Kernel.Pdf.Navigation;
 using System.Web.UI.WebControls.Expressions;
 using System.Configuration;
+using System.Reflection;
+using System.IO;
 
 namespace surveybuilder
 {
@@ -179,7 +181,12 @@ namespace surveybuilder
 			document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 			return document;
 		}
-
+		public Document NewPage(Document document, PageSize size)
+		{
+			pdfDoc.AddNewPage(size);
+			document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+			return document;
+		}
 		public virtual Document Build()
 		{
 			Document document = new Document(pdfDoc, PageSize.A4);
@@ -287,18 +294,38 @@ namespace surveybuilder
 
 		public virtual void LoadJs()
 		{
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			IEnumerable<string> jsNames = assembly.GetManifestResourceNames()
+							.Where(name => name.EndsWith(".js"));
+
+
 			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
 
-			string jsPath = System.IO.Path.Combine(options.PineapplesPath, @"Pineapples.Client\assets\pdfSurvey\js");
 
-			foreach (string jsfile in System.IO.Directory.GetFiles(jsPath))
+			foreach (string jsName in jsNames)
 			{
-				string jscriptText = System.IO.File.ReadAllText(jsfile);
+				string jscriptText = LoadEmbeddedResource(assembly, jsName);
 				PdfDictionary jscript = iText.Kernel.Pdf.Action.PdfAction
 					.CreateJavaScript(jscriptText).GetPdfObject();
-				javaScriptNameTree.AddEntry(System.IO.Path.GetFileName(jsfile), jscript);
+
+				string[] pp = jsName.Split('.');
+				string name = $"{pp[pp.Length - 2]}.{pp[pp.Length - 1]}";
+				
+				javaScriptNameTree.AddEntry(name, jscript);
 			}
 
+		}
+
+		private string LoadEmbeddedResource(Assembly assembly, string resourceName)
+		{
+			using (var stream = assembly.GetManifestResourceStream(resourceName))
+			{
+				if (stream == null) throw new Exception($"Resource {resourceName} not found.");
+				using (var reader = new StreamReader(stream))
+				{
+					return reader.ReadToEnd();
+				}
+			}
 		}
 		#endregion
 	}

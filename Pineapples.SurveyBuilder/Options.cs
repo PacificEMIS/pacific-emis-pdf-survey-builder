@@ -13,7 +13,6 @@ namespace surveybuilder
 
 	{
 		string emisUrl = ConfigurationManager.AppSettings["emisUrl"];
-		string pineapplesPath = ConfigurationManager.AppSettings["pineapplesPath"];
 		string filesPath = ConfigurationManager.AppSettings["filesPath"];
 
 		[Option('f', "form", Required = true, HelpText = "Specifies the form to use.")]
@@ -33,20 +32,6 @@ namespace surveybuilder
 			{
 				ConfigurationManager.AppSettings["emisUrl"] = value;
 				emisUrl = value;
-			}
-		}
-
-		[Option('p', "pineapples", Required = false, HelpText = "Url pointing to the Pacific EMIS Rest Api. Used to source data (especially lookup tables) from the target implementation of Pacific EMIS")]
-		public string PineapplesPath
-		{
-			get
-			{
-				return pineapplesPath;
-			}
-			set
-			{
-				ConfigurationManager.AppSettings["pineapplesPath"] = value;
-				pineapplesPath = value;
 			}
 		}
 
