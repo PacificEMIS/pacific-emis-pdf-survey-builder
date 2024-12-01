@@ -97,7 +97,6 @@ namespace surveybuilder
 			Console.WriteLine("Options:");
 			Console.WriteLine($"Selected Form: {opts.Form}");
 			Console.WriteLine($"Pacific Emis Url: {opts.EmisUrl}");
-			Console.WriteLine($"Pineapples Path: {opts.PineapplesPath}");
 			Console.WriteLine($"Output Path: {opts.OutputPath}");
 			Console.WriteLine($"Output Pdf: {dest}");
 			Console.WriteLine("Verbose mode:" + (opts.Verbose ? "On" : "Off"));
