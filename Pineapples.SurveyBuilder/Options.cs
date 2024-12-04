@@ -48,6 +48,8 @@ namespace surveybuilder
 				OutputPath = value;
 			}
 		}
+		[Option('n', "open", Required = false, HelpText = "Url pointing to the Pacific EMIS Rest Api. Used to source data (especially lookup tables) from the target implementation of Pacific EMIS")]
+		public bool AutoOpen { get; set; }
 
 	}
 }
