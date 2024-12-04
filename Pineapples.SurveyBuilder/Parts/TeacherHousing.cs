@@ -43,24 +43,25 @@ namespace surveybuilder
 			);
 
 			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 80, 10, 10 }))
-						.UseAllAvailableWidth();
+						.UseAllAvailableWidth()
+						.SetMarginBottom(20);
 
 			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("On Site"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Off Site")))
+				ts.TableHeaderStyle(TextCell(model, (""))),
+				ts.TableHeaderStyle(TextCell(model, "On Site")),
+				ts.TableHeaderStyle(TextCell(model, "Off Site"))
 			);
 			table.AddRow(
-				TextCell(model, ts.TableBaseStyle("No. of teachers that are provided with housing.")),
+				TextCell(model, "No. of teachers that are provided with housing.").Style(ts.TableRowHeaderStyle),
 				NumberCell(model, "Housing.OnSite"),
 				NumberCell(model, "Housing.OffSite")
 			);
 			table.AddRow(
-				TextCell(model, ts.TableBaseStyle("No. of teachers that are not provided with housing")),
+				TextCell(model, "No. of teachers that are not provided with housing").Style(ts.TableRowHeaderStyle),
 				NumberCell(model12, "Housing.N")
 			);
 			table.AddRow(
-				TextCell(model, ts.TableBaseStyle("No. of teachers whose houses need significant maintenance.")),
+				TextCell(model, "No. of teachers whose houses need significant maintenance.").Style(ts.TableRowHeaderStyle),
 				NumberCell(model12, "Housing.M")
 			);
 
@@ -112,6 +113,7 @@ namespace surveybuilder
 						{ "Cat", $"{kvp.Key}" },
 						{ "Surveyed", "True" }
 					};
+
 				LookupList catResources = resources.FilterByMetadata(catResFilter);
 
 				// Data fields for each row

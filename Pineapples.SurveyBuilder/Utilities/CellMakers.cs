@@ -44,6 +44,7 @@ using iText.Kernel.Colors;
 
 namespace surveybuilder
 {
+
 	public class CellMakers
 	{
 		#region cells for checkboxes
@@ -139,6 +140,16 @@ namespace surveybuilder
 			return cell;
 		}
 
+		public static Cell PushButtonCell(Cell cellmodel, string fieldname, string label,
+			string js, Action<PdfButtonFormField> configurer = null)
+
+		{
+			Paragraph pp = new Paragraph();
+			pp.SetNextRenderer(new PushButtonCellRenderer(cellmodel, fieldname, label, js, configurer));
+			Cell cell = cellmodel.Clone(false);
+			cell.Add(pp);
+			return cell;
+		}
 		//static text in a cell
 		public static Cell TextCell(Cell cellmodel, string text)
 		{
@@ -149,6 +160,7 @@ namespace surveybuilder
 		// static text passing a paragraph - allows a style to be applied
 		public static Cell TextCell(Cell cellmodel, Paragraph pp)
 		{
+			cellmodel.GetProperty<Border>(Property.BORDER);
 			Cell cell = cellmodel.Clone(false);
 			cell.Add(pp);
 			return cell;

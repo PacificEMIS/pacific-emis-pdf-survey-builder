@@ -38,7 +38,7 @@ namespace surveybuilder
 
 		public Boolean facingPages = false;
 
-		// IBuilder interface
+		#region IBuilder interface
 		public virtual string Description
 		{
 			get
@@ -51,59 +51,17 @@ namespace surveybuilder
 		{
 			PdfStylesheet stylesheet = new PdfStylesheet();
 
-			// Define the base style for headings
-			PdfStyle headingbase = new PdfStyle()
-			{
-				FontBold = true,
-				KeepWithNext = true,  // Headings often keep with the next paragraph
-				SpacingBefore = 10,   // Add some space before the heading
-				SpacingAfter = 5      // Add some space after the heading
-			};
-
-			// Add the base style for headings to the stylesheet
-			stylesheet.Add("headingbase", headingbase);
-
-			// Define Heading 1 style
-			stylesheet.Add("Heading 1", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 24,
-				//FontColor = ColorConstants.BLUE
-			});
-
-			// Define Heading 2 style
-			stylesheet.Add("Heading 2", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 20,
-				//FontColor = ColorConstants.RED
-			});
-
-			// Define Heading 3 style
-			stylesheet.Add("Heading 3", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 16,
-				//FontColor = ColorConstants.ORANGE
-			});
-
-			// Define Heading 4 style
-			stylesheet.Add("Heading 4", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 12,
-				//FontColor = ColorConstants.CYAN
-			});
-
-			// Define Heading 5 style
-			stylesheet.Add("Heading 5", new PdfStyle(stylesheet["headingbase"])
-			{
-				FontSize = 12,
-				//FontColor = ColorConstants.GREEN
-			});
-
 			this.stylesheet = stylesheet;
 			this.options = options;
 			this.pdfDoc = pdfDoc;
 		}
 
+		public PdfAcroForm GetPdfAcroForm()
+		{
+			return PdfAcroForm.GetAcroForm(pdfDoc, true);
+		}
 
+		#endregion
 		private string pageHeaderLeft;
 		private string pageHeaderRight;
 		public PdfBuilder SetPageHeader(string pageHeader)
@@ -250,45 +208,52 @@ namespace surveybuilder
 		}
 
 		#endregion
+
+		#region Stylesheet wrappers for common styles
 		// some wrappers around the style sheet
 
-		public Paragraph Heading_1(string text)
+
+		public Paragraph Heading_1(string text, Document document = null)
 		{
-			return stylesheet.ApplyStyle("Heading 1", text);
-		}
-		public Paragraph Heading_2(string text)
-		{
-			return stylesheet.ApplyStyle("Heading 2", text);
+			return AddParagraph(text, "Heading 1", document);
 		}
 		public Paragraph Heading_2(string text, Document document = null)
 		{
-			var p = stylesheet.ApplyStyle("Heading 2", text);
-			if (document != null)
-			{
-				document.Add(p);
-			}
-			return p;
+			return AddParagraph(text, "Heading 2", document);
 		}
 		public Paragraph Heading_3(string text, Document document = null)
 		{
-			var p = stylesheet.ApplyStyle("Heading 3", text);
+			return AddParagraph(text, "Heading 3", document);
+		}
+
+		public Paragraph Heading_4(string text, Document document = null)
+		{
+			return AddParagraph(text, "Heading 4", document);
+		}
+
+		public Paragraph Heading_5(string text, Document document = null)
+		{
+			return AddParagraph(text, "Heading 5", document);
+		}
+
+		public Paragraph AddParagraph(string text, string styleName, Document document = null)
+		{
+			var p = stylesheet.ApplyStyle(styleName, text);
 			if (document != null)
 			{
 				document.Add(p);
 			}
 			return p;
 		}
-
-		public Paragraph Heading_4(string text)
+		public Paragraph AddParagraph(string text, Document document = null)
 		{
-			return stylesheet.ApplyStyle("Heading 4", text);
+			return AddParagraph(text, "Normal", document);
 		}
 
-		public Paragraph Heading_5(string text)
-		{
-			return stylesheet.ApplyStyle("Heading 5", text);
-		}
 
+
+
+		#endregion
 
 		#region Javascript
 
@@ -310,7 +275,7 @@ namespace surveybuilder
 
 				string[] pp = jsName.Split('.');
 				string name = $"{pp[pp.Length - 2]}.{pp[pp.Length - 1]}";
-				
+				Console.WriteLine($"Installing javascript: {name}");
 				javaScriptNameTree.AddEntry(name, jscript);
 			}
 

@@ -8,9 +8,14 @@ namespace surveybuilder.Utilities
 {
 	using iText.Layout.Element;
 	using iText.Layout.Properties;
+	using System.Collections;
 
 	public static class CellStyleFactory
 	{
+
+		public static PdfStyle BaseStyle { get; set; }
+
+
 		/// <summary>
 		/// Creates a styled cell with specified row and column spans, height, and vertical alignment.
 		/// </summary>
@@ -28,6 +33,10 @@ namespace surveybuilder.Utilities
 			if (applyHeight)
 			{
 				cell.SetHeight(height);
+			}
+			if (BaseStyle != null)
+			{
+				BaseStyle.Apply(cell);
 			}
 
 			return cell;
@@ -87,6 +96,18 @@ namespace surveybuilder.Utilities
 		/// Predefined style for a cell spanning two rows and two columns.
 		/// </summary>
 		public static Cell TwoRowTwoColumn => CreateCell(2, 2);
-	}
 
+		public static Table DefaultTable(params int[] columnwidths)
+		{
+			float[] floatWidths = Array.ConvertAll(columnwidths, x => (float)x);
+			return DefaultTable(floatWidths);
+		}
+
+		public static Table DefaultTable(float[] columnwidths) 
+		{ 
+			return new Table(UnitValue.CreatePercentArray(columnwidths))
+				.UseAllAvailableWidth()
+				.SetMarginBottom(15); 
+		}
+	}
 }
