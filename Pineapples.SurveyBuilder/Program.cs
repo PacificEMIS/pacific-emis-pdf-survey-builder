@@ -28,12 +28,17 @@ using System.Reflection;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Dynamic;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Kernel.Colors;
+
 
 namespace surveybuilder
 {
 	class Program
 	{
-		private static String DEST = System.IO.Path.Combine(ConfigurationManager.AppSettings["filesPath"], "LayoutFormFields.pdf");
+
 
 		static void Main(string[] args)
 		{
@@ -100,30 +105,42 @@ namespace surveybuilder
 			Console.WriteLine($"Output Path: {opts.OutputPath}");
 			Console.WriteLine($"Output Pdf: {dest}");
 			Console.WriteLine("Verbose mode:" + (opts.Verbose ? "On" : "Off"));
+			Console.WriteLine("Open when created:" + (opts.AutoOpen ? "On" : "Off"));
+
 			Console.WriteLine();
-			// Add your application logic here.
-
-			// Verbose mode helps for low level debugging
-			WriterProperties wprops = new WriterProperties()
-				.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
-				.SetFullCompressionMode(!opts.Verbose);
-
-
-			PdfWriter writer = new PdfWriter(dest, wprops);
-			PdfDocument pdfDoc = new PdfDocument(writer);
-
-			// now use form to create the class
-			// Create an instance of the class
-			IBuilder builder = CreateBuilderInstance(opts.Form);
-			builder.Initialise(opts, pdfDoc);
 
 			try
 			{
+				// Verbose mode helps for low level debugging
+				WriterProperties wprops = new WriterProperties()
+					.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
+					.SetFullCompressionMode(!opts.Verbose);
+
+
+				PdfWriter writer = new PdfWriter(dest, wprops);
+				PdfDocument pdfDoc = new PdfDocument(writer);
+
+				// now use form to create the class
+				// Create an instance of the class
+				IBuilder builder = CreateBuilderInstance(opts.Form);
+				builder.Initialise(opts, pdfDoc);
+
 				Document document = builder.Build();
 				document.Close();
 				Console.WriteLine($"COMPLETED: {dest} created");
 
-				Console.ReadKey();
+				if (opts.AutoOpen)
+				{
+					Process.Start(new ProcessStartInfo
+					{
+						FileName = dest,
+						UseShellExecute = true // Use the OS shell to open the file with its associated app
+					});
+				}
+				else
+				{
+					Console.ReadKey();
+				}
 
 			}
 			catch (Exception e)
