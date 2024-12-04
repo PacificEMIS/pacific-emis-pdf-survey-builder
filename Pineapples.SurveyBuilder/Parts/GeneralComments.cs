@@ -15,6 +15,9 @@ using static iText.IO.Codec.TiffWriter;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
 using surveybuilder.Utilities;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Action;
+using iText.Commons.Utils;
 
 namespace surveybuilder
 {
@@ -28,7 +31,8 @@ namespace surveybuilder
 		public Document Build(PdfBuilder builder, Document document)
 		{
 			// Cell layout/styling models
-			var model = CellStyleFactory.Default;
+			
+			var model = (CellStyleFactory.Default);
 
 			builder.Heading_2("Final Comments", document);
 			document.Add(new Paragraph(@"If you would like to make any comments or provide additional information about your "
@@ -40,17 +44,31 @@ namespace surveybuilder
 			table.AddCell(ts.TableHeaderStyle(InputCell(new Cell().SetHeight(400), "Survey.Comment")));
 
 			document.Add(table);
+			builder.NewPage(document);
+			table = new Table(UnitValue.CreatePercentArray(new float[] { 100 }))
+				.UseAllAvailableWidth();
 
+			string jsCode = "app.alert('Completeness Check Triggered!');";
+			Cell abs = ts.AbstractCell(new Cell());
+			table.AddRow(
+				PushButtonCell(abs, "CheckBtn", "Verify Responses", jsCode)
+			);
+
+			document.Add(table);
 			builder.Heading_2("Certification", document);
 
 			document.Add(new Paragraph(@"All information presented in this survey must be complete and accurate and "
-			+ @"you must certify to that it is complete and accurate to the best of your knowled knowledge and belief."));
+			+ @"you must certify to that it is complete and accurate to the best of your knowledge and belief."));
+
+
 
 			Table tableCertification = new Table(UnitValue.CreatePercentArray(new float[] { 60, 40 }))
 						.UseAllAvailableWidth();
 
 			PdfButtonFormField grp = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.PrincipalCertification")
 				.CreateRadioGroup();
+
+
 
 			tableCertification.AddRow(
 				TextCell(model, ts.TableRowHeaderStyle("Principal’s Name:")),
@@ -72,8 +90,9 @@ namespace surveybuilder
 
 			document.Add(tableCertification);
 
+
+
 			return document;
 		}
-
 	}
 }
