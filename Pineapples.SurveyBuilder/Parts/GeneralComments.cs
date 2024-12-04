@@ -32,7 +32,7 @@ namespace surveybuilder
 		{
 			// Cell layout/styling models
 			
-			var model = (CellStyleFactory.Default);
+			var model = CellStyleFactory.Default;
 
 			builder.Heading_2("Final Comments", document);
 			document.Add(new Paragraph(@"If you would like to make any comments or provide additional information about your "

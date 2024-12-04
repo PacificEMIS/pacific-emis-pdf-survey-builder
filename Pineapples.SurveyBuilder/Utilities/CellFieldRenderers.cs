@@ -21,9 +21,8 @@ using iText.Kernel.Colors.Gradients;
 using iText.Kernel.Colors;
 using iText.Kernel.Pdf.Canvas;
 using iText.Forms.Fields.Properties;
-using System.Runtime.InteropServices;
-using System.Globalization;
 using surveybuilder.Utilities;
+
 namespace surveybuilder
 {
 
@@ -579,6 +578,69 @@ namespace surveybuilder
 
 			var form = PdfAcroForm.GetAcroForm(thisDoc, true);
 			form.AddField(combo);
+		}
+	}
+
+	/// <summary>
+	/// Renderer to draw a push button inside a table cell.
+	/// </summary>
+	public class PushButtonCellRenderer : CellRenderer
+	{
+		private readonly string buttonName;
+		private readonly string buttonLabel;
+		private readonly string js;			
+		private readonly Action<PdfButtonFormField> configurer;
+
+		public PushButtonCellRenderer(Cell modelElement, string buttonName, string buttonLabel,
+			string js, Action<PdfButtonFormField> configurer = null)
+			: base(modelElement)
+		{
+			this.buttonName = buttonName;
+			this.buttonLabel = buttonLabel;
+			this.js = js;
+			this.configurer = configurer;
+		}
+		public PushButtonCellRenderer(Cell modelElement, string buttonName, string buttonLabel,
+			Action<PdfButtonFormField> configurer = null)
+			: base(modelElement)
+		{
+			this.buttonName = buttonName;
+			this.buttonLabel = buttonLabel;
+			this.js = string.Empty;
+			this.configurer = configurer;
+		}
+
+		public override IRenderer GetNextRenderer()
+		{
+			return new PushButtonCellRenderer((Cell)modelElement, buttonName, buttonLabel,js, configurer);
+		}
+
+		public override void Draw(DrawContext drawContext)
+		{
+			PdfDocument pdfDocument = drawContext.GetDocument();
+
+			// Get the bounding rectangle of the current cell
+			Rectangle rect = GetOccupiedAreaBBox();
+
+			// Create the PushButtonFormFieldBuilder
+			PushButtonFormFieldBuilder builder = new PushButtonFormFieldBuilder(pdfDocument, buttonName)
+				.SetWidgetRectangle(rect)
+				.SetCaption(buttonLabel);
+
+			PdfButtonFormField button = builder.CreatePushButton();
+			
+			if (!string.IsNullOrEmpty(js))
+			{
+				button.SetAdditionalAction(PdfName.U, PdfAction.CreateJavaScript(js));
+			}
+			// Apply additional configurations if provided
+			configurer?.Invoke(button);
+
+			// Add the button to the AcroForm
+			PdfAcroForm.GetAcroForm(pdfDocument, true).AddField(button);
+
+			// Call base class to handle other drawing
+			base.Draw(drawContext);
 		}
 	}
 }
