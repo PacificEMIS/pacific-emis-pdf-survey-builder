@@ -55,7 +55,6 @@ namespace surveybuilder
 			/**************************************************************************/
 			/* Begin Pdf output														  */
 			/**************************************************************************/
-			lookups["teacherQuals"].PrintAll();
 
 			CoverPage(document, "Secondary");
 

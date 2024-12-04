@@ -35,14 +35,14 @@ namespace surveybuilder
 			var model14 = CellStyleFactory.FourColumn;
 			var model31 = CellStyleFactory.ThreeRowOneColumn;
 
-			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 35, 15, 50 }))
-						.UseAllAvailableWidth();
+
 			builder.AddOutline(document, schoolInfoOutline, "General Information");
 			builder.Heading_2("General Information", document);
 
+			Table table = CellStyleFactory.DefaultTable(35, 15, 50);
 			//AddRow is an extension method in PdfExtensions
 			table.AddRow(
-				TextCell(model12, ts.TableRowHeaderStyle("School Name")),
+				TextCell(model12, "School Name").Style(ts.TableRowHeaderStyle),
 				InputCell(model, "Survey.SchoolName", 50)
 			);
 
@@ -86,13 +86,16 @@ namespace surveybuilder
 
 			builder.AddOutline(document, schoolInfoOutline, "Parent's Committee");
 			builder.Heading_2("Parents' Committee", document);
-			document.Add(new Paragraph(@"Record the details of the school's Parents Committee."));
+
+			string prompt = @"Record the details of the school's Parents Committee.";
+			builder.AddParagraph(prompt, document);
 
 			table = new Table(UnitValue.CreatePercentArray(new float[] { 8, 1, 1, 1, 1 }))
 						.UseAllAvailableWidth();
 
 			PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, "PC.Exists")
 				.CreateRadioGroup();
+			rgrp.SetRequired(true);
 
 			table.AddRow(
 				TextCell(model, ts.TableRowHeaderStyle("Does your school have a Parents' Committee")),
@@ -119,8 +122,8 @@ namespace surveybuilder
 			builder.AddOutline(document, schoolInfoOutline, "Community Support");
 			builder.Heading_2("Community Support", document);
 
-			string prompt = @"On the scale below rate the level of support your school receives from the local community.";
-			document.Add(new Paragraph(prompt));
+			prompt = @"On the scale below rate the level of support your school receives from the local community.";
+			builder.AddParagraph(prompt, document);
 
 			string[] Columns = { "Excellent", "Very Good", "Satisfactory", "Poor", "Very Bad" };
 			object[] values = { 1, 2, 3, 4, 5 };
@@ -133,12 +136,13 @@ namespace surveybuilder
 			chk.Tag = "PC.Support";
 			chk.Make(builder, document);
 
+			#region School Structure
 
 			builder.AddOutline(document, schoolInfoOutline, "Overall School Structure");
 
 			builder.Heading_2("Overall School Structure", document);
 			prompt = @"Record the following summary details about the overall structure of your school.";
-			document.Add(new Paragraph(prompt));
+			builder.AddParagraph(prompt, document);
 
 			table = new Table(UnitValue.CreatePercentArray(new float[] { 4, 1 }))
 						.UseAllAvailableWidth();
@@ -163,6 +167,7 @@ namespace surveybuilder
 			);
 
 			document.Add(table);
+			#endregion
 
 			return document;
 		}

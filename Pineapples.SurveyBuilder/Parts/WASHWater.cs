@@ -62,7 +62,7 @@ namespace surveybuilder
 				.UseAllAvailableWidth();
 
 			// Headers headers
-			tableWST.AddCell(ts.TableHeaderStyle(TextCell(modelb, ts.TableHeaderStyle("Water Supply"))));
+			tableWST.AddCell(TextCell(modelb, "Water Supply").Style(ts.TableRowHeaderStyle));
 
 			// Add water supply type values dynamically to the table
 			int wstI = 0;

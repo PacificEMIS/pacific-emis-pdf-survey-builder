@@ -14,97 +14,258 @@ using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using static System.Net.Mime.MediaTypeNames;
 using System.Collections.Generic;
 
+using iText.Kernel.Colors;
 using System;
 using System.Linq;
+using surveybuilder.Utilities;
+using iText.Forms.Fields.Merging;
+using System.Diagnostics;
+
 
 
 namespace surveybuilder
 {
+	public delegate Cell CellStyler(Cell cell);
+	public delegate Paragraph ParagraphStyler(Paragraph p);
 
 	public class PdfStyle
 	{
+
+		// Constructors
+		public PdfStyle() { }
+
+		public PdfStyle(PdfStyle inherits)
+		{
+			this.inherits = inherits;
+
+
+		}
+
+		// inheritance hierarchy
+		public PdfStyle inherits = null;
+
+		// A static default base style shared across instances
+		private static readonly PdfStyle DefaultBaseStyle = new PdfStyle()
+		{
+			// Font properties
+			FontSize = 10,
+			FontColor = ColorConstants.BLACK,
+			FontName = "Helvetica",
+			FontBold = false,
+			FontItalic = false,
+			FontUnderline = false,
+			TextAlignment = TextAlignment.LEFT,
+			LineSpacing = 1.2f,
+			KeepTogether = false,
+			KeepWithNext = false,
+			IndentationLeft = 0,
+			IndentationRight = 0,
+			SpacingBefore = 0,
+			SpacingAfter = 0,
+			TopBorder = Border.NO_BORDER,
+			BottomBorder = Border.NO_BORDER,
+			LeftBorder = Border.NO_BORDER,
+			RightBorder = Border.NO_BORDER,
+			Border = Border.NO_BORDER
+		};
+
+		private PdfStyle baseStyle = DefaultBaseStyle;
+		public string Name { get; set; } 
+
+		// Local field for each property
+		private int? fontSize;
+		private Color fontColor = null;
+		private string fontName;
+		private bool? fontBold;
+		private bool? fontItalic;
+		private bool? fontUnderline;
+		private TextAlignment? textAlignment;
+		private float? lineSpacing;
+		private bool? keepTogether;
+		private bool? keepWithNext;
+		private float? indentationLeft;
+		private float? indentationRight;
+		private float? spacingBefore;
+		private float? spacingAfter;
+		private Border topBorder;
+		private Border bottomBorder;
+		private Border leftBorder;
+		private Border rightBorder;
+		private Border border;
+		private Color backgroundColor;
+		private string backgroundImage;
+
 		// Font properties
-		public int FontSize { get; set; }
-		public Color FontColor { get; set; }
-		public string FontName { get; set; }
-		public bool FontBold { get; set; }
-		public bool FontItalic { get; set; }
-		public bool FontUnderline { get; set; }
+		public int FontSize
+		{
+			get => fontSize ?? inherits?.FontSize ?? baseStyle.FontSize;
+			set => fontSize = value;
+		}
+
+		public Color FontColor
+		{
+			
+			get => fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
+			set
+			{
+				Debug.WriteLine($"Setting FontColor to {value} in {Name}");
+				fontColor = value;
+			}
+		}
+
+		public string FontName
+		{
+			get => fontName ?? inherits?.FontName ?? baseStyle.FontName;
+			set => fontName = value;
+		}
+
+		public bool FontBold
+		{
+			get => fontBold ?? inherits?.FontBold ?? baseStyle.FontBold;
+			set => fontBold = value;
+		}
+
+		public bool FontItalic
+		{
+			get => fontItalic ?? inherits?.FontItalic ?? baseStyle.FontItalic;
+			set => fontItalic = value;
+		}
+
+		public bool FontUnderline
+		{
+			get => fontUnderline ?? inherits?.FontUnderline ?? baseStyle.FontUnderline;
+			set => fontUnderline = value;
+		}
 
 		// Paragraph properties
-		public TextAlignment TextAlignment { get; set; }
-		public float LineSpacing { get; set; }
-		public bool KeepTogether { get; set; }
-		public bool KeepWithNext { get; set; }
-		public float IndentationLeft { get; set; }
-		public float IndentationRight { get; set; }
-		public float SpacingBefore { get; set; }
-		public float SpacingAfter { get; set; }
+		public TextAlignment TextAlignment
+		{
+			get => textAlignment ?? inherits?.TextAlignment ?? baseStyle.TextAlignment;
+			set => textAlignment = value;
+		}
+
+		public float LineSpacing
+		{
+			get => lineSpacing ?? inherits?.LineSpacing ?? baseStyle.LineSpacing;
+			set => lineSpacing = value;
+		}
+
+		public bool KeepTogether
+		{
+			get => keepTogether ?? inherits?.KeepTogether ?? baseStyle.KeepTogether;
+			set => keepTogether = value;
+		}
+
+		public bool KeepWithNext
+		{
+			get => keepWithNext ?? inherits?.KeepWithNext ?? baseStyle.KeepWithNext;
+			set => keepWithNext = value;
+		}
+
+		public float IndentationLeft
+		{
+			get => indentationLeft ?? inherits?.IndentationLeft ?? baseStyle.IndentationLeft;
+			set => indentationLeft = value;
+		}
+
+		public float IndentationRight
+		{
+			get => indentationRight ?? inherits?.IndentationRight ?? baseStyle.IndentationRight;
+			set => indentationRight = value;
+		}
+
+		public float SpacingBefore
+		{
+			get => spacingBefore ?? inherits?.SpacingBefore ?? baseStyle.SpacingBefore;
+			set => spacingBefore = value;
+		}
+
+		public float SpacingAfter
+		{
+			get => spacingAfter ?? inherits?.SpacingAfter ?? baseStyle.SpacingAfter;
+			set => spacingAfter = value;
+		}
 
 		// Border properties
-		public Border TopBorder { get; set; }
-		public Border BottomBorder { get; set; }
-		public Border LeftBorder { get; set; }
-		public Border RightBorder { get; set; }
-		public Border Border { get; set; }
+		public Border TopBorder
+		{
+			get => topBorder ?? inherits?.TopBorder ?? baseStyle?.TopBorder;
+			set => topBorder = value;
+		}
 
-		// background (for cells)
-		public Color BackgroundColor { get; set; }
-		public string BackgroundImage { get; set; }
+		public Border BottomBorder
+		{
+			get => bottomBorder ?? inherits?.BottomBorder ?? baseStyle?.BottomBorder;
+			set => bottomBorder = value;
+		}
+
+		public Border LeftBorder
+		{
+			get => leftBorder ?? inherits?.LeftBorder ?? baseStyle?.LeftBorder;
+			set => leftBorder = value;
+		}
+
+		public Border RightBorder
+		{
+			get => rightBorder ?? inherits?.RightBorder ?? baseStyle?.RightBorder;
+			set => rightBorder = value;
+		}
+
+		public Border Border
+		{
+			get => border ?? inherits?.Border ?? baseStyle?.Border;
+			set => border = value;
+		}
+
+		// Background properties
+		public Color BackgroundColor
+		{
+			get => backgroundColor ?? inherits?.BackgroundColor ?? baseStyle?.BackgroundColor;
+			set => backgroundColor = value;
+		}
+
+		public string BackgroundImage
+		{
+			get => backgroundImage ?? inherits?.BackgroundImage ?? baseStyle.BackgroundImage;
+			set => backgroundImage = value;
+		}
+
+
 		public int Height = 0;
 		public int ColSpan = 1;
 		public int RowSpan = 1;
 
-		// Constructors
-		public PdfStyle()
-		{
-			// Font properties
-			FontSize = 10;
-			FontColor = ColorConstants.BLACK;
-			FontName = "Helvetica";
-			FontBold = false;
-			FontItalic = false;
-			FontUnderline = false;
-			TextAlignment = TextAlignment.LEFT;
-			LineSpacing = 1.2f;
-			KeepTogether = false;
-			KeepWithNext = false;
-			IndentationLeft = 0;
-			IndentationRight = 0;
-			SpacingBefore = 0;
-			SpacingAfter = 0;
-			TopBorder = null;
-			BottomBorder = null;
-			LeftBorder = null;
-			RightBorder = null;
-		}
-
-		public PdfStyle(PdfStyle inherits)
-		{
-			FontSize = inherits.FontSize;
-			FontColor = inherits.FontColor;
-			FontName = inherits.FontName;
-			FontBold = inherits.FontBold;
-			FontItalic = inherits.FontItalic;
-			FontUnderline = inherits.FontUnderline;
-			TextAlignment = inherits.TextAlignment;
-			LineSpacing = inherits.LineSpacing;
-			KeepTogether = inherits.KeepTogether;
-			KeepWithNext = inherits.KeepWithNext;
-			IndentationLeft = inherits.IndentationLeft;
-			IndentationRight = inherits.IndentationRight;
-			SpacingBefore = inherits.SpacingBefore;
-			SpacingAfter = inherits.SpacingAfter;
-			TopBorder = inherits.TopBorder;
-			BottomBorder = inherits.BottomBorder;
-			LeftBorder = inherits.LeftBorder;
-			RightBorder = inherits.RightBorder;
-			Border = inherits.Border;
-			BackgroundColor = inherits.BackgroundColor;
-			Height = inherits.Height;
-		}
-
 		// Apply method
+
+		public T Apply<T>(T t) where T : IElement
+		{
+			if (t == null)
+				throw new ArgumentNullException(nameof(t));
+
+			// Use a traditional switch statement to handle different types
+			if (t is Paragraph p)
+			{
+				return (T)(IElement)Apply(p);
+			}
+			else if (t is Cell c)
+			{
+				return (T)(IElement)Apply(c);
+			}
+			//else if (t is Table tbl)
+			//{
+			//	return (T)(IElement)Apply(tbl);
+			//}
+			else
+			{
+				throw new NotSupportedException($"Type {typeof(T).Name} is not supported by ApplyStyle.");
+			}
+		}
+
+		public Paragraph Apply(string text)
+		{
+			return Apply(new Paragraph(text));
+		}
+
 		public Paragraph Apply(Paragraph paragraph)
 		{
 			paragraph.SetFontSize(FontSize)
@@ -143,11 +304,14 @@ namespace surveybuilder
 			return paragraph;
 		}
 
-		// applytocell
-		public Cell ApplyCell(Cell c)
+		// applytocell - this will cascade the style to any text
+		public Cell Apply(Cell c)
 		{
+
 			if (Border != null)
 				c.SetBorder(Border);
+			else
+				c.SetBorder(Border.NO_BORDER);
 
 			if (TopBorder != null)
 				c.SetBorderTop(TopBorder);
@@ -166,7 +330,24 @@ namespace surveybuilder
 			if (Height != 0)
 				c.SetHeight(Height);
 
+			// now cascade to apply the style to any paragraphs in the cell
+			foreach (var element in c.GetChildren()
+			.Where(x => x.GetType() == typeof(Paragraph)))
+			{
+				PdfStyle cc = Cascader();
+				Paragraph p = (Paragraph)element;
+				cc.Apply(p);
+			}
+
 			return c;
+		}
+		private PdfStyle Cascader()
+		{
+			// Use the inheritance constructor and override Border
+			return new PdfStyle(this)
+			{
+				Border = Border.NO_BORDER
+			};
 		}
 	}
 
@@ -174,7 +355,29 @@ namespace surveybuilder
 	{
 		public PdfStylesheet()
 		{
-			Add("base", new PdfStyle());
+			InitialiseStyles();
+		}
+		// Use the indexer to support add or update
+		// ie this allows you to change the definition of a style associated to a name.
+		public new PdfStyle this[string key]
+		{
+			get => base[key]; // Return the PdfStyle if it exists
+			set
+			{
+				base[key] = value; // Update or add the PdfStyle
+				value.Name = key;
+				// make sure any inherits are updated
+				foreach(PdfStyle style in this.Values.Where(v => v.inherits?.Name == key))
+				{
+					style.inherits = value;
+				}
+			}
+		}
+
+		public new void Add(string name, PdfStyle style)
+		{
+			style.Name = name;
+			base.Add(name, style);
 		}
 
 		public Paragraph ApplyStyle(string styleName, string text)
@@ -185,10 +388,89 @@ namespace surveybuilder
 		{
 			return this[styleName].Apply(p);
 		}
-		public Cell ApplyCell(string styleName, Cell c)
+		public Cell ApplyStyle(string styleName, Cell c)
 		{
-			return this[styleName].ApplyCell(c);
+			return this[styleName].Apply(c);
 		}
+		public T ApplyStyle<T>(string styleName, T t) where T : IElement
+		{
+			return this[styleName].Apply<T>(t);
+		}
+
+		#region Initialisation
+
+		/// <summary>
+		/// Initialise the default styles for a stylesheet
+		/// These are based on the styles that are predefined in MS Word, and therefore available
+		/// to any document.
+		/// </summary>
+		protected virtual void InitialiseStyles()
+		{
+
+			#region Heading styles
+			Add("base", new PdfStyle());
+			PdfStyle headingbase = new PdfStyle(this["base"])
+			{
+				FontBold = true,
+				FontColor = iText.Kernel.Colors.WebColors.GetRGBColor("606060"),
+				KeepWithNext = true,  // Headings often keep with the next paragraph
+				SpacingBefore = 10,   // Add some space before the heading
+				SpacingAfter = 5      // Add some space after the heading
+			};
+
+			// Add the base style for headings to the stylesheet
+			Add("headingbase", headingbase);
+
+			// Define Heading 1 style
+			Add("Heading 1", new PdfStyle(this["headingbase"])
+			{
+				FontSize = 24,
+				BackgroundColor = NamedColors.CornflowerBlue,
+				FontColor = NamedColors.White
+			});
+
+			// Define Heading 2 style
+			Add("Heading 2", new PdfStyle(this["headingbase"])
+			{
+				FontSize = 20,
+				TopBorder = new SolidBorder(NamedColors.CornflowerBlue, 2)
+				//FontColor = ColorConstants.RED
+			});
+
+			// Define Heading 3 style
+			Add("Heading 3", new PdfStyle(this["headingbase"])
+			{
+				FontSize = 16,
+				//FontColor = ColorConstants.ORANGE
+			});
+
+			// Define Heading 4 style
+			Add("Heading 4", new PdfStyle(this["headingbase"])
+			{
+				FontSize = 12
+				
+				//FontColor = ColorConstants.CYAN
+			});
+
+			// Define Heading 5 style
+			Add("Heading 5", new PdfStyle(this["headingbase"])
+			{
+				FontSize = 12,
+				//FontColor = ColorConstants.GREEN
+			});
+			#endregion
+
+			Add("Normal", new PdfStyle(this["base"])
+			{
+				FontSize = 12,
+				FontColor = NamedColors.Black,
+				SpacingBefore = 5,
+				SpacingAfter = 5
+			});
+
+
+		}
+		#endregion initialise
 	}
 
 
@@ -319,55 +601,63 @@ namespace surveybuilder
 		/// </summary>
 		public PdfStylesheet styles = new PdfStylesheet();
 
+		#region Constructor - Table Style Definitions 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PdfTableStylesheet"/> class.
 		/// Sets up predefined styles for table headers, header cells, and subheader cells.
 		/// </summary>
 		public PdfTableStylesheet()
 		{
+
+
 			// Define colors using hexadecimal values
 			// Colors eventually to move to a ThemeColors.cs (something like WebColors.cs but only necessary colors
 			// with better theming design
-			string color1 = "eaeaea"; // Light gray for potential use
-			string color2 = "cccccc"; // Medium gray for potential use
-			string color3 = "a8a8a8"; // Darker gray for subheader cells
+			//string color1 = "eaeaea"; // Light gray for potential use #66CCFF
+			//string color2 = "cccccc"; // Medium gray for potential use #66FFFF
+			//string color3 = "a8a8a8"; // Darker gray for subheader cells
+
+			//string color1 = "66FFFF"; // Light gray for potential use #
+			//string color2 = "66CCFF"; // Medium gray for potential use #66FFFF
+			//string color3 = "6699FF"; // Darker gray for subheader cells
+
+			string color1 = "66DDFF"; // Light gray for potential use #
+			string color2 = "66AAFF"; // Medium gray for potential use #66FFFF
+			string color3 = "6677FF"; // Darker gray for subheader cells
 
 			// Define and add styles
 			styles.Add("tablebase",
 				new PdfStyle(styles["base"])
 				{
-					FontSize = 10
+					FontSize = 10,
+					Border = new SolidBorder(ColorConstants.LIGHT_GRAY, 1, (float).5)
 				});
 
 			styles.Add("tableheader",
-				new PdfStyle(styles["base"])
+				new PdfStyle(styles["tablebase"])
 				{
-					FontSize = 10,
 					TextAlignment = TextAlignment.CENTER,
-					FontBold = true
+					FontBold = true,
+					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color1)
 				});
 
 			styles.Add("tablerowheader",
-				new PdfStyle(styles["base"])
+				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.LEFT
+
 				});
 
 			styles.Add("tablerowheadertotal",
-				new PdfStyle(styles["tablerowheader"])
+				new PdfStyle(styles["tablebase"])
 				{
+					TextAlignment = TextAlignment.RIGHT,
 					FontBold = true
 				});
 
-			styles.Add("tableheadercell",
-				new PdfStyle(styles["base"])
-				{
-					BackgroundColor = ColorConstants.LIGHT_GRAY
-				});
-
 			// Define and add a style for table subheader cells
-			styles.Add("tablesubheadercell",
-				new PdfStyle(styles["base"])
+			styles.Add("tablesubheader",
+				new PdfStyle(styles["tablebase"])
 				{
 					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color3)
 				});
@@ -401,8 +691,21 @@ namespace surveybuilder
 			styles.Add("genderheader",
 				new PdfStyle(styles["colheader"]) { FontSize = styles["colheader"].FontSize - 2 });
 
-		}
+			styles.Add("abstractcell",
+				new PdfStyle(styles["tablebase"])
+				{
+					TextAlignment = TextAlignment.CENTER,
+					Border = Border.NO_BORDER
+				});
 
+			// seed the CellStyleFactory with tablebase
+			// which will get applied to everything
+			CellStyleFactory.BaseStyle = styles["tablebase"];
+
+		}
+		#endregion
+
+		#region Convenience methods to implement styles
 		/// <summary>
 		/// Applies the "tablebase" style to a <see cref="Paragraph"/>.
 		/// </summary>
@@ -433,6 +736,10 @@ namespace surveybuilder
 			return styles.ApplyStyle("tablerowheader", text);
 		}
 
+		public T TableRowHeaderStyle<T>(T target) where T : IElement
+		{
+			return styles.ApplyStyle("tablerowheader", target);
+		}
 		/// <summary>
 		/// Applies the "tablerowheadertotal" style to a <see cref="Paragraph"/>.
 		/// </summary>
@@ -448,16 +755,19 @@ namespace surveybuilder
 		/// </summary>
 		/// <param name="cell">The cell to apply the table header cell style to.</param>
 		/// <returns>A <see cref="Cell"/> styled as a table header cell.</returns>
+		public Cell TableBaseStyle(Cell cell)
+		{
+			return styles.ApplyStyle("tablebase", cell);
+		}
+
+		/// <summary>
+		/// Applies the "tableheadercell" style to a <see cref="Cell"/>.
+		/// </summary>
+		/// <param name="cell">The cell to apply the table header cell style to.</param>
+		/// <returns>A <see cref="Cell"/> styled as a table header cell.</returns>
 		public Cell TableHeaderStyle(Cell cell)
 		{
-			foreach (var element in cell.GetChildren()
-						.Where(x => x.GetType() == typeof(Paragraph)))
-			{
-				Paragraph p = (Paragraph) element;
-				styles.ApplyStyle("tableheader", p);
-			}
-
-			return styles.ApplyCell("tableheadercell", cell);
+			return styles.ApplyStyle("tableheader", cell);
 
 		}
 
@@ -468,7 +778,7 @@ namespace surveybuilder
 		/// <returns>A <see cref="Cell"/> styled as a table subheader cell.</returns>
 		public Cell TableSubHeaderStyle(Cell cell)
 		{
-			return styles.ApplyCell("tablesubheadercell", cell);
+			return styles.ApplyStyle("tablesubheader", cell);
 		}
 
 		/// <summary>
@@ -520,6 +830,18 @@ namespace surveybuilder
 		{
 			return styles.ApplyStyle("genderheader", text);
 		}
+
+		/// <summary>
+		/// Applies the "gabstract" style to a <see cref="Paragraph"/> containing text.
+		/// </summary>
+		/// <param name="text">The text to style as a gender header.</param>
+		/// <returns>A <see cref="Paragraph"/> styled with the "genderheader" style.</returns>
+		public Cell AbstractCell(Cell cell)
+		{
+			return styles.ApplyStyle("abstractcell", cell);
+		}
+
+		#endregion
 
 	}
 
