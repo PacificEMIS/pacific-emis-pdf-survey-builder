@@ -96,6 +96,62 @@ namespace surveybuilder
 		}
 		#endregion Table creation and styling
 
+
+		#region PdfDocument
+
+		/// <summary>
+		/// Trap the Verbose flag as a Keyword of the document. 
+		/// </summary>
+		/// <param name="pdfDoc"></param>
+		/// <param name="verbose"></param>
+		/// <returns></returns>
+		public static PdfDocument SetVerbose(this PdfDocument pdfDoc, bool verbose)
+		{
+			string keywords = pdfDoc.GetDocumentInfo().GetKeywords()??String.Empty;
+			string[] kk = keywords.Split(',').Where( k => !String.IsNullOrEmpty(k)).ToArray();
+			if (verbose)
+			{
+				if (!kk.Contains("Verbose"))
+				{
+					Array.Resize(ref kk, kk.Length + 1); // Increase the size by 1
+					kk[kk.Length - 1] = "Verbose";        // Add the new element
+					keywords = String.Join(",", kk);
+					pdfDoc.GetDocumentInfo().SetKeywords(keywords);
+				}
+			}
+			else
+			{
+				if (kk.Contains("Verbose"))
+				{
+					kk = kk.Where(k => (k != "Verbose")).ToArray();
+					keywords = String.Join(",", kk);
+					pdfDoc.GetDocumentInfo().SetKeywords(keywords);
+				}
+			}
+			return pdfDoc;
+		}
+		public static bool IsVerbose(this PdfDocument pdfDoc)
+		{
+			string keywords = pdfDoc.GetDocumentInfo().GetKeywords()??String.Empty;
+			string[] kk = keywords.Split(',');
+			return kk.Contains("Verbose");
+		}
+		public static void VerboseConsole(this PdfDocument pdfDoc, string output)
+		{
+			if (pdfDoc.IsVerbose())
+			{
+				Console.WriteLine(output);
+			}
+		}
+		public static void VerboseDebug(this PdfDocument pdfDoc, string output)
+		{
+			if (pdfDoc.IsVerbose())
+			{
+				System.Diagnostics.Debug.WriteLine(output);
+			}
+		}
+
+		#endregion
 		// replace ' ' in a string with nonbreaking space
 
 		public static string Nbsp(this string str)

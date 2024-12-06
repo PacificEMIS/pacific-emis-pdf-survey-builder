@@ -108,7 +108,6 @@ namespace surveybuilder
 			get => fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
 			set
 			{
-				Debug.WriteLine($"Setting FontColor to {value} in {Name}");
 				fontColor = value;
 			}
 		}

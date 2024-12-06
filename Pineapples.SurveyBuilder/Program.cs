@@ -105,6 +105,7 @@ namespace surveybuilder
 			Console.WriteLine($"Output Path: {opts.OutputPath}");
 			Console.WriteLine($"Output Pdf: {dest}");
 			Console.WriteLine("Verbose mode:" + (opts.Verbose ? "On" : "Off"));
+			Console.WriteLine($"Survey Year: {opts.Year}");
 			Console.WriteLine("Open when created:" + (opts.AutoOpen ? "On" : "Off"));
 
 			Console.WriteLine();
@@ -176,10 +177,10 @@ namespace surveybuilder
 		}
 
 
-		public void LostFieldsDemo()
+		public static void LostFieldsDemo(Options opts)
 		{
 			// Initialize PDF writer and document
-			PdfWriter writer = new PdfWriter(new FileStream(System.IO.Path.Combine(ConfigurationManager.AppSettings["filesPath"], "output.pdf"), FileMode.Create, FileAccess.Write));
+			PdfWriter writer = new PdfWriter(new FileStream(System.IO.Path.Combine(opts.OutputPath, "output.pdf"), FileMode.Create, FileAccess.Write));
 			writer.SetCompressionLevel(CompressionConstants.NO_COMPRESSION);
 			PdfDocument pdf = new PdfDocument(writer);
 			Document document = new Document(pdf);
@@ -191,7 +192,7 @@ namespace surveybuilder
 					.SetWidgetRectangle(new iText.Kernel.Geom.Rectangle(100, 750, 200, 20))
 					.CreateText();
 			form.AddField(field1);
-
+			Console.WriteLine(form.GetAllFormFields().Count());
 			// Create a page break (start a new page)
 			pdf.AddNewPage();
 
@@ -201,11 +202,18 @@ namespace surveybuilder
 					.SetWidgetRectangle(new iText.Kernel.Geom.Rectangle(100, 750, 200, 20))
 					.CreateText();
 			form.AddField(field2);
+			Console.WriteLine(form.GetAllFormFields().Count());
 			pdf.AddNewPage();
+			Console.WriteLine(form.GetAllFormFields().Count());
 			pdf.AddNewPage();
+			Console.WriteLine(form.GetAllFormFields().Count());
 
 			// Close the document
 			document.Close();
+			Console.WriteLine(form.GetAllFormFields().Count());
+
+			Console.ReadLine();
+
 		}
 	}
 }
