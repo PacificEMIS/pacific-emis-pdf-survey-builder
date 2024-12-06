@@ -52,11 +52,16 @@ namespace surveybuilder
 			PdfOutline rootoutline = pdfDoc.GetOutlines(false);
 			PdfOutline parentOutline = AddOutline(document, rootoutline, "KEMIS Survey");
 
+			// Set the title info
+			pdfDoc.GetDocumentInfo().SetTitle("KEMIS Secondary School Survey");
+			pdfDoc.GetDocumentInfo().SetAuthor("Pacific EMIS Survey Builder");
+			
 			/**************************************************************************/
 			/* Begin Pdf output														  */
 			/**************************************************************************/
 
-			CoverPage(document, "Secondary");
+			CoverPage(document, "Secondary", SurveyYear);
+			NewPage(document);
 
 			#region ***** School Information *****
 			var schoolInfoOutline = this.AddOutline(document, parentOutline, "School Information");

@@ -14,6 +14,7 @@ namespace surveybuilder
 	{
 		string emisUrl = ConfigurationManager.AppSettings["emisUrl"];
 		string filesPath = ConfigurationManager.AppSettings["filesPath"];
+		int year = 2025;
 
 		[Option('f', "form", Required = true, HelpText = "Specifies the form to use.")]
 		public string Form { get; set; }
@@ -45,11 +46,24 @@ namespace surveybuilder
 			set
 			{
 				ConfigurationManager.AppSettings["filesPath"] = value;
-				OutputPath = value;
+				filesPath = value;
 			}
 		}
 		[Option('n', "open", Required = false, HelpText = "Url pointing to the Pacific EMIS Rest Api. Used to source data (especially lookup tables) from the target implementation of Pacific EMIS")]
 		public bool AutoOpen { get; set; }
+
+		[Option('y', "year", Required = false, HelpText = "Year for the document")]
+		public int Year 
+		{ 
+			get 
+			{ 
+				return year; 
+			} 
+			set 
+			{
+				year = value;
+			}
+		}
 
 	}
 }
