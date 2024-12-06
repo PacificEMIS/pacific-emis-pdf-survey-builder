@@ -55,7 +55,7 @@ namespace surveybuilder
 			{
 				Table table = new Table(UnitValue.CreatePercentArray(colwidths))
 						.UseAllAvailableWidth();
-				table.AddHeaderRow(ts,
+				table.AddHeaderRow(ts.TableHeaderStyle,
 					TextCell(model, "Payroll No")
 					, TextCell(model, "Family Name")
 					, TextCell(model, "Given Name")

@@ -16,6 +16,8 @@ using iText.IO.Image;
 using iText.Kernel.Pdf.Canvas;
 using iText.IO.Font;
 using iText.Kernel.Pdf.Navigation;
+using iText.Kernel.Colors;
+using iText.StyledXmlParser.Css.Resolve.Shorthand.Impl;
 
 namespace surveybuilder
 {
@@ -53,11 +55,15 @@ namespace surveybuilder
 			PdfOutline rootoutline = pdfDoc.GetOutlines(false);
 			PdfOutline parentOutline = AddOutline(document,rootoutline, "KEMIS Survey");
 
+			// Set the title info
+			pdfDoc.GetDocumentInfo().SetTitle("KEMIS Primary School Survey");
+			pdfDoc.GetDocumentInfo().SetAuthor("Pacific EMIS Survey Builder");
 			/**************************************************************************/
 			/* Begin Pdf output															  */
 			/**************************************************************************/
 
-			CoverPage(document, "Primary");
+			CoverPage(document, "Primary", SurveyYear);
+			NewPage(document);
 
 			#region ***** School Information *****
 			var schoolInfoOutline = this.AddOutline(document,parentOutline, "School Information");
@@ -232,7 +238,7 @@ namespace surveybuilder
 			return document;
 		}
 
-		public virtual void CoverPage(Document document, string levelName)
+		public virtual void CoverPage(Document document, string levelName, int surveyYear)
 		{
 			// Cover page
 			string imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Images", "report-cover.png");
@@ -240,7 +246,6 @@ namespace surveybuilder
 			coverImage.ScaleToFit(PageSize.A4.GetWidth(), PageSize.A4.GetHeight());
 			coverImage.SetFixedPosition(0, 0);
 			document.Add(coverImage);
-			NewPage(document);
 
 			// Dynamic details on cover page
 			// Define your text and its exact positions on the page
@@ -252,14 +257,44 @@ namespace surveybuilder
 			string fontPath2 = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets\\Fonts", "MYRIADPRO-BOLD.OTF");
 			PdfFont customFont = PdfFontFactory.CreateFont(fontPath, PdfEncodings.WINANSI, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
 			PdfFont customFont2 = PdfFontFactory.CreateFont(fontPath2, PdfEncodings.WINANSI, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
+
+			var fieldPosition = new iText.Kernel.Geom.Rectangle(50, 146, 80, 30);
+			PdfTextFormField textField = new TextFormFieldBuilder(pdfDoc, "Survey.SurveyYear")
+				.SetWidgetRectangle(fieldPosition)
+				.CreateText();
+
+			textField.SetValue(surveyYear.ToString())
+				.SetFontAndSize(customFont2, 32);
+
+
+			textField.SetFieldFlag(PdfFormField.FF_READ_ONLY, true);
+
+			GetPdfAcroForm().AddField(textField);
+
 			canvas.BeginText()
 				  .SetFontAndSize(customFont2, 32)
-				  .MoveText(50, 150) // (x, y) position for the text
-				  .ShowText($"2024 {levelName}")
+				  .MoveText(135, 150) // (x, y) position for the text
+				  .ShowText($"{levelName}")
+				  .EndText();                // do this to reset the co-ordinates
+
+			// right align the version
+			string version = "07112024";
+			int fontSize = 12;
+
+			// Define the right margin (or use page width)
+			float rightMargin = 547; // E.g., 550 units from the left of the page
+
+			// Measure the width of the text
+			float textWidth = customFont.GetWidth(version, fontSize);
+
+			// Calculate the starting X-coordinate for right alignment
+			float startX = rightMargin - textWidth;
+			canvas.BeginText()
 				  .SetFontAndSize(customFont, 12)
-				  .MoveText(448, -90) // Adjust for the next line of text if needed
-				  .ShowText("07112024") // Version
+				  .MoveText(startX, 60) // this is now the absolute position on the page
+				  .ShowText(version) // Version
 				  .EndText();
+
 		}
 
 		public virtual void AddCustomLookupLists()

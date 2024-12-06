@@ -79,7 +79,7 @@ namespace surveybuilder
 
 			table.AddRow(
 				TextCell(model12, ts.TableRowHeaderStyle("Survey Year")),
-				InputCell(model, "Survey.SurveyYear", 4, "2024", true)
+				InputCell(model, "Survey.SurveyYear", 4, builder.SurveyYear.ToString(), true)
 			);
 
 			document.Add(table);

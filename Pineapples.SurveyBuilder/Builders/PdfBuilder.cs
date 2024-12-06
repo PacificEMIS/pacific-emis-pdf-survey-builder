@@ -25,6 +25,7 @@ using System.Web.UI.WebControls.Expressions;
 using System.Configuration;
 using System.Reflection;
 using System.IO;
+using System.Diagnostics;
 
 namespace surveybuilder
 {
@@ -35,6 +36,7 @@ namespace surveybuilder
 		//public Dictionary<string, List<KeyValuePair<string, string>>> lookups;
 		public LookupManager lookups;
 		public Options options;
+		public int SurveyYear;			// placeholder for the survey year
 
 		public Boolean facingPages = false;
 
@@ -54,6 +56,14 @@ namespace surveybuilder
 			this.stylesheet = stylesheet;
 			this.options = options;
 			this.pdfDoc = pdfDoc;
+			this.SurveyYear = options.Year;
+
+			pdfDoc.SetVerbose(options.Verbose); //save this to control debug and console output from anywhere
+
+			PdfTextFormField footerField = new TextFormFieldBuilder(pdfDoc,"Footer")
+				.CreateText();
+			GetPdfAcroForm().AddField(footerField);
+
 		}
 
 		public PdfAcroForm GetPdfAcroForm()
@@ -62,6 +72,9 @@ namespace surveybuilder
 		}
 
 		#endregion
+
+
+
 		private string pageHeaderLeft;
 		private string pageHeaderRight;
 		public PdfBuilder SetPageHeader(string pageHeader)
@@ -120,7 +133,7 @@ namespace surveybuilder
 			}
 
 			IEventHandler headerHandler = new HeaderEventHandler(dynamicHeaderText, facingPages);
-			IEventHandler footerHandler = new FooterEventHandler(facingPages);
+			IEventHandler footerHandler = new FieldFooterEventHandler(facingPages);
 			IEventHandler compositeHandler = new CompositeEventHandler(headerHandler, footerHandler);
 			currentPageHandler = compositeHandler;
 			currentHeaderHandler = headerHandler;
@@ -177,8 +190,20 @@ namespace surveybuilder
 					kidsArray.Add(kid);
 				}
 			}
+			string javascript = "OnStartup()";
 
+			// Create a JavaScript action
+			PdfAction jsAction = PdfAction.CreateJavaScript(javascript);
 
+			pdfDoc.GetCatalog().SetOpenAction(jsAction);
+
+			if (options.Verbose)
+			{ 
+				foreach (var fld in GetPdfAcroForm().GetAllFormFields())
+				{
+					Debug.WriteLine($"{fld.Value.GetFieldName()}  {(fld.Value.IsRequired()?"Required":"")} {(fld.Value.IsReadOnly() ? "ReadOnly" : "")}");
+				}
+			}
 		}
 
 		#region Bookmarks and Outline
