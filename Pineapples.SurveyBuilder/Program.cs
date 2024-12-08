@@ -32,6 +32,7 @@ using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Kernel.Colors;
+using surveybuilder.Utilities;
 
 
 namespace surveybuilder
@@ -107,8 +108,23 @@ namespace surveybuilder
 			Console.WriteLine("Verbose mode:" + (opts.Verbose ? "On" : "Off"));
 			Console.WriteLine($"Survey Year: {opts.Year}");
 			Console.WriteLine("Open when created:" + (opts.AutoOpen ? "On" : "Off"));
-
+			if (opts.Toolbox != null)
+			{
+				Console.WriteLine();
+				Console.WriteLine("TOOLBOX MODE");
+				Console.WriteLine("Target " + (opts.Toolbox));
+				Console.WriteLine("Push Javascripts:" + (opts.PushJs ? "Yes" : ""));
+			}
 			Console.WriteLine();
+
+			// deal with the toolbox
+			if (opts.Toolbox != null)
+			{
+				new Toolbox().RunTools(opts);
+				return;
+			}
+
+
 
 			try
 			{

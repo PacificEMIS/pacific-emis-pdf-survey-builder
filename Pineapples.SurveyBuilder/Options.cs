@@ -16,6 +16,8 @@ namespace surveybuilder
 		string filesPath = ConfigurationManager.AppSettings["filesPath"];
 		int year = 2025;
 
+		string toolbox = null;
+
 		[Option('f', "form", Required = true, HelpText = "Specifies the form to use.")]
 		public string Form { get; set; }
 
@@ -64,6 +66,23 @@ namespace surveybuilder
 				year = value;
 			}
 		}
+
+		/// <summary>
+		/// Toolbox mode does not generate the document. It applies a 'tool' to the 
+		/// </summary>
+		[Option('x', "toolbox", Required = false, HelpText = "Pdf File for tool to act on - no file is exported")]
+		public string Toolbox		{
+			get
+			{
+				return toolbox;
+			}
+			set
+			{
+				toolbox = value;
+			}
+		}
+[Option('j', "pushjs", Required = false, HelpText = "Push current Javascript files into the toolbox target")]
+		public bool PushJs { get; set; }
 
 	}
 }
