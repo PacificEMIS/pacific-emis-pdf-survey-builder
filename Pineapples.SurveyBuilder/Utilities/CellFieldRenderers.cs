@@ -222,7 +222,7 @@ namespace surveybuilder
 				.SetReadOnly(readOnly);
 			var w = dataField.GetFirstFormAnnotation();
 
-			w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
+			w.SetBackgroundColor(readOnly?null:Colors.WebColors.GetRGBColor("OldLace"));
 
 			if (value != null)
 			{
