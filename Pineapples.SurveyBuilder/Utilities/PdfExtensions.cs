@@ -152,6 +152,8 @@ namespace surveybuilder
 		}
 
 		#endregion
+
+		#region String cleaning
 		// replace ' ' in a string with nonbreaking space
 
 		public static string Nbsp(this string str)
@@ -159,5 +161,13 @@ namespace surveybuilder
 			string nonBreakingSpace = "\u00A0";
 			return str.Replace(" ", nonBreakingSpace);
 		}
+
+		public static string Clean(this string str)
+		{
+			
+			return str.Replace(" ", "_").Replace(@"\","||").Replace(@"/", "|");
+		}
+
+		#endregion
 	}
 }

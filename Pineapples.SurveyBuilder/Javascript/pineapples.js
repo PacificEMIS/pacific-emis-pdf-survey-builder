@@ -1,3 +1,5 @@
+console.println("Pineapples Loading...");
+
 var p = {
 	gridTotal: function (tag) {
 
@@ -122,3 +124,16 @@ var p = {
 	
 		
 };
+
+console.println("Pineapples loaded");
+
+//app.alert(v);
+//app.alert(v.test(1));
+//app.alert("2".toString());
+//app.alert(padStart);
+////app.alert(globalThis);
+//app.alert(v.TL(2, "tID"));
+//app.alert(v.onStaff(0));
+//app.alert(v.onStaffv(1));
+//app.alert(v.checkOnStaff(1));
+//app.alert(v.checkAllOnStaff());

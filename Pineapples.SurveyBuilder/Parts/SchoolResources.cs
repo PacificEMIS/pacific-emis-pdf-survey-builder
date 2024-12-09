@@ -92,10 +92,13 @@ namespace surveybuilder
 				var i = 0;
 				foreach (var lookupRes in catResources)
 				{
-					string fieldK = $"Resource.{lookupRes.C}.R.{i:00}.K";
-					string fieldA = $"Resource.{lookupRes.C}.D.{i:00}.A";
-					string fieldNum = $"Resource.{lookupRes.C}.D.{i:00}.Num";
-					string fieldC = $"Resource.{lookupRes.C}.D.{i:00}.C";
+					// may resourcce definitions have spaces in the names
+					// , which generates problematic field names
+					string clean = lookupRes.C.Clean();
+					string fieldK = $"Resource.{clean}.R.{i:00}.K";
+					string fieldA = $"Resource.{clean}.D.{i:00}.A";
+					string fieldNum = $"Resource.{clean}.D.{i:00}.Num";
+					string fieldC = $"Resource.{clean}.D.{i:00}.C";
 
 					PdfButtonFormField rgrpAvail = new RadioFormFieldBuilder(builder.pdfDoc, fieldA).CreateRadioGroup();
 					PdfButtonFormField rgrpC = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();

@@ -192,6 +192,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Parts\SingleTeacherClasses.cs" />
     <Compile Include="Utilities\RestApi.cs" />
+    <Compile Include="Utilities\Toolbox.cs" />
     <Compile Include="Utilities\WebColors.cs" />
     <Compile Include="XfdfDocument.cs" />
   </ItemGroup>
@@ -236,6 +237,7 @@
     <Content Include="Assets\Images\report-cover.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="Javascript\Validation.js" />
     <EmbeddedResource Include="Javascript\core.js" />
     <EmbeddedResource Include="Javascript\pineapples.js" />
   </ItemGroup>

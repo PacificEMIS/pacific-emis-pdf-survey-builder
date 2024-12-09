@@ -60,10 +60,6 @@ namespace surveybuilder
 
 			pdfDoc.SetVerbose(options.Verbose); //save this to control debug and console output from anywhere
 
-			PdfTextFormField footerField = new TextFormFieldBuilder(pdfDoc,"Footer")
-				.CreateText();
-			GetPdfAcroForm().AddField(footerField);
-
 		}
 
 		public PdfAcroForm GetPdfAcroForm()

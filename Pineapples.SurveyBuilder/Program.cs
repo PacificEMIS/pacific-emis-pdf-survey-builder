@@ -32,6 +32,7 @@ using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Kernel.Colors;
+using surveybuilder.Utilities;
 
 
 namespace surveybuilder
@@ -107,19 +108,54 @@ namespace surveybuilder
 			Console.WriteLine("Verbose mode:" + (opts.Verbose ? "On" : "Off"));
 			Console.WriteLine($"Survey Year: {opts.Year}");
 			Console.WriteLine("Open when created:" + (opts.AutoOpen ? "On" : "Off"));
-
+			if (opts.Toolbox != null)
+			{
+				Console.WriteLine();
+				Console.WriteLine("TOOLBOX MODE");
+				Console.WriteLine("Target " + (opts.Toolbox));
+				Console.WriteLine("Push Javascripts:" + (opts.PushJs ? "Yes" : ""));
+			}
 			Console.WriteLine();
+
+			// deal with the toolbox
+			if (opts.Toolbox != null)
+			{
+				new Toolbox().RunTools(opts);
+				return;
+			}
+
+
 
 			try
 			{
-				// Verbose mode helps for low level debugging
-				WriterProperties wprops = new WriterProperties()
-					.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
-					.SetFullCompressionMode(!opts.Verbose);
+				string retry = "";
+				PdfDocument pdfDoc = null;
+				do
+				{
+
+					try
+					{
+						retry = "";
+						WriterProperties wprops = new WriterProperties()
+							.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
+							.SetFullCompressionMode(!opts.Verbose);
 
 
-				PdfWriter writer = new PdfWriter(dest, wprops);
-				PdfDocument pdfDoc = new PdfDocument(writer);
+						PdfWriter writer = new PdfWriter(dest, wprops);
+						pdfDoc = new PdfDocument(writer);
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine($"Unable to open {dest} for writing. Press Y to retry...");
+						retry = Console.ReadLine();
+						if (retry.ToLower() != "y")
+						{
+							throw e;
+						}
+					}
+					
+				} while (retry.ToLower() == "y");
+				
 
 				// now use form to create the class
 				// Create an instance of the class
