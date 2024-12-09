@@ -120,10 +120,11 @@ namespace surveybuilder
 				var i = 0;
 				foreach (var lookupRes in catResources)
 				{
-					string fieldK = $"Resource.{kvp.Key}.R.{i:00}.K";
-					string fieldA = $"Resource.{lookupRes.C}.D.{i:00}.A"; // Not used
-					string fieldNum = $"Resource.{kvp.Key}.D.{i:00}.Num";
-					string fieldC = $"Resource.{kvp.Key}.D.{i:00}.C";
+					string cleanKey = kvp.Key.Clean();
+					string fieldK = $"Resource.{cleanKey}.R.{i:00}.K";
+					string fieldA = $"Resource.{cleanKey}.D.{i:00}.A"; // Not used
+					string fieldNum = $"Resource.{cleanKey}.D.{i:00}.Num";
+					string fieldC = $"Resource.{cleanKey}.D.{i:00}.C";
 
 					PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
 

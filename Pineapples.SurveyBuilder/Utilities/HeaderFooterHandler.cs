@@ -197,7 +197,7 @@ namespace surveybuilder
 			//w.SetBackgroundColor(NamedColors.BurlyWood);
 
 			// Add the field to the AcroForm
-			form.AddField(newField);
+			form.AddField(newField,page);
 
 			pdfDoc.VerboseDebug($"Field count @ page {pageNumber}: {form.GetAllFormFields().Count()}");
 			//bool exists = form.GetAllFormFields().TryGetValue("Survey.SchoolNo", out ff);

@@ -67,6 +67,8 @@ namespace surveybuilder
 			}
 		}
 
+
+		#region Toolbox options
 		/// <summary>
 		/// Toolbox mode does not generate the document. It applies a 'tool' to the 
 		/// </summary>
@@ -81,8 +83,19 @@ namespace surveybuilder
 				toolbox = value;
 			}
 		}
-[Option('j', "pushjs", Required = false, HelpText = "Push current Javascript files into the toolbox target")]
+
+		[Option("pushjs", Required = false, HelpText = "Push current Javascript files into the toolbox target")]
 		public bool PushJs { get; set; }
 
+		[Option("clearjs", Required = false, HelpText = "Remove all Javascript files from the toolbox target")]
+		public bool ClearJs { get; set; }
+
+		[Option("openaction", Required = false, HelpText = "Push current Javascript files into the toolbox target")]
+		public string OpenActionJs { get; set; }
+
+		[Option("dump", Required = false, HelpText = "Push current Javascript files into the toolbox target")]
+		public bool Dump { get; set; }
+
+		#endregion
 	}
 }

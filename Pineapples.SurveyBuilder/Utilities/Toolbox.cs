@@ -14,6 +14,9 @@ using iText.Layout;
 using iText.Forms.Form.Element;
 using System.Diagnostics;
 using System.Reflection;
+using iText.Kernel.Pdf.Action;
+using iText.Kernel.Utils.Annotationsflattening;
+using iText.Forms.Fields;
 
 namespace surveybuilder.Utilities
 {
@@ -31,10 +34,24 @@ namespace surveybuilder.Utilities
 			this.opts = opts;
 			pdfDoc = OpenDocument();
 			document = new Document(pdfDoc);
+			if (opts.ClearJs)
+			{
+				ClearJs();
+			}
+
 			if (opts.PushJs)
 			{
 				PushJs();
 			}
+			if (opts.OpenActionJs != null)
+			{
+				SetOpenAction();
+			}
+			if (opts.Dump)
+			{
+				Dump();
+			}
+
 			document.Close();
 			System.IO.File.Delete(opts.Toolbox);
 			System.IO.File.Move(tmpfile, opts.Toolbox);
@@ -75,18 +92,25 @@ namespace surveybuilder.Utilities
 			return pdfDoc;
 		}
 
+		#region javascript
 		public void PushJs()
 		{
 			Console.WriteLine("Pushing Javascript");
-		
+			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
+
+			//removeall
+			foreach (var jsName in javaScriptNameTree.GetKeys())
+			{
+				Console.WriteLine($"Removing javascript: {jsName}");
+				javaScriptNameTree.RemoveEntry(jsName);
+			}
+
 			Assembly assembly = Assembly.GetExecutingAssembly();
 			IEnumerable<string> jsNames = assembly.GetManifestResourceNames()
 							.Where(name => name.EndsWith(".js"));
 
 
-			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
-
-
+			
 			foreach (string jsName in jsNames)
 			{
 				string jscriptText = LoadEmbeddedResource(assembly, jsName);
@@ -111,6 +135,53 @@ namespace surveybuilder.Utilities
 				}
 			}
 		}
+
+		public void ClearJs()
+		{
+			Console.WriteLine("Removing Javascript");
+			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
+
+			//removeall
+			foreach (var jsName in javaScriptNameTree.GetKeys())
+			{
+				Console.WriteLine($"Removing javascript: {jsName}");
+				javaScriptNameTree.RemoveEntry(jsName);
+			}
+		}
+
+		public void SetOpenAction ()
+		{
+			Console.WriteLine($"Set open action:");
+			Console.WriteLine($"{opts.OpenActionJs}");
+			// Create a JavaScript action
+			string js = opts.OpenActionJs;
+			PdfAction jsAction = PdfAction.CreateJavaScript(js);
+
+			pdfDoc.GetCatalog().SetOpenAction(jsAction);
+		}
+		#endregion
+
+
+		#region Auditing and Document examination
+
+		public void Dump()
+		{
+			Console.WriteLine("Dumping fields to Output window");
+
+			var form = PdfAcroForm.GetAcroForm(pdfDoc, true);
+
+			var all = form.GetAllFormFields();
+
+			foreach(PdfFormField fld in all.Values)
+			{
+				Debug.WriteLine($"{fld.GetFieldName()}  {(fld.IsRequired() ? "Required" : "")} {(fld.IsReadOnly() ? "ReadOnly" : "")}");
+			}
+			Console.WriteLine("Press any key to continue");
+			Console.ReadKey();
+			
+		}
+
+		#endregion
 
 	}
 }

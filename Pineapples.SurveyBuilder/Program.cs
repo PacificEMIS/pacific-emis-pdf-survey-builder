@@ -128,14 +128,34 @@ namespace surveybuilder
 
 			try
 			{
-				// Verbose mode helps for low level debugging
-				WriterProperties wprops = new WriterProperties()
-					.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
-					.SetFullCompressionMode(!opts.Verbose);
+				string retry = "";
+				PdfDocument pdfDoc = null;
+				do
+				{
+
+					try
+					{
+						retry = "";
+						WriterProperties wprops = new WriterProperties()
+							.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
+							.SetFullCompressionMode(!opts.Verbose);
 
 
-				PdfWriter writer = new PdfWriter(dest, wprops);
-				PdfDocument pdfDoc = new PdfDocument(writer);
+						PdfWriter writer = new PdfWriter(dest, wprops);
+						pdfDoc = new PdfDocument(writer);
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine($"Unable to open {dest} for writing. Press Y to retry...");
+						retry = Console.ReadLine();
+						if (retry.ToLower() != "y")
+						{
+							throw e;
+						}
+					}
+					
+				} while (retry.ToLower() == "y");
+				
 
 				// now use form to create the class
 				// Create an instance of the class
