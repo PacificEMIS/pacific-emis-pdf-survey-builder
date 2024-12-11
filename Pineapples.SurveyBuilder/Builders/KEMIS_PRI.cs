@@ -225,12 +225,10 @@ namespace surveybuilder
 
 			#region ************ Comments ***************
 			var generalOutline = this.AddOutline(document, parentOutline, "General Comments");
-			AddOutline(document, generalOutline, "Final Comments");
-			AddOutline(document, generalOutline, "Certification");
-
 			document.Add(Heading_1("General Comments"));			
+
 			document = new GeneralComments()
-				.Build(this, document);
+				.Build(this, document, generalOutline);
 			NewPage(document);
 			#endregion
 
