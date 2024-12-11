@@ -17,21 +17,25 @@ using System.Reflection;
 using iText.Kernel.Pdf.Action;
 using iText.Kernel.Utils.Annotationsflattening;
 using iText.Forms.Fields;
+using System.CodeDom.Compiler;
 
 namespace surveybuilder.Utilities
 {
 	public class Toolbox
 	{
-		
+
 		string tmpfile;
 		Options opts;
 		PdfDocument pdfDoc;
 		Document document;
-		public Toolbox() { }
-
-		public void RunTools(Options opts) {
-			Console.WriteLine("Running toolbox");
+		public Toolbox(Options opts) 
+		{
 			this.opts = opts;
+		}
+
+		public void RunTools()
+		{
+			Console.WriteLine("Running toolbox");
 			pdfDoc = OpenDocument();
 			document = new Document(pdfDoc);
 			if (opts.ClearJs)
@@ -47,11 +51,19 @@ namespace surveybuilder.Utilities
 			{
 				SetOpenAction();
 			}
+			if (opts.CheckActionJs != null)
+			{
+				SetCheckAction();
+			}
+
 			if (opts.Dump)
 			{
 				Dump();
 			}
-
+			if (!String.IsNullOrEmpty(opts.Populate))
+			{
+				Populate();
+			}
 			document.Close();
 			System.IO.File.Delete(opts.Toolbox);
 			System.IO.File.Move(tmpfile, opts.Toolbox);
@@ -74,22 +86,44 @@ namespace surveybuilder.Utilities
 		public PdfDocument OpenDocument()
 		{
 			tmpfile = @"D:\files\tmp.pdf";
-			ReaderProperties rprops = new ReaderProperties();
-				//.SetPassword(System.Text.Encoding.ASCII.GetBytes("kiri"));
-			// Verbose mode helps for low level debugging
-			WriterProperties wprops = new WriterProperties()
-				.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
-				.SetFullCompressionMode(!opts.Verbose);
 
-			PdfReader reader = new PdfReader(new FileStream
-					(opts.Toolbox, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite), rprops);
-			PdfWriter writer = new PdfWriter(tmpfile, wprops);
-			reader.SetCloseStream(true);
-			writer.SetCloseStream(true);
+			string retry = "";
+			PdfDocument pdfDoc = null;
+			do
+			{
+				try
+				{
+					retry = "";
+					ReaderProperties rprops = new ReaderProperties();
+					//.SetPassword(System.Text.Encoding.ASCII.GetBytes("kiri"));
+					// Verbose mode helps for low level debugging
+					WriterProperties wprops = new WriterProperties()
+						.SetCompressionLevel(opts.Verbose ? CompressionConstants.NO_COMPRESSION : CompressionConstants.BEST_COMPRESSION)
+						.SetFullCompressionMode(!opts.Verbose);
 
-			PdfDocument pdfDoc = new PdfDocument(reader, writer);
-			pdfDoc.SetCloseWriter(true);
+					PdfReader reader = new PdfReader(new FileStream
+							(opts.Toolbox, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite), rprops);
+					PdfWriter writer = new PdfWriter(tmpfile, wprops);
+					reader.SetCloseStream(true);
+					writer.SetCloseStream(true);
+
+					pdfDoc = new PdfDocument(reader, writer);
+					pdfDoc.SetCloseWriter(true);
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine($"Unable to open {opts.Toolbox} for writing. Press Y to retry...");
+					retry = Console.ReadLine();
+					if (retry.ToLower() != "y")
+					{
+						throw e;
+					}
+				}
+
+			} while (retry.ToLower() == "y");
+
 			return pdfDoc;
+
 		}
 
 		#region javascript
@@ -110,7 +144,7 @@ namespace surveybuilder.Utilities
 							.Where(name => name.EndsWith(".js"));
 
 
-			
+
 			foreach (string jsName in jsNames)
 			{
 				string jscriptText = LoadEmbeddedResource(assembly, jsName);
@@ -149,7 +183,20 @@ namespace surveybuilder.Utilities
 			}
 		}
 
-		public void SetOpenAction ()
+		public void SetCheckAction()
+		{
+			Console.WriteLine($"Set Check action:");
+			Console.WriteLine($"{opts.CheckActionJs}");
+
+			// Create a JavaScript action
+			string js = opts.CheckActionJs;
+			PdfAction jsAction = PdfAction.CreateJavaScript(js);
+
+			PdfFormField chk = PdfAcroForm.GetAcroForm(pdfDoc, true).GetField("CheckBtn") as PdfButtonFormField;
+			chk.SetAdditionalAction(PdfName.U, jsAction);
+		}
+
+		public void SetOpenAction()
 		{
 			Console.WriteLine($"Set open action:");
 			Console.WriteLine($"{opts.OpenActionJs}");
@@ -161,7 +208,12 @@ namespace surveybuilder.Utilities
 		}
 		#endregion
 
-
+		#region Pacific Emis end points
+		public string Populate()
+		{
+			return new RestApi().Generate(opts.EmisUrl, opts.Populate, opts.Year).Result;
+		}
+		#endregion
 		#region Auditing and Document examination
 
 		public void Dump()
@@ -172,13 +224,13 @@ namespace surveybuilder.Utilities
 
 			var all = form.GetAllFormFields();
 
-			foreach(PdfFormField fld in all.Values)
+			foreach (PdfFormField fld in all.Values)
 			{
 				Debug.WriteLine($"{fld.GetFieldName()}  {(fld.IsRequired() ? "Required" : "")} {(fld.IsReadOnly() ? "ReadOnly" : "")}");
 			}
 			Console.WriteLine("Press any key to continue");
 			Console.ReadKey();
-			
+
 		}
 
 		#endregion

@@ -8,6 +8,9 @@ using System.Net.Http;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Contexts;
 
 namespace surveybuilder
 {
@@ -121,5 +124,65 @@ namespace surveybuilder
 
 			}
 		}
+
+
+		public async Task<string> Generate(string siteurl, string schoolno, int year)
+		{
+			string endpoint = $"{siteurl}/api/pdfSurvey/generate/{schoolno}/{year}";
+			return await DownloadPdf(endpoint);
+		}
+		public async Task<string> DownloadPdf(string url)
+		{
+			// Define the Fiddler proxy
+			var proxy = new System.Net.WebProxy("http://127.0.0.1:8888", false);
+
+			// Configure HttpClientHandler to use the proxy
+			var httpClientHandler = new HttpClientHandler
+			{
+				Proxy = proxy,
+				UseProxy = false
+			};
+
+			try
+			{
+				using (HttpClient client = new HttpClient(httpClientHandler))
+				{
+					
+					// Send GET request to API to retrieve the PDF
+					HttpResponseMessage response = await client.GetAsync(url);
+
+					// Check if the request was successful
+					if (response.IsSuccessStatusCode)
+					{
+						var contentDisposition = response.Content.Headers.ContentDisposition;
+						string filename = "downloadedFile.pdf"; // Default filename if not provided
+
+						if (contentDisposition != null && !string.IsNullOrEmpty(contentDisposition.FileName))
+						{
+							filename = contentDisposition.FileName.Trim('"');
+						}
+						// Read the PDF content as a byte array
+						byte[] pdfData = await response.Content.ReadAsByteArrayAsync();
+
+						// Write the PDF to a file
+						// Destination file path (e.g., saving to Downloads folder)
+						string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", filename);
+						File.WriteAllBytes(filePath, pdfData);
+
+						Console.WriteLine($"PDF downloaded successfully and saved to: {filePath}");
+						return filePath;
+					}
+					else
+					{
+						throw new Exception("Error: Unable to download the PDF. HTTP Status Code: " + response.StatusCode);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
 	}
 }

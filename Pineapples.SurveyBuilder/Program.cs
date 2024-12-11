@@ -98,7 +98,10 @@ namespace surveybuilder
 
 		static void RunWithOptions(Options opts)
 		{
-			string dest = System.IO.Path.Combine(opts.OutputPath, $"{opts.Form}.pdf");
+			//From KEMIS_SEC want to end up with KEMIS 2025 SEC.pdf
+			string[] parts = opts.Form.Split('_');
+			string dest = System.IO.Path.Combine(opts.OutputPath
+				, $"{parts[0]} {opts.Year:0000} {parts[1]}.pdf");
 
 			Console.WriteLine("Options:");
 			Console.WriteLine($"Selected Form: {opts.Form}");
@@ -120,7 +123,7 @@ namespace surveybuilder
 			// deal with the toolbox
 			if (opts.Toolbox != null)
 			{
-				new Toolbox().RunTools(opts);
+				new Toolbox(opts).RunTools();
 				return;
 			}
 
@@ -165,6 +168,11 @@ namespace surveybuilder
 				Document document = builder.Build();
 				document.Close();
 				Console.WriteLine($"COMPLETED: {dest} created");
+
+				if (!String.IsNullOrEmpty(opts.Populate)) {
+					Console.WriteLine($"Populating from school {opts.Populate} year {opts.Year}");
+					dest = new Toolbox(opts).Populate();
+				}
 
 				if (opts.AutoOpen)
 				{

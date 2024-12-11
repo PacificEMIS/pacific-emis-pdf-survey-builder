@@ -90,11 +90,19 @@ namespace surveybuilder
 		[Option("clearjs", Required = false, HelpText = "Remove all Javascript files from the toolbox target")]
 		public bool ClearJs { get; set; }
 
-		[Option("openaction", Required = false, HelpText = "Push current Javascript files into the toolbox target")]
+		[Option("openaction", Required = false, HelpText = "Set OnOpen Javascript on the toolbox target")]
 		public string OpenActionJs { get; set; }
 
-		[Option("dump", Required = false, HelpText = "Push current Javascript files into the toolbox target")]
+		[Option("checkaction", Required = false, HelpText = "Set javascript on 'CheckBtn' on the toolbox target")]
+		public string CheckActionJs { get; set; }
+
+
+		[Option("dump", Required = false, HelpText = "Dump all field names to output window")]
 		public bool Dump { get; set; }
+
+		[Option("populate", Required = false, HelpText = "Create a populated survey - value is the school no")]
+		public string Populate { get; set; }
+
 
 		#endregion
 	}
