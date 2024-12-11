@@ -23,6 +23,7 @@ namespace surveybuilder
 	{
 		public Document Build(PdfBuilder builder, Document document)
 		{
+			Console.WriteLine("Part: Expected Staff");
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet();
 
@@ -31,7 +32,7 @@ namespace surveybuilder
 				+ @"As well, it includes all teachers appointed to teach at your school in the current year. "
 				+ @"To complete this table, answer Y in the On Staff? column to confirm that the teacher is working at your school. "
 				+ @"Answer N otherwise. For teachers who are On Staff, review the remaining fields, and make any corrections required.")
-			);	
+			);
 
 			document.Add(new Paragraph()
 				.Add(@"If there are teachers at your school who are not in this list, add their details in the next section – New Staff.")
@@ -48,10 +49,11 @@ namespace surveybuilder
 				.Add(@"Sample of dropdown list populated with indirect /Opt")
 			);
 
-			var colwidths = new float[] { 40, 60,60, 10,10 , 10, 10, 30 };
-			var subcolwidths = new float[] { 40, 60, 40, 60};
+			var colwidths = new float[] { 40, 60, 60, 10, 10, 10, 10, 30 };
+			var subcolwidths = new float[] { 40, 60, 40, 60 };
 
-			for (int i = 0; i <= 10; i++)
+			const int MAX_TEACHERS = 10;
+			for (int i = 0; i <= MAX_TEACHERS; i++)
 			{
 				Table table = new Table(UnitValue.CreatePercentArray(colwidths))
 						.UseAllAvailableWidth();
@@ -77,12 +79,12 @@ namespace surveybuilder
 					SelectCell(model, grpGender, "F"),
 					InputCell(model, $"TL.{i:00}.DoB", 10)
 				);
-				
+
 				Table subtable = new Table(UnitValue.CreatePercentArray(subcolwidths))
 						.UseAllAvailableWidth();
 				subtable.AddRow(
-					TextCell(model,"Citizenship"),
-					ComboCell(model, $"TL.{i:00}.Citizenship",  builder.lookups.Opt("schoolTypes")),
+					TextCell(model, "Citizenship"),
+					ComboCell(model, $"TL.{i:00}.Citizenship", builder.lookups.Opt("schoolTypes")),
 					TextCell(model, "Home Island"),
 					ComboCell(model, $"TL.{i:00Ed}.HomeIsland", builder.lookups.Opt("schoolTypes"))
 					);
@@ -109,8 +111,20 @@ namespace surveybuilder
 
 				table.AddRow(NestedTableCell(model13, subtable));
 				document.Add(table);
+
+				// now we also have to create the hidden field for tID on every teacher instance
+				// like the Grid, if we create a form field and don;t place it on the page, it will
+				// exists somewhere in the ether not visible
 			}
-			
+			var form = builder.GetPdfAcroForm();
+			for (int i = 0; i <= MAX_TEACHERS; i++)
+			{
+				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"TL.{i:00}.tID")
+				.CreateText();
+				form.AddField(txt);
+			}
+
+
 			return document;
 		}
 	}
