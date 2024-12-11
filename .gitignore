@@ -66,3 +66,4 @@ packages/
 *.vsidx
 
 .vs/
+/Pineapples.SurveyBuilder/Javascript/core.js
