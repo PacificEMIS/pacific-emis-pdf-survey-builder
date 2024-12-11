@@ -28,13 +28,16 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public GeneralComments() { }
 
-		public Document Build(PdfBuilder builder, Document document)
+		public Document Build(PdfBuilder builder, Document document, PdfOutline generalOutline)
 		{
+			Console.WriteLine("Part: General Comments");
+
 			// Cell layout/styling models
-			
 			var model = CellStyleFactory.Default;
 
+			builder.AddOutline(document, generalOutline, "Final Comments");
 			builder.Heading_2("Final Comments", document);
+
 			document.Add(new Paragraph(@"If you would like to make any comments or provide additional information about your "
 			+ @"school please record these below."));
 
@@ -45,17 +48,21 @@ namespace surveybuilder
 
 			document.Add(table);
 			builder.NewPage(document);
+
+
+			builder.AddOutline(document, generalOutline, "Certification");
+			builder.Heading_2("Certification", document);
+
 			table = new Table(UnitValue.CreatePercentArray(new float[] { 100 }))
 				.UseAllAvailableWidth();
 
-			string jsCode = "app.alert('Completeness Check Triggered!');";
-			Cell abs = ts.AbstractCell(new Cell());
+			string jsCode = "v.doAllValidations();";
+			Cell abs = ts.AbstractCell(new Cell().SetHeight(50));
 			table.AddRow(
 				PushButtonCell(abs, "CheckBtn", "Verify Responses", jsCode)
 			);
 
 			document.Add(table);
-			builder.Heading_2("Certification", document);
 
 			document.Add(new Paragraph(@"All information presented in this survey must be complete and accurate and "
 			+ @"you must certify to that it is complete and accurate to the best of your knowledge and belief."));

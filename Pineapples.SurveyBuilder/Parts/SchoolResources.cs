@@ -25,6 +25,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(PdfBuilder builder, Document document, LookupList resources)
 		{
+			Console.WriteLine("Part: School Resources");
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model12 = CellStyleFactory.TwoColumn;

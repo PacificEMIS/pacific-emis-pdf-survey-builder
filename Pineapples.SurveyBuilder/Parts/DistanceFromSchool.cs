@@ -24,6 +24,7 @@ namespace surveybuilder
 		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(PdfBuilder builder, Document document, LookupList distanceCodes)
 		{
+			Console.WriteLine("Part: Distance from School");
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model13 = CellStyleFactory.ThreeColumn;
