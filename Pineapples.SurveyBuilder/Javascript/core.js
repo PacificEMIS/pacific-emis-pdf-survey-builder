@@ -19,13 +19,17 @@ function OnStartup()
 
 		if (this.getNthFieldName(i).startsWith("Footer.")) {
 			var n = this.getNthFieldName(i);
-			var ff = this.getField(n);
+			var ff = gf(n);
 
 			if (i % 2 == 1) {
-				ff.value = title;
+				if (ff.value != title) {
+					ff.value = title;
+				}
 			}
 			else {
-				ff.value = school;
+				if (ff.value != school) {
+					ff.value = school;
+				}
 
 			}
 
@@ -109,6 +113,11 @@ function gfvx(fieldname) {
 
 	}
 	return ret;
+}
+
+//a global this
+function gthis() {
+	return this;
 }
 
 // gets the displayble value for a combobox
