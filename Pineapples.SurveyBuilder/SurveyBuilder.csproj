@@ -173,6 +173,8 @@
     <Compile Include="Parts\WASHWater.cs" />
     <Compile Include="Parts\WASHHygiene.cs" />
     <Compile Include="Parts\WASHSanitation.cs" />
+    <Compile Include="Styling\Palette.cs" />
+    <Compile Include="Styling\Theme.cs" />
     <Compile Include="Utilities\Actions.cs" />
     <Compile Include="Utilities\CellFieldRenderers.cs" />
     <Compile Include="Utilities\CellMakers.cs" />

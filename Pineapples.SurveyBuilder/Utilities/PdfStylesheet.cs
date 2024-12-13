@@ -23,6 +23,7 @@ using System.Diagnostics;
 
 
 
+
 namespace surveybuilder
 {
 	public delegate Cell CellStyler(Cell cell);
@@ -37,9 +38,15 @@ namespace surveybuilder
 		public PdfStyle(PdfStyle inherits)
 		{
 			this.inherits = inherits;
-
+			CurrentTheme = inherits.CurrentTheme;
+			GetFontColor = inherits.GetFontColor;
+			GetBackgroundColor = inherits.GetBackgroundColor;
+			GetBorder = inherits.GetBorder;
 
 		}
+
+		// dynamic theming support
+		public Theme CurrentTheme { get; set; }
 
 		// inheritance hierarchy
 		public PdfStyle inherits = null;
@@ -66,7 +73,10 @@ namespace surveybuilder
 			BottomBorder = Border.NO_BORDER,
 			LeftBorder = Border.NO_BORDER,
 			RightBorder = Border.NO_BORDER,
-			Border = Border.NO_BORDER
+			Border = Border.NO_BORDER,
+			//ignore the dynamic colors
+			GetFontColor = null,
+			GetBackgroundColor = null,
 		};
 
 		private PdfStyle baseStyle = DefaultBaseStyle;
@@ -95,6 +105,15 @@ namespace surveybuilder
 		private Color backgroundColor;
 		private string backgroundImage;
 
+		//dynamic color properties
+		public Func<Theme, Color> GetFontColor { get; set; }
+		public Func<Theme, Color> GetBackgroundColor { get; set; }
+		public Func<Theme, Border> GetBorder { get; set; }
+		public Func<Theme, Border> GetTopBorder { get; set; }
+		public Func<Theme, Border> GetLeftBorder { get; set; }
+		public Func<Theme, Border> GetRightBorder { get; set; }
+		public Func<Theme, Border> GetBottomBorder { get; set; }
+
 		// Font properties
 		public int FontSize
 		{
@@ -105,7 +124,8 @@ namespace surveybuilder
 		public Color FontColor
 		{
 			
-			get => fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
+			get => GetFontColor?.Invoke(CurrentTheme)
+					??fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
 			set
 			{
 				fontColor = value;
@@ -188,38 +208,47 @@ namespace surveybuilder
 		// Border properties
 		public Border TopBorder
 		{
-			get => topBorder ?? inherits?.TopBorder ?? baseStyle?.TopBorder;
+			get => GetTopBorder?.Invoke(CurrentTheme)
+					?? topBorder ?? inherits?.TopBorder ?? baseStyle?.TopBorder;
 			set => topBorder = value;
 		}
 
 		public Border BottomBorder
 		{
-			get => bottomBorder ?? inherits?.BottomBorder ?? baseStyle?.BottomBorder;
+			get => GetBottomBorder?.Invoke(CurrentTheme)
+					?? bottomBorder ?? inherits?.BottomBorder ?? baseStyle?.BottomBorder;
 			set => bottomBorder = value;
 		}
 
 		public Border LeftBorder
 		{
-			get => leftBorder ?? inherits?.LeftBorder ?? baseStyle?.LeftBorder;
+			get => GetLeftBorder?.Invoke(CurrentTheme)
+					?? leftBorder ?? inherits?.LeftBorder ?? baseStyle?.LeftBorder;
 			set => leftBorder = value;
 		}
 
 		public Border RightBorder
 		{
-			get => rightBorder ?? inherits?.RightBorder ?? baseStyle?.RightBorder;
+			get => GetRightBorder?.Invoke(CurrentTheme)
+					?? rightBorder ?? inherits?.RightBorder ?? baseStyle?.RightBorder;
 			set => rightBorder = value;
 		}
 
 		public Border Border
 		{
-			get => border ?? inherits?.Border ?? baseStyle?.Border;
+			get => GetBorder?.Invoke(CurrentTheme)
+					??border ?? inherits?.Border ?? baseStyle?.Border;
 			set => border = value;
 		}
 
 		// Background properties
 		public Color BackgroundColor
 		{
-			get => backgroundColor ?? inherits?.BackgroundColor ?? baseStyle?.BackgroundColor;
+			get => GetBackgroundColor?.Invoke(CurrentTheme)
+					?? backgroundColor 
+					?? inherits?.BackgroundColor
+					?? baseStyle?.BackgroundColor;
+
 			set => backgroundColor = value;
 		}
 
@@ -352,10 +381,42 @@ namespace surveybuilder
 
 	public class PdfStylesheet : Dictionary<string, PdfStyle>
 	{
+
+		// Default constructor with the default theme
 		public PdfStylesheet()
 		{
+			Theme = new Theme
+			{
+				Primary = PredefinedPalettes.Blue,
+				Accent = PredefinedPalettes.Pink,
+				Warn = PredefinedPalettes.Red,
+				Background = PredefinedPalettes.Pink
+			};
+
 			InitialiseStyles();
 		}
+
+		// Constructor that accepts a Theme
+		public PdfStylesheet(Theme theme)
+		{
+			Theme = theme ?? throw new ArgumentNullException(nameof(theme));
+			InitialiseStyles();
+		}
+		private Theme _theme;
+
+		public Theme Theme
+		{
+			get => _theme;
+			set
+			{
+				_theme = value ?? throw new ArgumentNullException(nameof(value));
+				foreach (var style in this.Values)
+				{
+					style.CurrentTheme = _theme; // Ensure all styles have the updated theme
+				}
+			}
+		}
+
 		// Use the indexer to support add or update
 		// ie this allows you to change the definition of a style associated to a name.
 		public new PdfStyle this[string key]
@@ -365,8 +426,10 @@ namespace surveybuilder
 			{
 				base[key] = value; // Update or add the PdfStyle
 				value.Name = key;
+				// Ensure the new style has the current theme
+				value.CurrentTheme = Theme;
 				// make sure any inherits are updated
-				foreach(PdfStyle style in this.Values.Where(v => v.inherits?.Name == key))
+				foreach (PdfStyle style in this.Values.Where(v => v.inherits?.Name == key))
 				{
 					style.inherits = value;
 				}
@@ -376,6 +439,7 @@ namespace surveybuilder
 		public new void Add(string name, PdfStyle style)
 		{
 			style.Name = name;
+			style.CurrentTheme = _theme; // Ensure all styles have the updated theme
 			base.Add(name, style);
 		}
 
@@ -424,16 +488,16 @@ namespace surveybuilder
 			Add("Heading 1", new PdfStyle(this["headingbase"])
 			{
 				FontSize = 24,
-				BackgroundColor = NamedColors.CornflowerBlue,
-				FontColor = NamedColors.White
+				GetBackgroundColor = (theme) => theme.Primary.DefaultHue,
+				GetFontColor = (theme) => theme.Primary.TextColor,
 			});
 
 			// Define Heading 2 style
 			Add("Heading 2", new PdfStyle(this["headingbase"])
 			{
 				FontSize = 20,
-				TopBorder = new SolidBorder(NamedColors.CornflowerBlue, 2)
-				//FontColor = ColorConstants.RED
+				GetTopBorder = (theme) => new SolidBorder(theme.Accent.DefaultHue, 3),
+				GetFontColor = (theme) => theme.Accent.GetColor(200)
 			});
 
 			// Define Heading 3 style
