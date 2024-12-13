@@ -39,10 +39,6 @@ namespace surveybuilder
 		{
 			this.inherits = inherits;
 			CurrentTheme = inherits.CurrentTheme;
-			GetFontColor = inherits.GetFontColor;
-			GetBackgroundColor = inherits.GetBackgroundColor;
-			GetBorder = inherits.GetBorder;
-
 		}
 
 		// dynamic theming support
@@ -474,7 +470,7 @@ namespace surveybuilder
 			Add("base", new PdfStyle());
 			PdfStyle headingbase = new PdfStyle(this["base"])
 			{
-				FontBold = true,
+				FontBold = false,
 				FontColor = iText.Kernel.Colors.WebColors.GetRGBColor("606060"),
 				KeepWithNext = true,  // Headings often keep with the next paragraph
 				SpacingBefore = 10,   // Add some space before the heading
@@ -487,23 +483,23 @@ namespace surveybuilder
 			// Define Heading 1 style
 			Add("Heading 1", new PdfStyle(this["headingbase"])
 			{
-				FontSize = 24,
-				GetBackgroundColor = (theme) => theme.Primary.DefaultHue,
-				GetFontColor = (theme) => theme.Primary.TextColor,
+				FontSize = 20,
+				GetBackgroundColor = (theme) => theme.Primary.GetColor(900),
+				GetFontColor = (theme) => theme.Primary.DefaultHue.Contrast(),
 			});
 
 			// Define Heading 2 style
 			Add("Heading 2", new PdfStyle(this["headingbase"])
 			{
-				FontSize = 20,
-				GetTopBorder = (theme) => new SolidBorder(theme.Accent.DefaultHue, 3),
-				GetFontColor = (theme) => theme.Accent.GetColor(200)
+				FontSize = 16,
+				GetTopBorder = (theme) => new SolidBorder(theme.Accent.GetColor(200), 3),
+				GetFontColor = (theme) => theme.Accent.DefaultHue
 			});
 
 			// Define Heading 3 style
 			Add("Heading 3", new PdfStyle(this["headingbase"])
 			{
-				FontSize = 16,
+				FontSize = 14,
 				//FontColor = ColorConstants.ORANGE
 			});
 
@@ -662,16 +658,16 @@ namespace surveybuilder
 		/// <summary>
 		/// A collection of base styles available for table elements.
 		/// </summary>
-		public PdfStylesheet styles = new PdfStylesheet();
+		public PdfStylesheet styles;
 
 		#region Constructor - Table Style Definitions 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PdfTableStylesheet"/> class.
 		/// Sets up predefined styles for table headers, header cells, and subheader cells.
 		/// </summary>
-		public PdfTableStylesheet()
+		public PdfTableStylesheet(PdfStylesheet styles)
 		{
-
+			this.styles = styles;
 
 			// Define colors using hexadecimal values
 			// Colors eventually to move to a ThemeColors.cs (something like WebColors.cs but only necessary colors
@@ -689,77 +685,85 @@ namespace surveybuilder
 			string color3 = "6677FF"; // Darker gray for subheader cells
 
 			// Define and add styles
-			styles.Add("tablebase",
+			// using the indexer can Add or update - safer if the styles may already be there
+			styles["tablebase"] = 
 				new PdfStyle(styles["base"])
 				{
 					FontSize = 10,
 					Border = new SolidBorder(ColorConstants.LIGHT_GRAY, 1, (float).5)
-				});
+				};
 
-			styles.Add("tableheader",
+			styles["tableheader"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
 					FontBold = true,
-					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color1)
-				});
-
-			styles.Add("tablerowheader",
+					GetBackgroundColor = theme => theme.Primary.GetColor(300),
+					GetFontColor = theme => theme.Primary.TextColor,
+				};
+			styles["tablerowheader"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.LEFT
 
-				});
+				};
 
-			styles.Add("tablerowheadertotal",
+			styles["tablerowheadertotal"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.RIGHT,
 					FontBold = true
-				});
+				};
 
 			// Define and add a style for table subheader cells
-			styles.Add("tablesubheader",
+			styles["tablesubheader"] =
 				new PdfStyle(styles["tablebase"])
 				{
-					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color3)
-				});
-
-			styles.Add("gridbase",
+					GetBackgroundColor = theme => theme.Primary.GetColor(200),
+					GetFontColor = theme => theme.Primary.TextColor
+				};
+			styles["gridbase"] =
 				new PdfStyle()
 				{
 					FontSize = 8
-				});
+				};
 
-			styles.Add("rowheader",
+			styles["rowheader"] =
 				new PdfStyle(styles["gridbase"])
 				{
 					TextAlignment = TextAlignment.RIGHT,
-					LineSpacing = 1
-				});
+					LineSpacing = 1,
+					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+					GetFontColor = theme => theme.Accent.TextColor,
+				};
 
-			styles.Add("rowheadertotal",
+			styles["rowheadertotal"] =
 				new PdfStyle(styles["rowheader"])
 				{
 					FontBold = true
-				});
+				};
 
-			styles.Add("colheader",
+			styles["colheader"] =
 				new PdfStyle(styles["gridbase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
+					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+					GetFontColor = theme => theme.Accent.TextColor,
 					FontBold = true
-				});
+				};
 
-			styles.Add("genderheader",
-				new PdfStyle(styles["colheader"]) { FontSize = styles["colheader"].FontSize - 2 });
+			styles["genderheader"] =
+				new PdfStyle(styles["colheader"]) 
+				{ 
+					FontSize = styles["colheader"].FontSize - 2 
+				};
 
-			styles.Add("abstractcell",
+			styles["abstractcell"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
 					Border = Border.NO_BORDER
-				});
+				};
 
 			// seed the CellStyleFactory with tablebase
 			// which will get applied to everything

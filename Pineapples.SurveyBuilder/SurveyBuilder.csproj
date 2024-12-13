@@ -173,7 +173,9 @@
     <Compile Include="Parts\WASHWater.cs" />
     <Compile Include="Parts\WASHHygiene.cs" />
     <Compile Include="Parts\WASHSanitation.cs" />
+    <Compile Include="Styling\ColorExtensions.cs" />
     <Compile Include="Styling\Palette.cs" />
+    <Compile Include="Styling\PdfStylesheet.cs" />
     <Compile Include="Styling\Theme.cs" />
     <Compile Include="Utilities\Actions.cs" />
     <Compile Include="Utilities\CellFieldRenderers.cs" />
@@ -189,7 +191,6 @@
     <Compile Include="Utilities\PdfBuilders.cs" />
     <Compile Include="Utilities\PdfExtensions.cs" />
     <Compile Include="PdfForm.cs" />
-    <Compile Include="Utilities\PdfStylesheet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Parts\SingleTeacherClasses.cs" />
