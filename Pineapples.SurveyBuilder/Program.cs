@@ -48,7 +48,7 @@ namespace surveybuilder
 			// Retrieve the attributes
 			string title = ((AssemblyTitleAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyTitleAttribute)))?.Title ?? "No Title Defined";
 			string description = ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyDescriptionAttribute)))?.Description ?? "No Description Defined";
-			string version = assembly.GetName().Version?.ToString() ?? "No Version Defined";
+			string version = assembly.GetName().Version?.ToString().Substring(0,5) ?? "No Version Defined";
 			string copyright = ((AssemblyCopyrightAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyCopyrightAttribute)))?.Copyright ?? "No Copyright Defined";
 
 			// Write them to the console
