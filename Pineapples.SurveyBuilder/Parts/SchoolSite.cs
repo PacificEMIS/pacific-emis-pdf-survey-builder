@@ -21,9 +21,10 @@ namespace surveybuilder
 	public class SchoolSite
 	{
 		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
+		
 		public Document Build(PdfBuilder builder, Document document)
 		{
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 			Console.WriteLine("Part: School site");
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;

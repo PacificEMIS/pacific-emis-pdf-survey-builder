@@ -19,12 +19,15 @@ namespace surveybuilder
 {
 	public class WASHSanitation
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHSanitation() { }
 
 		public Document Build(PdfBuilder builder, Document document, LookupList toiletTypes)
 		{
+			Console.WriteLine("Part: Wash - Sanitation");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model12 = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 2, applyHeight: false);

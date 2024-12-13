@@ -20,12 +20,15 @@ namespace surveybuilder
 {
 	public class WASHWater
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHWater() { }
 
 		public Document Build(PdfBuilder builder, Document document, LookupList waterSupplyTypes)
 		{
+			Console.WriteLine("Part: Wash - Water");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var modelb = CellStyleFactory.DefaultNoHeight;
@@ -115,7 +118,7 @@ namespace surveybuilder
 			var chk = new CheckBoxPickmaker();
 			chk.Names = Columns;
 			chk.Values = values;
-			 
+
 			chk.Types = new CheckBoxType[] {CheckBoxType.STAR, CheckBoxType.SQUARE
 					,CheckBoxType.CIRCLE,CheckBoxType.DIAMOND,CheckBoxType.CROSS };
 			chk.Colors = new Color[] { ColorConstants.ORANGE };

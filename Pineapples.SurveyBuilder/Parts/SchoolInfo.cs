@@ -22,13 +22,15 @@ namespace surveybuilder
 
 	public class SchoolInfo
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public SchoolInfo() { }
 
 		public Document Build(PdfBuilder builder, Document document, PdfOutline schoolInfoOutline)
 		{
 			Console.WriteLine("Part: SchoolInfo");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model12 = CellStyleFactory.TwoColumn;

@@ -36,7 +36,6 @@ namespace surveybuilder
 		public Boolean IncludeFirstColumn;
 
 		// Import common table/grid styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 
 		public int RowHeight = 12;
 
@@ -50,7 +49,13 @@ namespace surveybuilder
 
 		public Table Make(PdfBuilder builder)
 		{
-			Console.WriteLine($"GenderedGrid: {Tag}");
+			PdfStylesheet ss = builder.stylesheet;
+			PdfTableStylesheet ts = new PdfTableStylesheet(ss);
+			// style names as used in the grid
+			const string ColHeader = "colheader";
+			const string GenderHeader = "genderheader";
+			const string RowHeader = "rowheader";
+			builder.pdfDoc.VerboseConsole($"GenderedGrid: {Tag}");
 
 			string color1 = "eaeaea";
 			string color2 = "cccccc";
@@ -97,19 +102,20 @@ namespace surveybuilder
 			if (IncludeFirstColumn)
 			{
 				table.AddCell(
-					TextCell(colheadermodel, ts.GridColHeader("Age")));
+					TextCell(colheadermodel, "Age").Style(ss[ColHeader]));
 			}
 
 			foreach (var kvp in Columns)
 			{
 				// rowspan is 2
 				table.AddCell(
-					TextCell(colheadermodel2, ts.GridColHeader(kvp.N)));
+					TextCell(colheadermodel2, kvp.N).Style(ss[GenderHeader]));
 
 			}
 			if (RowTotals)
 			{
-				table.AddCell(colheadermodel4.Clone(false).Add(ts.GridColHeader("Totals")));
+				table.AddCell(
+					TextCell(colheadermodel4, "Totals").Style(ss[ColHeader]));
 			}
 
 			// gender headings row
@@ -125,14 +131,18 @@ namespace surveybuilder
 			for (int i = 0; i < Columns.Count; i++)
 			{
 				// rowspan is 1
-				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("M")));
-				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("F")));
+				table.AddRow(
+					TextCell(colheadermodel, "M").Style(ss[GenderHeader]),
+					TextCell(colheadermodel, "F").Style(ss[GenderHeader])
+					);
 			}
 			if (RowTotals)
 			{
-				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("M")));
-				table.AddCell(TextCell(colheadermodel, ts.GridGenderHeader("F")));
-				table.AddCell(TextCell(colheadermodel2, ts.GridGenderHeader("Totals (M+F)")));
+				table.AddRow(
+					TextCell(colheadermodel, "M").Style(ss[GenderHeader]),
+					TextCell(colheadermodel, "F").Style(ss[GenderHeader]),
+					TextCell(colheadermodel2, "Totals (M+F)").Style(ss[GenderHeader])
+				);
 			}
 
 
@@ -141,8 +151,8 @@ namespace surveybuilder
 			{
 				// first the row header
 				var cellmodel = (i % 2 == 0) ? evenmodel : oddmodel;
-				table.AddCell(cellmodel.Clone(false)
-					.Add(ts.GridRowHeader(Rows[i].N.Nbsp()))
+				table.AddCell(
+					TextCell(cellmodel, Rows[i].N.Nbsp()).Style(ss[RowHeader])
 				);
 
 				if (IncludeFirstColumn)

@@ -61,7 +61,7 @@ namespace surveybuilder
 
 		public string Tag;
 		// Import common table/grid styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
+		
 
 		public CheckBoxPickmaker()
 		{
@@ -73,6 +73,7 @@ namespace surveybuilder
 
 		public Document Make(PdfBuilder builder, Document document)
 		{
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 

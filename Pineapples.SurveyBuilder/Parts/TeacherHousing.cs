@@ -22,8 +22,6 @@ namespace surveybuilder
 {
 	public class TeacherHousing
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 
 		public TeacherHousing()
 		{
@@ -31,6 +29,11 @@ namespace surveybuilder
 
 		public Document Build(PdfBuilder builder, Document document, LookupList resources)
 		{
+			Console.WriteLine("Part: Teacher Housing");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model12 = CellStyleFactory.TwoColumn;
