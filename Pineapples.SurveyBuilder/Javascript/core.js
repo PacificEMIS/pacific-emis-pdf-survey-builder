@@ -1,19 +1,18 @@
 console.println("core Loading...");
 
 // Core functionality for Acrobat forms
-function OnStartup()
-{
+function OnStartup() {
 	console.println("On startup");
 	var sy = this.getField("Survey.SurveyYear");
 	var year = sy.value;
 	var title = this.info.Title + ' ' + year.toString();
-	
+
 	console.println(title);
 	console.println(year);
-	var school = 
-	(this.getField("Survey.SchoolNo").value) ?
+	var school =
+		(this.getField("Survey.SchoolNo").value) ?
 			this.getField("Survey.SchoolNo").value + " " + this.getField("Survey.SchoolName").value : title;
-	
+
 	// Filter field names that start with "Footer."
 	for (var i = 0; i < this.numFields; i++) {
 
@@ -120,7 +119,7 @@ function gthis() {
 	return this;
 }
 
-// gets the displayble value for a combobox
+// gets the displayable value for a combobox
 function gfvt(fieldname) {
 	var f = this.getField(fieldname);
 	var ret = "";
@@ -142,6 +141,15 @@ function gfvt(fieldname) {
 
 	}
 	return ret;
+}
+
+// get the page number that a field is on
+function gfpage(fld) {
+	if (typeof fld.page == "number") {
+		return fld.page;
+	}
+	// field may be on multiple pages theoretically
+	return fld.page[0];
 }
 
 function padStart(str, targetLength, padString) {
@@ -650,10 +658,6 @@ function checkApplication() {
 
 //-----------------------------------------------------------------------
 
-//Console.Writeln('Welcome to ' + this.info.Title + ' ' + this.getField("Survey.SurveyYear").toString());
-//app.alert('Welcome to ' + this.info.Title + ' ' + this.getField("Survey.SurveyYear").value);
-//app.alert('Welcome to ' + this.info.Title);
-//app.alert(this.getField("Survey.SurveyYear").value);
 try {
 	OnStartup();
 }

@@ -237,6 +237,7 @@
     <Content Include="Assets\Images\report-cover.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="Javascript\Completeness.js" />
     <EmbeddedResource Include="Javascript\Validation.js" />
     <EmbeddedResource Include="Javascript\core.js" />
     <EmbeddedResource Include="Javascript\pineapples.js" />
