@@ -121,7 +121,7 @@ namespace surveybuilder
 			#endregion
 
 			#region *********** Staff *************
-			NewPage(document, PageSize.A4.Rotate());
+			NewPage(document);
 			var staffOutline = this.AddOutline(document, parentOutline, "School Staff Information");
 			document.Add(Heading_1("School Staff Information"));
 
