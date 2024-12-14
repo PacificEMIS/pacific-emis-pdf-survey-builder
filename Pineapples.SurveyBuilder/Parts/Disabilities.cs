@@ -20,10 +20,11 @@ namespace surveybuilder
 {
 	public class Disabilities
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
+
 		public Document Build(PdfBuilder builder, Document document, GenderedGridmaker grd, LookupList disabilities)
 		{
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 			// Cell layout/styling models
 			var model = CellStyleFactory.DefaultNoHeight;
 
@@ -105,6 +106,21 @@ namespace surveybuilder
 			document.Add(table);
 
 			builder.NewPage(document);
+
+			Table tbl = CellStyleFactory.DefaultTable(160, 20, 20, 20, 20);
+
+			PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, "DIS.HasData")
+				.CreateRadioGroup();
+
+			model = CellStyleFactory.Default;
+			tbl.AddRow(
+				TextCell(model, ts.TableRowHeaderStyle("Are there any pupils at your school with a functional difficulty or a disability?")),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
+				YesCell(model, rgrp),
+				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No"))),
+				NoCell(model, rgrp)
+			);
+			document.Add(tbl);
 
 			document.Add(new Paragraph(@"Record the number of children with a functional difficulty or a disability who are attending your school."
 			+ @"Record each pupil only once. Record pupils with more than one type of difficulty or disability under the category "

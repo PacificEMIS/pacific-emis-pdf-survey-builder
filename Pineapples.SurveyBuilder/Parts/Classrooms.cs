@@ -22,14 +22,14 @@ namespace surveybuilder
 {
 	public class Classrooms
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
+		
 		public Classrooms()
 		{
 
 		}
 		public Document Build(PdfBuilder builder, Document document)
 		{
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model13 = CellStyleFactory.ThreeColumn;

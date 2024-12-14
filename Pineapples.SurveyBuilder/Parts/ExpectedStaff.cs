@@ -25,7 +25,7 @@ namespace surveybuilder
 		{
 			Console.WriteLine("Part: Expected Staff");
 			// Import common table styles
-			PdfTableStylesheet ts = new PdfTableStylesheet();
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 
 			document.Add(new Paragraph()
 				.Add(@"This list shows all the teachers recorded at your school in the last survey you submitted. "

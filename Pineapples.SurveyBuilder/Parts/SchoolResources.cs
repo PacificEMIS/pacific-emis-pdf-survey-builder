@@ -21,11 +21,14 @@ namespace surveybuilder
 {
 	public class SchoolResources
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
+
 		public Document Build(PdfBuilder builder, Document document, LookupList resources)
 		{
 			Console.WriteLine("Part: School Resources");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);         
+			
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model12 = CellStyleFactory.TwoColumn;

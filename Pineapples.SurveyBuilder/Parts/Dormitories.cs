@@ -22,8 +22,7 @@ namespace surveybuilder
 {
 	public class Dormitories
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
+		PdfTableStylesheet ts = null;
 		public Dormitories()
 		{
 
@@ -31,6 +30,8 @@ namespace surveybuilder
 		public Document Build(PdfBuilder builder, Document document)
 		{
 			Console.WriteLine("Part: Dormitories");
+			// Import common table styles
+			ts = new PdfTableStylesheet(builder.stylesheet);
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model1_20 = CellStyleFactory.CreateCell(1, 20);
@@ -42,7 +43,7 @@ namespace surveybuilder
 				.Add(@"Record the details of the dormitories at your school (if any).  ")
 			);
 
-			var widths = new float[] {  4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+			var widths = new float[] { 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 			Table table = new Table(UnitValue.CreatePercentArray(widths))
 						.UseAllAvailableWidth();
 
@@ -122,7 +123,7 @@ namespace surveybuilder
 			{
 				string fieldName = string.Format(nameTemplate, i);
 				table.AddRow(
-					NumberCell(model12,fieldName)
+					NumberCell(model12, fieldName)
 				);
 			}
 

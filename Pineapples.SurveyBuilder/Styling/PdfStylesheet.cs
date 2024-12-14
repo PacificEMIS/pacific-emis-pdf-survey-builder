@@ -23,6 +23,7 @@ using System.Diagnostics;
 
 
 
+
 namespace surveybuilder
 {
 	public delegate Cell CellStyler(Cell cell);
@@ -37,9 +38,11 @@ namespace surveybuilder
 		public PdfStyle(PdfStyle inherits)
 		{
 			this.inherits = inherits;
-
-
+			CurrentTheme = inherits.CurrentTheme;
 		}
+
+		// dynamic theming support
+		public Theme CurrentTheme { get; set; }
 
 		// inheritance hierarchy
 		public PdfStyle inherits = null;
@@ -66,7 +69,10 @@ namespace surveybuilder
 			BottomBorder = Border.NO_BORDER,
 			LeftBorder = Border.NO_BORDER,
 			RightBorder = Border.NO_BORDER,
-			Border = Border.NO_BORDER
+			Border = Border.NO_BORDER,
+			//ignore the dynamic colors
+			GetFontColor = null,
+			GetBackgroundColor = null,
 		};
 
 		private PdfStyle baseStyle = DefaultBaseStyle;
@@ -95,6 +101,15 @@ namespace surveybuilder
 		private Color backgroundColor;
 		private string backgroundImage;
 
+		//dynamic color properties
+		public Func<Theme, Color> GetFontColor { get; set; }
+		public Func<Theme, Color> GetBackgroundColor { get; set; }
+		public Func<Theme, Border> GetBorder { get; set; }
+		public Func<Theme, Border> GetTopBorder { get; set; }
+		public Func<Theme, Border> GetLeftBorder { get; set; }
+		public Func<Theme, Border> GetRightBorder { get; set; }
+		public Func<Theme, Border> GetBottomBorder { get; set; }
+
 		// Font properties
 		public int FontSize
 		{
@@ -105,7 +120,8 @@ namespace surveybuilder
 		public Color FontColor
 		{
 			
-			get => fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
+			get => GetFontColor?.Invoke(CurrentTheme)
+					??fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
 			set
 			{
 				fontColor = value;
@@ -188,38 +204,47 @@ namespace surveybuilder
 		// Border properties
 		public Border TopBorder
 		{
-			get => topBorder ?? inherits?.TopBorder ?? baseStyle?.TopBorder;
+			get => GetTopBorder?.Invoke(CurrentTheme)
+					?? topBorder ?? inherits?.TopBorder ?? baseStyle?.TopBorder;
 			set => topBorder = value;
 		}
 
 		public Border BottomBorder
 		{
-			get => bottomBorder ?? inherits?.BottomBorder ?? baseStyle?.BottomBorder;
+			get => GetBottomBorder?.Invoke(CurrentTheme)
+					?? bottomBorder ?? inherits?.BottomBorder ?? baseStyle?.BottomBorder;
 			set => bottomBorder = value;
 		}
 
 		public Border LeftBorder
 		{
-			get => leftBorder ?? inherits?.LeftBorder ?? baseStyle?.LeftBorder;
+			get => GetLeftBorder?.Invoke(CurrentTheme)
+					?? leftBorder ?? inherits?.LeftBorder ?? baseStyle?.LeftBorder;
 			set => leftBorder = value;
 		}
 
 		public Border RightBorder
 		{
-			get => rightBorder ?? inherits?.RightBorder ?? baseStyle?.RightBorder;
+			get => GetRightBorder?.Invoke(CurrentTheme)
+					?? rightBorder ?? inherits?.RightBorder ?? baseStyle?.RightBorder;
 			set => rightBorder = value;
 		}
 
 		public Border Border
 		{
-			get => border ?? inherits?.Border ?? baseStyle?.Border;
+			get => GetBorder?.Invoke(CurrentTheme)
+					??border ?? inherits?.Border ?? baseStyle?.Border;
 			set => border = value;
 		}
 
 		// Background properties
 		public Color BackgroundColor
 		{
-			get => backgroundColor ?? inherits?.BackgroundColor ?? baseStyle?.BackgroundColor;
+			get => GetBackgroundColor?.Invoke(CurrentTheme)
+					?? backgroundColor 
+					?? inherits?.BackgroundColor
+					?? baseStyle?.BackgroundColor;
+
 			set => backgroundColor = value;
 		}
 
@@ -352,10 +377,42 @@ namespace surveybuilder
 
 	public class PdfStylesheet : Dictionary<string, PdfStyle>
 	{
+
+		// Default constructor with the default theme
 		public PdfStylesheet()
 		{
+			Theme = new Theme
+			{
+				Primary = PredefinedPalettes.Blue,
+				Accent = PredefinedPalettes.Pink,
+				Warn = PredefinedPalettes.Red,
+				Background = PredefinedPalettes.Pink
+			};
+
 			InitialiseStyles();
 		}
+
+		// Constructor that accepts a Theme
+		public PdfStylesheet(Theme theme)
+		{
+			Theme = theme ?? throw new ArgumentNullException(nameof(theme));
+			InitialiseStyles();
+		}
+		private Theme _theme;
+
+		public Theme Theme
+		{
+			get => _theme;
+			set
+			{
+				_theme = value ?? throw new ArgumentNullException(nameof(value));
+				foreach (var style in this.Values)
+				{
+					style.CurrentTheme = _theme; // Ensure all styles have the updated theme
+				}
+			}
+		}
+
 		// Use the indexer to support add or update
 		// ie this allows you to change the definition of a style associated to a name.
 		public new PdfStyle this[string key]
@@ -365,8 +422,10 @@ namespace surveybuilder
 			{
 				base[key] = value; // Update or add the PdfStyle
 				value.Name = key;
+				// Ensure the new style has the current theme
+				value.CurrentTheme = Theme;
 				// make sure any inherits are updated
-				foreach(PdfStyle style in this.Values.Where(v => v.inherits?.Name == key))
+				foreach (PdfStyle style in this.Values.Where(v => v.inherits?.Name == key))
 				{
 					style.inherits = value;
 				}
@@ -376,6 +435,7 @@ namespace surveybuilder
 		public new void Add(string name, PdfStyle style)
 		{
 			style.Name = name;
+			style.CurrentTheme = _theme; // Ensure all styles have the updated theme
 			base.Add(name, style);
 		}
 
@@ -410,7 +470,7 @@ namespace surveybuilder
 			Add("base", new PdfStyle());
 			PdfStyle headingbase = new PdfStyle(this["base"])
 			{
-				FontBold = true,
+				FontBold = false,
 				FontColor = iText.Kernel.Colors.WebColors.GetRGBColor("606060"),
 				KeepWithNext = true,  // Headings often keep with the next paragraph
 				SpacingBefore = 10,   // Add some space before the heading
@@ -423,23 +483,23 @@ namespace surveybuilder
 			// Define Heading 1 style
 			Add("Heading 1", new PdfStyle(this["headingbase"])
 			{
-				FontSize = 24,
-				BackgroundColor = NamedColors.CornflowerBlue,
-				FontColor = NamedColors.White
+				FontSize = 20,
+				GetBackgroundColor = (theme) => theme.Primary.GetColor(900),
+				GetFontColor = (theme) => theme.Primary.DefaultHue.Contrast(),
 			});
 
 			// Define Heading 2 style
 			Add("Heading 2", new PdfStyle(this["headingbase"])
 			{
-				FontSize = 20,
-				TopBorder = new SolidBorder(NamedColors.CornflowerBlue, 2)
-				//FontColor = ColorConstants.RED
+				FontSize = 16,
+				GetTopBorder = (theme) => new SolidBorder(theme.Accent.GetColor(200), 3),
+				GetFontColor = (theme) => theme.Accent.DefaultHue
 			});
 
 			// Define Heading 3 style
 			Add("Heading 3", new PdfStyle(this["headingbase"])
 			{
-				FontSize = 16,
+				FontSize = 14,
 				//FontColor = ColorConstants.ORANGE
 			});
 
@@ -598,16 +658,16 @@ namespace surveybuilder
 		/// <summary>
 		/// A collection of base styles available for table elements.
 		/// </summary>
-		public PdfStylesheet styles = new PdfStylesheet();
+		public PdfStylesheet styles;
 
 		#region Constructor - Table Style Definitions 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PdfTableStylesheet"/> class.
 		/// Sets up predefined styles for table headers, header cells, and subheader cells.
 		/// </summary>
-		public PdfTableStylesheet()
+		public PdfTableStylesheet(PdfStylesheet styles)
 		{
-
+			this.styles = styles;
 
 			// Define colors using hexadecimal values
 			// Colors eventually to move to a ThemeColors.cs (something like WebColors.cs but only necessary colors
@@ -625,77 +685,85 @@ namespace surveybuilder
 			string color3 = "6677FF"; // Darker gray for subheader cells
 
 			// Define and add styles
-			styles.Add("tablebase",
+			// using the indexer can Add or update - safer if the styles may already be there
+			styles["tablebase"] = 
 				new PdfStyle(styles["base"])
 				{
 					FontSize = 10,
 					Border = new SolidBorder(ColorConstants.LIGHT_GRAY, 1, (float).5)
-				});
+				};
 
-			styles.Add("tableheader",
+			styles["tableheader"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
 					FontBold = true,
-					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color1)
-				});
-
-			styles.Add("tablerowheader",
+					GetBackgroundColor = theme => theme.Primary.GetColor(300),
+					GetFontColor = theme => theme.Primary.TextColor,
+				};
+			styles["tablerowheader"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.LEFT
 
-				});
+				};
 
-			styles.Add("tablerowheadertotal",
+			styles["tablerowheadertotal"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.RIGHT,
 					FontBold = true
-				});
+				};
 
 			// Define and add a style for table subheader cells
-			styles.Add("tablesubheader",
+			styles["tablesubheader"] =
 				new PdfStyle(styles["tablebase"])
 				{
-					BackgroundColor = iText.Kernel.Colors.WebColors.GetRGBColor(color3)
-				});
-
-			styles.Add("gridbase",
+					GetBackgroundColor = theme => theme.Primary.GetColor(200),
+					GetFontColor = theme => theme.Primary.TextColor
+				};
+			styles["gridbase"] =
 				new PdfStyle()
 				{
 					FontSize = 8
-				});
+				};
 
-			styles.Add("rowheader",
+			styles["rowheader"] =
 				new PdfStyle(styles["gridbase"])
 				{
 					TextAlignment = TextAlignment.RIGHT,
-					LineSpacing = 1
-				});
+					LineSpacing = 1,
+					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+					GetFontColor = theme => theme.Accent.TextColor,
+				};
 
-			styles.Add("rowheadertotal",
+			styles["rowheadertotal"] =
 				new PdfStyle(styles["rowheader"])
 				{
 					FontBold = true
-				});
+				};
 
-			styles.Add("colheader",
+			styles["colheader"] =
 				new PdfStyle(styles["gridbase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
+					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+					GetFontColor = theme => theme.Accent.TextColor,
 					FontBold = true
-				});
+				};
 
-			styles.Add("genderheader",
-				new PdfStyle(styles["colheader"]) { FontSize = styles["colheader"].FontSize - 2 });
+			styles["genderheader"] =
+				new PdfStyle(styles["colheader"]) 
+				{ 
+					FontSize = styles["colheader"].FontSize - 2 
+				};
 
-			styles.Add("abstractcell",
+			styles["abstractcell"] =
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
 					Border = Border.NO_BORDER
-				});
+				};
 
 			// seed the CellStyleFactory with tablebase
 			// which will get applied to everything

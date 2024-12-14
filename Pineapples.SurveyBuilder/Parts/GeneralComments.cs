@@ -24,13 +24,14 @@ namespace surveybuilder
 
 	public class GeneralComments
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public GeneralComments() { }
 
 		public Document Build(PdfBuilder builder, Document document, PdfOutline generalOutline)
 		{
 			Console.WriteLine("Part: General Comments");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;

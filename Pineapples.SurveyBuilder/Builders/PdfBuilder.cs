@@ -51,7 +51,14 @@ namespace surveybuilder
 
 		public virtual void Initialise(Options options, PdfDocument pdfDoc)
 		{
-			PdfStylesheet stylesheet = new PdfStylesheet();
+			Theme theme = new Theme
+			{
+				Primary = PredefinedPalettes.Pink,
+				Accent = PredefinedPalettes.Purple,
+				Warn = PredefinedPalettes.Red,
+				Background = PredefinedPalettes.Green
+			};
+			PdfStylesheet stylesheet = new PdfStylesheet(theme);
 
 			this.stylesheet = stylesheet;
 			this.options = options;

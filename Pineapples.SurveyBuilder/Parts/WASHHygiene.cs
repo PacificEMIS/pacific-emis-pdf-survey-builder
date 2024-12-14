@@ -19,12 +19,14 @@ namespace surveybuilder
 {
 	public class WASHHygiene
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public WASHHygiene() { }
 
 		public Document Build(PdfBuilder builder, Document document)
 		{
+			Console.WriteLine("Part: Wash - Hygiene");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 

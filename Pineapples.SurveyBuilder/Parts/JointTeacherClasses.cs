@@ -21,10 +21,12 @@ namespace surveybuilder
 {
 	public class JointTeacherClasses
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(PdfBuilder builder, Document document)
 		{
+			Console.WriteLine("Part: Joint Teacher Classes");
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+
 			// Cell layout/styling models
 			var model = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 1, height: 18);
 			var model12 = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 2, height: 18);

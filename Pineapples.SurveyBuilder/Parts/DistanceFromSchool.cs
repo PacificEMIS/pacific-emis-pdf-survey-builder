@@ -20,11 +20,13 @@ namespace surveybuilder
 {
 	public class DistanceFromSchool
 	{
-		// Import common table styles
-		PdfTableStylesheet ts = new PdfTableStylesheet();
 		public Document Build(PdfBuilder builder, Document document, LookupList distanceCodes)
 		{
 			Console.WriteLine("Part: Distance from School");
+
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model13 = CellStyleFactory.ThreeColumn;
