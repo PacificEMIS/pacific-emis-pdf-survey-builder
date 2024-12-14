@@ -21,7 +21,7 @@ namespace surveybuilder
 	public class Disabilities
 	{
 
-		public Document Build(PdfBuilder builder, Document document, GenderedGridmaker grd, LookupList disabilities)
+		public Document Build(PdfBuilder builder, Document document)
 		{
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
@@ -126,8 +126,10 @@ namespace surveybuilder
 			+ @"Record each pupil only once. Record pupils with more than one type of difficulty or disability under the category "
 			+ @"'Multiple difficulties / disabilities'."));
 
+			var grd = new GenderedGridmaker();
 			grd.Tag = "DIS";
-			grd.Rows = disabilities;
+			grd.Rows = builder.lookups["disabilities"];
+			grd.Columns = builder.lookups["classLevels"];
 			document.Add(grd.Make(builder));
 
 			return document;

@@ -23,9 +23,6 @@ namespace surveybuilder
 		{
 
 			GenderedGridmaker grd = new GenderedGridmaker();
-			//var rows = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }
-			//				.Select(n => new KeyValuePair<string, string>(n, n))
-			//				.ToList();
 			var rows = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }
 							.Select(n => new LookupEntry
 							{
@@ -35,13 +32,7 @@ namespace surveybuilder
 							.ToLookupList();
 
 			grd.Rows = rows;
-
-			//var ages = new List<KeyValuePair<string, string>>();
-
-			//ages.Add(new KeyValuePair<string, string>("5", "5"));
-			//ages.Add(new KeyValuePair<string, string>("6", "6"));
-			//ages.Add(new KeyValuePair<string, string>("7", "7"));
-			//ages.Add(new KeyValuePair<string, string>("8", "8"));
+			
 			var ages = new LookupList();
 
 			ages.Add(new LookupEntry { C = "5", N = "5" });

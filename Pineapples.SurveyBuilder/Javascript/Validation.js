@@ -69,10 +69,11 @@ var v = {
 		return result;
 	},
 
-//// validation routein
+	//// validation routein
 	doAllValidations: function () {
 		if (this.doCheckInCompleteness()) return false;
 		if (this.doCheckAllConditionals()) return false;
+		if (this.doGridValidations()) return false;
 		if (!this.doCheckAllOnStaff()) return false;
 		Inform("All data is verified valid");
 	},
@@ -159,7 +160,7 @@ var v = {
 	doCheckAllConditionals: function () {
 		result = this.checkAllConditionals(conditionals());
 		if (result) {
-			
+
 			var msg = "Some fields dependent on other fields need to be filled in. Go to the first missing item now?";
 
 			var resp = okCancel(msg);
@@ -214,6 +215,74 @@ var v = {
 			}
 		}
 		return false;
+	},
+
+	// Grid validations
+	doGridValidations: function () {
+		var result = false;
+		// enrolments - assume there is always enrolments??
+			if (!(gfv("Enrol.T.T.T.T"))) {
+				result = true;
+				var msg = "No enrolment numbers have been entered. Review now?";
+				var resp = okCancel(msg);
+				if (resp == 1) { //ok
+					var fld = gf("Enrol.D.00.00.M");		// top left of enrol grid
+					if (fld) {
+						this.pageNum = gfpage(fld);
+						fld.setFocus();
+					}
+					return true;
+				}
+			}
+		
+
+		// start with repeaters
+		
+		var fld = gf("Rep.HasData");
+		if (fld != null) {
+			if (fld.value == "Y" && !(gfv("Rep.T.T.T.T"))) {
+				result = true;
+				var msg = "Repeater information has not been entered. Review now?";
+				var resp = okCancel(msg);
+				if (resp == 1) { //ok
+					this.pageNum = gfpage(fld);
+					fld.setFocus();
+					return true;
+				}
+			}
+		}
+		// disability
+		var fld = gf("DIS.HasData");
+		if (fld != null) {
+			if (fld.value == "Y" && !(gfv("DIS.T.T.T.T"))) {
+				result = true;
+				var msg = "Disability information has not been entered. Review now?";
+				var resp = okCancel(msg);
+				if (resp == 1) { //ok
+					this.pageNum = gfpage(fld);
+					fld.setFocus();
+					return true;
+				}
+
+			}
+		}
+		// transfers in
+		var fld = gf("TRIN.HasData");
+		if (fld != null) {
+			if (fld.value == "Y" && !(gfv("TRIN.T.T.T.T"))) {
+				result = true;
+				var msg = "Transfers In information has not been entered. Review now?";
+				var resp = okCancel(msg);
+				if (resp == 1) { //ok
+					this.pageNum = gfpage(fld);
+					fld.setFocus();
+					return true;
+				}
+
+			}
+		}
+
+		return result;
 	}
 }
 
