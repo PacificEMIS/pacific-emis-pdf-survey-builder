@@ -25,7 +25,12 @@ function mandatoryFields() {
 	var a = [
 		["PC.Exists", 2],
 		["Survey.Pupils", 2],
-		["Survey.Teachers", 2]
+		["Survey.Teachers", 2],
+
+		// grid control
+		["Rep.HasData", 2],
+		["DIS.HasData", 2],
+		["TRIN.HasData", 2]
 	];
 	console.println(a.length);
 	return a;

@@ -14,26 +14,37 @@ using iText.Forms;
 using iText.Forms.Form.Element;
 using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
+using iText.Kernel.Colors;
+using static System.Net.Mime.MediaTypeNames;
+using surveybuilder.Utilities;
+using iText.Kernel.Pdf;
+
 
 namespace surveybuilder
 {
-	public class TransfersIn
+	public class EnrolmentGrid
 	{
+		public EnrolmentGrid()
+		{
+
+		}
 		public Document Build(PdfBuilder builder, Document document)
 		{
-			document.Add(new Paragraph()
-				.Add(@"Record the number of pupils that transferred in from another islands "
-				+ @"at the beginning of the school year.")
-			);
+			Console.WriteLine("Part: Enrolment Grid");
+			// Import common table styles
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+
+			document.Add(new Paragraph(@"Record the number of pupils enrolled at your school this year according to their age, class level and gender. "
++ @"Age is at 31 March this year."));
 
 			GenderedGridmaker grd = new GenderedGridmaker();
 			grd.Rows = builder.lookups["ages"];
 			grd.Columns = builder.lookups["classLevels"];
-			grd.Tag = "TRIN";
-			grd.Rows = islands;
-			document.Add(grd.Make(builder));
 
+			grd.Tag = "Enrol";
+			document.Add(grd.Make(builder));
 			return document;
 		}
 	}
 }
+
