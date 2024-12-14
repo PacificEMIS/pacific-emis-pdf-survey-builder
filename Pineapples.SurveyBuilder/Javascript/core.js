@@ -19,8 +19,10 @@ function OnStartup() {
 		if (this.getNthFieldName(i).startsWith("Footer.")) {
 			var n = this.getNthFieldName(i);
 			var ff = gf(n);
-
-			if (i % 2 == 1) {
+			
+			var page = gfpage(ff);
+			console.println("Footer: " + n + " " + page);
+			if (page % 2 == 0) {  // inside acrobat, page num is 0 based. Therefore the page shown as 1 is actually page 1
 				if (ff.value != title) {
 					ff.value = title;
 				}
