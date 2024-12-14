@@ -16,25 +16,33 @@ using static iText.IO.Codec.TiffWriter;
 using static surveybuilder.CellMakers;
 using System.ComponentModel;
 using surveybuilder.Utilities;
+using System.Net;
 
 namespace surveybuilder
 {
 	public class SchoolResources
 	{
+		// Cell layout/styling models
+		Cell model = CellStyleFactory.Default;
+		Cell model12 = CellStyleFactory.TwoColumn;
+		Cell model13 = CellStyleFactory.ThreeColumn;
+		Cell model17 = CellStyleFactory.SevenColumn;
+		Cell model21 = CellStyleFactory.TwoRowOneColumn;
+		// table styles used
+		PdfStylesheet ss;       // for brevity
 
-		public Document Build(PdfBuilder builder, Document document, LookupList resources)
+		const string TableHeaderStyle = "colheader";
+		const string TableSubHeaderStyle = "tablesubheader";
+		const string TableBaseStyle = "tablebase";
+
+
+		public Document Build(PdfBuilder builder, Document document, Dictionary<string, string> resourcesCategories)
 		{
 			Console.WriteLine("Part: School Resources");
 
 			// Import common table styles
-			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);         
-			
-			// Cell layout/styling models
-			var model = CellStyleFactory.Default;
-			var model12 = CellStyleFactory.TwoColumn;
-			var model13 = CellStyleFactory.ThreeColumn;
-			var model17 = CellStyleFactory.SevenColumn;
-			var model21 = CellStyleFactory.TwoRowOneColumn;
+			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
+			ss = builder.stylesheet;
 
 			document.Add(builder.Heading_3("School Resources"));
 
@@ -44,45 +52,16 @@ namespace surveybuilder
 			);
 
 			// School resources types and conditions
-			Table tableSRTConditions = new Table(UnitValue.CreatePercentArray(new float[] { 40, 10, 10, 10, 10, 10, 10 }))
-						.UseAllAvailableWidth();
 
-			// table headers
-			tableSRTConditions.AddRow(
-				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Resources"))),
-				ts.TableHeaderStyle(TextCell(model12, ts.TableHeaderStyle("Available?"))),
-				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Number"))),
-				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Overall Condition")))
-			);
-
-			tableSRTConditions.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Good"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Fair"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Poor")))
-			);
+			WriteResourcesHeader(document);
 
 			// data rows
-			// Categories
-			// Currently the Resource Lookup C (keys) don't match the XML field so hard coded here.
-			var resourcesCategories = new Dictionary<string, string>
-			{
-				{ "Communications", "Comm" },
-				// When getting Equipment from metaResourceDefs they are all under Communications category (how to safely clean mismatch?)
-				{ "Equipment", "Eqp" },
-				{ "Power Supply", "Power" },
-				{ "Library Resources", "Library" }
-			};
 
+			LookupList resources = builder.lookups["metaResourceDefinitions"];
 			foreach (var kvp in resourcesCategories)
 			{
 				var cat = $"Resource.{kvp.Value}.Cat";
 
-				// first the row subheader (TODO no field included yet here)
-				tableSRTConditions.AddRow(
-					ts.TableSubHeaderStyle(TextCell(model17, ts.TableHeaderStyle($"{kvp.Key}")))
-				);
 
 				// Get the category resources
 				var catResFilter = new Dictionary<string, object>
@@ -91,41 +70,24 @@ namespace surveybuilder
 						{ "Surveyed", "True" }
 					};
 				LookupList catResources = resources.FilterByMetadata(catResFilter);
-
-				// Data fields for each row
-				var i = 0;
-				foreach (var lookupRes in catResources)
+				if (catResources.Count() == 0)
 				{
-					// may resourcce definitions have spaces in the names
-					// , which generates problematic field names
-					string clean = lookupRes.C.Clean();
-					string fieldK = $"Resource.{clean}.R.{i:00}.K";
-					string fieldA = $"Resource.{clean}.D.{i:00}.A";
-					string fieldNum = $"Resource.{clean}.D.{i:00}.Num";
-					string fieldC = $"Resource.{clean}.D.{i:00}.C";
-
-					PdfButtonFormField rgrpAvail = new RadioFormFieldBuilder(builder.pdfDoc, fieldA).CreateRadioGroup();
-					PdfButtonFormField rgrpC = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
-
-					tableSRTConditions.AddRow(
-						TextCell(model, ts.TableBaseStyle($"{lookupRes.N}")),
-						YesCell(model, rgrpAvail),
-						NoCell(model, rgrpAvail),
-						NumberCell(model, fieldNum),
-						SelectCell(model, rgrpC, "G"),
-						SelectCell(model, rgrpC, "F"),
-						SelectCell(model, rgrpC, "P")
-					);
-					i++;
+					continue;
 				}
+				// now we are going to determine whether the is enough space on the page for this group
+				float spaceneeded = model.GetHeight().GetValue() * (catResources.Count() + 1);
+				if (builder.NewPageIf(document, spaceneeded))
+				{
+					WriteResourcesHeader(document);
+					
+				}
+				WriteCategoryGroup(document, kvp.Key, catResources);
 			}
 
-			document.Add(tableSRTConditions);
 
 			document.Add(builder.Heading_3("Internet Resources"));
 
-			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 80, 10, 10 }))
-						.UseAllAvailableWidth();
+			Table table = CellStyleFactory.DefaultTable(80, 10, 10);
 
 			PdfButtonFormField rgrp1 = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.InternetRachel")
 				.CreateRadioGroup();
@@ -148,6 +110,69 @@ namespace surveybuilder
 				+ "contains education resources that can be used for teacher and learning even offline.")
 			);
 
+			return document;
+		}
+
+		private Document WriteResourcesHeader(Document document)
+		{
+			//Table tableSRTConditions = new Table(UnitValue.CreatePercentArray(new float[] { 40, 10, 10, 10, 10, 10, 10 }))
+			//		.UseAllAvailableWidth();
+			Table hdr = CellStyleFactory.DefaultTable(40, 10, 10, 10, 10, 10, 10)
+				.SetMarginBottom(0);            // so it joins up with the following group
+												// table headers
+			hdr.AddRow(ss[TableHeaderStyle],
+				TextCell(model21, "Resources"),
+				TextCell(model12, "Available?"),
+				TextCell(model21, "Number"),
+				TextCell(model13, "Overall Condition")
+			);
+
+			hdr.AddRow(ss[TableHeaderStyle],
+				TextCell(model, "Yes"),
+				TextCell(model, "No"),
+				TextCell(model, "Good"),
+				TextCell(model, "Fair"),
+				TextCell(model, "Poor")
+			);
+			document.Add(hdr);
+			return document;
+		}
+
+		private Document WriteCategoryGroup(Document document, string categoryName, LookupList catResources)
+		{
+			Table cattable = CellStyleFactory.DefaultTable(40, 10, 10, 10, 10, 10, 10);
+			// first the row subheader (TODO no field included yet here)
+			cattable.AddRow(ss[TableSubHeaderStyle],
+				TextCell(model17, categoryName)
+			);
+
+			// Data fields for each row
+			var i = 0;
+			foreach (var lookupRes in catResources)
+			{
+				// may resourcce definitions have spaces in the names
+				// , which generates problematic field names
+				string clean = lookupRes.C.Clean();
+				string fieldK = $"Resource.{clean}.R.{i:00}.K";
+				string fieldA = $"Resource.{clean}.D.{i:00}.A";
+				string fieldNum = $"Resource.{clean}.D.{i:00}.Num";
+				string fieldC = $"Resource.{clean}.D.{i:00}.C";
+
+				PdfButtonFormField rgrpAvail = new RadioFormFieldBuilder(document.GetPdfDocument(), fieldA).CreateRadioGroup();
+				PdfButtonFormField rgrpC = new RadioFormFieldBuilder(document.GetPdfDocument(), fieldC).CreateRadioGroup();
+
+				cattable.AddRow(
+					TextCell(model, $"{lookupRes.N}").Style(ss[TableBaseStyle]),
+					YesCell(model, rgrpAvail),
+					NoCell(model, rgrpAvail),
+					NumberCell(model, fieldNum),
+					SelectCell(model, rgrpC, "G"),
+					SelectCell(model, rgrpC, "F"),
+					SelectCell(model, rgrpC, "P")
+				);
+				i++;
+			}
+			document.Add(cattable);
 			return document;
 		}
 	}
