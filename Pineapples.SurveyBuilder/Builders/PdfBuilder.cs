@@ -161,6 +161,24 @@ namespace surveybuilder
 			document.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
 			return document;
 		}
+
+		/// <summary>
+		/// Throw a new page if the space remaining on the current page is less than space needed
+		/// spaceneeded may be calculated based e.g. on the numer of rows in a table
+		/// </summary>
+		/// <param name="spaceneeded">ampount of space needed</param>
+		public bool NewPageIf(Document document, float spaceneeded)
+		{
+			var rect = document.GetRenderer().GetCurrentArea().GetBBox();
+			float spaceavailable = rect.GetHeight();
+			if (spaceneeded > spaceavailable)
+			{
+				NewPage(document);
+				return true;
+			}
+			return false;
+		}
+
 		public virtual Document Build()
 		{
 			Document document = new Document(pdfDoc, PageSize.A4);

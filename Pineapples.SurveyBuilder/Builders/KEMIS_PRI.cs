@@ -114,13 +114,13 @@ namespace surveybuilder
 			AddOutline(document, enrolOutline, "Disabilities");
 			document.Add(Heading_2("Children with Disabilities Attending School"));
 			document = new Disabilities()
-				.Build(this, document, grd, lookups["disabilities"]);
+				.Build(this, document);
 			NewPage(document);
 
 			AddOutline(document, enrolOutline, "Transfers In");
 			document.Add(Heading_2("Transfers In"));
-			document = new TransfersIn()
-				.Build(this, document, grd, lookups["islands"]);
+			document = new TransfersInGrid()
+				.Build(this, document);
 			NewPage(document);
 
 
@@ -212,8 +212,18 @@ namespace surveybuilder
 
 			AddOutline(document, resourcesOutline, "School Resources");
 			document.Add(Heading_2("School Resources"));
+
+			// categories vary from survey to survey so pass in from here
+			var resourcesCategories = new Dictionary<string, string>
+			{
+				{ "Communications", "Comm" },
+				// When getting Equipment from metaResourceDefs they are all under Communications category (how to safely clean mismatch?)
+				{ "Equipment", "Eqp" },
+				{ "Power Supply", "Power" },
+				{ "Library Resources", "Library" }
+			};
 			document = new SchoolResources()
-				.Build(this, document, lookups["metaResourceDefinitions"]);
+				.Build(this, document, resourcesCategories);
 			NewPage(document);
 
 			AddOutline(document, resourcesOutline, "School Supplies");

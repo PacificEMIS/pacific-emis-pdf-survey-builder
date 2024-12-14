@@ -91,22 +91,13 @@ namespace surveybuilder
 
 			AddOutline(document, enrolOutline, "Enrolment");
 			document.Add(Heading_2("Enrolment of Pupils by Age, Class Level and Gender"));
-
-			document.Add(new Paragraph(@"Record the number of pupils enrolled at your school this year according to their age, class level and gender. "
-+ @"Age is at 31 March this year."));
-
-			grd.Tag = "Enrol";
-			document.Add(grd.Make(this));
+			new EnrolmentGrid().Build(this, document);
 			NewPage(document);
 
 			AddOutline(document, enrolOutline, "Repeaters");
 			document.Add(Heading_2("Repeaters"));
 
-			document.Add(new Paragraph(@"For each class, record the number of pupils who were enrolled in the same class in the previous school year. "
-			+ @"Record the repeating students by their age as at 31 March this year."));
-
-			grd.Tag = "Rep";
-			document.Add(grd.Make(this));
+			new RepeaterGrid().Build(this, document);
 			NewPage(document);
 
 			AddOutline(document, enrolOutline, "Distance from School");
@@ -118,13 +109,13 @@ namespace surveybuilder
 			AddOutline(document, enrolOutline, "Disabilities");
 			document.Add(Heading_2("Children with Disabilities Attending School"));
 			document = new Disabilities()
-				.Build(this, document, grd, lookups["disabilities"]);
+				.Build(this, document);
 			NewPage(document);
 
 			AddOutline(document, enrolOutline, "Transfers In");
 			document.Add(Heading_2("Transfers In"));
-			document = new TransfersIn()
-				.Build(this, document, grd, lookups["islands"]);
+			document = new TransfersInGrid()
+				.Build(this, document);
 			
 
 			#endregion
@@ -213,8 +204,20 @@ namespace surveybuilder
 
 			AddOutline(document, resourcesOutline, "School Resources");
 			document.Add(Heading_2("School Resources"));
+
+			// categories vary from survey to survey so pass in from here
+			var resourcesCategories = new Dictionary<string, string>
+			{
+				{ "Communications", "Comm" },
+				// When getting Equipment from metaResourceDefs they are all under Communications category (how to safely clean mismatch?)
+				{ "Equipment", "Eqp" },
+				{ "Power Supply", "Power" },
+				{ "Library Resources", "Library" },
+				{ "Laboratory Resources", "Lab" },
+			};
+
 			document = new SchoolResources()
-				.Build(this, document, lookups["metaResourceDefinitions"]);
+				.Build(this, document, resourcesCategories);
 			NewPage(document);
 
 			AddOutline(document, resourcesOutline, "School Supplies");
