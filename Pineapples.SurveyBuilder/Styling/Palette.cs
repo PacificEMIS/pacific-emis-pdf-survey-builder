@@ -10,17 +10,41 @@ using iText.Kernel.Colors;
 
 namespace surveybuilder
 {
+	public enum PaletteMode
+	{
+		Scheme,					// use Primary Secondary, Tertiary Surface and Error
+		Theme,					// the original AngukarJS Material model of theme
+		Simple
+	}
 
 	public class Palette
 	{
+		// static interface 
+		public static Palette Scheme(string name)
+		{
+			return new Palette(PaletteMode.Scheme)
+			{
+				Name = name
+			};
+		}
+		public static Palette Theme(string name)
+		{
+			return new Palette(PaletteMode.Theme)
+			{
+				Name = name
+			};
+		}
+
+
 		public string Name { get; set; }
 		public Dictionary<int, Color> Hues { get; private set; }
 		public Color TextColor { get; set; } // Default text color
 		public Color SecondaryTextColor { get; set; } // Optional secondary text color
 
-		public Palette()
+		protected Palette(PaletteMode mode)
 		{
 			Hues = new Dictionary<int, Color>();
+			this.PaletteMode = mode;
 		}
 
 		// Get a color by hue
@@ -35,7 +59,25 @@ namespace surveybuilder
 		}
 
 		// A quick way to get the default hue (500)
-		public Color DefaultHue => GetColor(500);
+		public PaletteMode PaletteMode { get; protected set; }
+
+		protected int DefaultHueIndex { 
+			get
+			{
+				switch (PaletteMode)
+				{
+					case PaletteMode.Scheme:
+						return 40;
+					case PaletteMode.Theme:
+						return 500;
+					case PaletteMode.Simple:
+						return 1;
+					default:
+						return 500;
+				}
+			}
+		}
+		public Color DefaultHue => GetColor(DefaultHueIndex);
 
 		// Unified method to add or replace a hue
 		private Palette AddOrReplaceHue(int hue, Color color, bool allowReplace)
@@ -52,12 +94,12 @@ namespace surveybuilder
 		// Public AddHue method
 		public Palette AddHue(int hue, Color color) => AddOrReplaceHue(hue, color, allowReplace: false);
 
-		public Palette AddHue(Color color) => AddHue(500, color); // Default to hue 500
+		public Palette AddHue(Color color) => AddHue(DefaultHueIndex, color); // Default to hue 500
 
 		// Public ReplaceHue method
 		public Palette ReplaceHue(int hue, Color color) => AddOrReplaceHue(hue, color, allowReplace: true);
 
-		public Palette ReplaceHue(Color color) => ReplaceHue(500, color); // Default to hue 500
+		public Palette ReplaceHue(Color color) => ReplaceHue(DefaultHueIndex, color); // Default to hue 500
 
 		// Overload for RGB values
 		public Palette AddHue(int hue, int red, int green, int blue) =>
@@ -122,7 +164,7 @@ namespace surveybuilder
 	#region  predefined palettes
 	public static class PredefinedPalettes
 	{
-		public static Palette Blue => new Palette { Name = "Blue" }
+		public static Palette Blue => Palette.Theme("Blue")
 			.AddHue(50, "#E3F2FD")
 			.AddHue(100, "#BBDEFB")
 			.AddHue(200, "#90CAF9")
@@ -135,8 +177,7 @@ namespace surveybuilder
 			.AddHue(900, "#0D47A1")
 			.AddHue(1000, "#896b42");
 
-		public static Palette Red => new Palette { Name = "Red" }
-			.AddHue(50, "#FFEBEE")
+		public static Palette Red => Palette.Theme("Red")
 			.AddHue(100, "#FFCDD2")
 			.AddHue(200, "#EF9A9A")
 			.AddHue(300, "#E57373")
@@ -147,7 +188,7 @@ namespace surveybuilder
 			.AddHue(800, "#C62828")
 			.AddHue(900, "#B71C1C");
 
-		public static Palette Green => new Palette { Name = "Green" }
+		public static Palette Green => Palette.Theme("Green")
 		.AddHue(50, "#E8F5E9")
 		.AddHue(100, "#C8E6C9")
 		.AddHue(200, "#A5D6A7")
@@ -160,7 +201,7 @@ namespace surveybuilder
 		.AddHue(900, "#1B5E20")
 		.AddHue(1000, "#000000");
 
-		public static Palette Pink => new Palette { Name = "Pink" }
+		public static Palette Pink => Palette.Theme("Pink")
 			.AddHue(50, "#FCE4EC")
 			.AddHue(100, "#F8BBD0")
 			.AddHue(200, "#F48FB1")
@@ -173,7 +214,7 @@ namespace surveybuilder
 			.AddHue(900, "#880E4F");
 
 
-		public static Palette Amber => new Palette { Name = "Amber" }
+		public static Palette Amber => Palette.Theme("Amber")
 			.AddHue(50, "#FFF8E1")
 			.AddHue(100, "#FFECB3")
 			.AddHue(200, "#FFE082")
@@ -185,7 +226,7 @@ namespace surveybuilder
 			.AddHue(800, "#FF8F00")
 			.AddHue(900, "#FF6F00");
 
-		public static Palette Purple => new Palette { Name = "Purple" }
+		public static Palette Purple => Palette.Theme("Purple")
 			.AddHue(50, "#F3E5F5")
 			.AddHue(100, "#E1BEE7")
 			.AddHue(200, "#CE93D8")
