@@ -49,21 +49,21 @@ namespace surveybuilder
 				.Add(@"Sample of dropdown list populated with indirect /Opt")
 			);
 
-			var colwidths = new float[] { 40, 60, 60, 10, 10, 10, 10, 30 };
+			var colwidths = new float[] { 40, 60, 60, 10, 10, 30, 10, 10 };
 			var subcolwidths = new float[] { 40, 60, 40, 60 };
 
 			const int MAX_TEACHERS = 10;
 			for (int i = 0; i <= MAX_TEACHERS; i++)
 			{
-				Table table = new Table(UnitValue.CreatePercentArray(colwidths))
-						.UseAllAvailableWidth();
+				Table table = CellStyleFactory.DefaultTable(colwidths);
+
 				table.AddHeaderRow(ts.TableHeaderStyle,
 					TextCell(model, "Payroll No")
 					, TextCell(model, "Family Name")
 					, TextCell(model, "Given Name")
-					, TextCell(model12, "On Staff")
 					, TextCell(model12, "Gender")
 					, TextCell(model, "DoB")
+					, TextCell(model12, "On Staff")
 				);
 				var grpOnStaff = new RadioFormFieldBuilder(builder.pdfDoc, $"TL.{i:00}.OnStaff")
 					.CreateRadioGroup();
@@ -73,11 +73,11 @@ namespace surveybuilder
 					InputCell(model, $"TL.{i:00}.PayrollNo", 10),
 					InputCell(model, $"TL.{i:00}.FamilyName", 30),
 					InputCell(model, $"TL.{i:00}.FirstName", 30),
-					YesCell(model, grpOnStaff),
-					NoCell(model, grpOnStaff),
 					SelectCell(model, grpGender, "M"),
 					SelectCell(model, grpGender, "F"),
-					InputCell(model, $"TL.{i:00}.DoB", 10)
+					InputCell(model, $"TL.{i:00}.DoB", 10),
+					YesCell(model, grpOnStaff),
+					NoCell(model, grpOnStaff)
 				);
 
 				Table subtable = new Table(UnitValue.CreatePercentArray(subcolwidths))
