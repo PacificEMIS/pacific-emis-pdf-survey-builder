@@ -13,12 +13,17 @@ namespace surveybuilder
 		public Palette Warn { get; set; }
 		public Palette Background { get; set; }
 
+		public Palette Secondary { get; set; }
+		public Palette Error { get; set; }
+		public Palette Surface { get; set; }
+
+
 		public Theme()
 		{
-			Primary = new Palette();
-			Accent = new Palette();
-			Warn = new Palette();
-			Background = new Palette();
+			Primary = Palette.Theme("Primary");
+			Accent = Palette.Theme("Accent");
+			Warn = Palette.Theme("Warn");
+			Background = Palette.Theme("Background");
 		}
 	}
 }
