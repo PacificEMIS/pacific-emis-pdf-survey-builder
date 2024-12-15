@@ -98,28 +98,8 @@ namespace surveybuilder
 
 		static void RunWithOptions(Options opts)
 		{
-			//From KEMIS_SEC want to end up with KEMIS 2025 SEC.pdf
-			string[] parts = opts.Form.Split('_');
-			string dest = System.IO.Path.Combine(opts.OutputPath
-				, $"{parts[0]} {opts.Year:0000} {parts[1]}.pdf");
-
-			Console.WriteLine("Options:");
-			Console.WriteLine($"Selected Form: {opts.Form}");
-			Console.WriteLine($"Pacific Emis Url: {opts.EmisUrl}");
-			Console.WriteLine($"Output Path: {opts.OutputPath}");
-			Console.WriteLine($"Output Pdf: {dest}");
-			Console.WriteLine("Verbose mode:" + (opts.Verbose ? "On" : "Off"));
-			Console.WriteLine($"Survey Year: {opts.Year}");
-			Console.WriteLine("Open when created:" + (opts.AutoOpen ? "On" : "Off"));
-			if (opts.Toolbox != null)
-			{
-				Console.WriteLine();
-				Console.WriteLine("TOOLBOX MODE");
-				Console.WriteLine("Target " + (opts.Toolbox));
-				Console.WriteLine("Push Javascripts:" + (opts.PushJs ? "Yes" : ""));
-			}
-			Console.WriteLine();
-
+			string dest = opts.Destination;
+			opts.ToConsole();
 			// deal with the toolbox
 			if (opts.Toolbox != null)
 			{
