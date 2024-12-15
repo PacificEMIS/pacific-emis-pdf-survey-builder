@@ -70,13 +70,65 @@ var v = {
 	},
 
 	//// validation routein
-	doAllValidations: function () {
-		if (this.doCheckInCompleteness()) return false;
-		if (this.doCheckAllConditionals()) return false;
-		if (this.doGridValidations()) return false;
-		if (!this.doCheckAllOnStaff()) return false;
-		Inform("All data is verified valid");
+	doAllValidations: function (event) {
+		var status = "Complete";
+		switch (this.doCheckIncompleteness()) {
+			case 0: // no errors press ahead
+				break;
+			case alertNo:
+				status = "Incomplete";
+				break;
+			default:
+				this.setStatus(event.target, "Incomplete");
+				return;
+		}
+
+
+
+		switch (this.doCheckAllConditionals()) {
+			case 0: // no errors press ahead
+				break;
+			case alertNo:
+				status = "Incomplete";
+				break;
+			default:
+				this.setStatus(event.target, "Incomplete");
+				return;
+		}
+		switch (this.doGridValidations()) {
+			case 0: // no errors press ahead
+				break;
+			case alertNo:
+				status = "Incomplete";
+				break;
+			default:
+				this.setStatus(event.target, "Incomplete");
+				return;
+		}
+		this.setStatus(event.target, status);
+		switch (status) {
+			case "Complete":
+				Inform("Congratulations! Your survey is now complete!");
+				break;
+			case "Incomplete":
+				break
+		}
+
 	},
+
+	setStatus: function (btn, status) {
+		switch (status) {
+			case "Complete":
+				btn.value = "Survey is Complete!"
+				btn.fillColor = color.green;
+				return;
+			case "Incomplete":
+				btn.value = "Survey is not Complete! - Click to test again"
+				btn.fillColor = color.red;
+				return;
+		}
+	},
+
 	/// Check OnStaff fields
 	doCheckAllOnStaff: function () {
 		var result = this.checkAllOnStaff();
@@ -128,56 +180,52 @@ var v = {
 		return result;
 	},
 
-	doCheckInCompleteness: function () {
+	//	return 0 (false): no issues found
+	// if issues found
+	//  1 (Yes) - reviewing
+	//  2 (No) Don't review continue reporting
+	//  3 (Cancel) stop
+	doCheckIncompleteness: function () {
 		var result = this.checkIncomplete();
-		if (result) {
+		if (!result) return false;
 
-			var problemname = firstRequired();
-			console.println("Problemname" + problemname);
+		var msg = "You have not yet filled in all the required information. Go to the first missing item now?";
 
-			var msg = "You have not yet filled in all the required information. Go to the first missing item now?";
+		var resp = yesNoCancel(msg);
+		switch (resp) {
+			case alertYes:
+				var problemname = firstRequired();
+				console.println("Problemname" + problemname);
 
-			var resp = okCancel(msg);
-			if (resp == 1) { //ok
 				if (problemname != "") {
 					var f = gf(problemname);
-
 					this.pageNum = gfpage(f);
 					f.setFocus();
 				}
-				else {
-					console.println("problem name not identitified");
-				}
-			}
 		}
-
-		return result;
+		return resp;
 	},
+
 	//------------------- Conditional field testing
 	//---- Make fields required based n the value in another field
 	//----- return true if any field is made required
 
 	doCheckAllConditionals: function () {
 		result = this.checkAllConditionals(conditionals());
-		if (result) {
+		if (!result) return false;
+		var msg = "Some fields dependent on other fields need to be filled in. Go to the first missing item now?";
 
-			var msg = "Some fields dependent on other fields need to be filled in. Go to the first missing item now?";
-
-			var resp = okCancel(msg);
-			if (resp == 1) { //ok
+		var resp = yesNoCancel(msg);
+		switch (resp) {
+			case alertYes:
 				var problemname = firstRequired();
 				if (problemname != "") {
 					var f = gf(problemname);
-
 					this.pageNum = gfpage(f);
 					f.setFocus();
 				}
-				else {
-					console.println("problem name not identitified");
-				}
-			}
 		}
-		return result;
+		return resp;
 	},
 	checkAllConditionals: function (a) {
 		var result = false;
@@ -221,68 +269,75 @@ var v = {
 	doGridValidations: function () {
 		var result = false;
 		// enrolments - assume there is always enrolments??
-			if (!(gfv("Enrol.T.T.T.T"))) {
-				result = true;
-				var msg = "No enrolment numbers have been entered. Review now?";
-				var resp = okCancel(msg);
-				if (resp == 1) { //ok
-					var fld = gf("Enrol.D.00.00.M");		// top left of enrol grid
-					if (fld) {
-						this.pageNum = gfpage(fld);
-						fld.setFocus();
-					}
-					return true;
-				}
+		if (!(gfv("Enrol.T.T.T.T"))) {
+			result = true;
+			var msg = "No enrolment numbers have been entered. Review now?";
+			var resp = yesNoCancel(msg);
+			switch (resp) {
+				case alertYes:
+					var f = gf("Enrol.D.00.00.M");
+					this.pageNum = gfpage(f);
+					f.setFocus();
+					break
 			}
-		
+			return resp;
+		}
 
-		// start with repeaters
-		
+		// repeaters
+
 		var fld = gf("Rep.HasData");
 		if (fld != null) {
 			if (fld.value == "Y" && !(gfv("Rep.T.T.T.T"))) {
 				result = true;
 				var msg = "Repeater information has not been entered. Review now?";
-				var resp = okCancel(msg);
-				if (resp == 1) { //ok
-					this.pageNum = gfpage(fld);
-					fld.setFocus();
-					return true;
+				var resp = yesNoCancel(msg);
+				switch (resp) {
+					case alertYes:
+						var f = gf("Rep.D.00.00.M");
+						this.pageNum = gfpage(f);
+						f.setFocus();
+						break;
 				}
 			}
+			return resp;
 		}
+
 		// disability
 		var fld = gf("DIS.HasData");
 		if (fld != null) {
 			if (fld.value == "Y" && !(gfv("DIS.T.T.T.T"))) {
 				result = true;
 				var msg = "Disability information has not been entered. Review now?";
-				var resp = okCancel(msg);
-				if (resp == 1) { //ok
-					this.pageNum = gfpage(fld);
-					fld.setFocus();
-					return true;
+				var resp = yesNoCancel(msg);
+				switch (resp) {
+					case alertYes:
+						var f = gf("DIS.D.00.00.M");
+						this.pageNum = gfpage(f);
+						f.setFocus();
+						break;
 				}
-
 			}
+			return resp;
 		}
+
 		// transfers in
 		var fld = gf("TRIN.HasData");
 		if (fld != null) {
 			if (fld.value == "Y" && !(gfv("TRIN.T.T.T.T"))) {
 				result = true;
 				var msg = "Transfers In information has not been entered. Review now?";
-				var resp = okCancel(msg);
-				if (resp == 1) { //ok
-					this.pageNum = gfpage(fld);
-					fld.setFocus();
-					return true;
+				var resp = yesNoCancel(msg);
+				switch (resp) {
+					case alertYes:
+						var f = gf("TRIN.D.00.00.M");
+						this.pageNum = gfpage(f);
+						f.setFocus();
 				}
-
+				return resp;
 			}
 		}
 
-		return result;
+		return false;				// no errors
 	}
 }
 

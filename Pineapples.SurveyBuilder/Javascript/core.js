@@ -15,13 +15,10 @@ function OnStartup() {
 
 	// Filter field names that start with "Footer."
 	for (var i = 0; i < this.numFields; i++) {
-
-		if (this.getNthFieldName(i).startsWith("Footer.")) {
-			var n = this.getNthFieldName(i);
+		var n = this.getNthFieldName(i);
+		if (n.startsWith("Footer.")) {
 			var ff = gf(n);
-			
 			var page = gfpage(ff);
-			console.println("Footer: " + n + " " + page);
 			if (page % 2 == 0) {  // inside acrobat, page num is 0 based. Therefore the page shown as 1 is actually page 1
 				if (ff.value != title) {
 					ff.value = title;
@@ -33,12 +30,26 @@ function OnStartup() {
 				}
 
 			}
+		}
+		if (n.endsWith("tID")) {
+			console.println("tID " + n);
+			var ff = gf(n);
+			if (ff.value) {
+				var fldOnStaff = gf(n.replace("tID", "OnStaff"));
+				actions.applyOnStaff(fldOnStaff);
+			}
 
 		}
 	}
 }
 
 //****************** Utilities and wrappers *************************
+
+// return values from alerts
+var alertYes = 4;
+var alertNo = 3;
+var alertCancel = 2;
+var alerOK = 1;
 
 function pvalert(msg) {
 	return app.alert(msg, 1, 0, "Validating your data");
