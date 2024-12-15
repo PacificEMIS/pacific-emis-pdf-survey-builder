@@ -103,7 +103,42 @@ namespace surveybuilder
 		[Option("populate", Required = false, HelpText = "Create a populated survey - value is the school no")]
 		public string Populate { get; set; }
 
+		[Option("xfdf", Required = false, HelpText = "Export the pdf Xfdf file")]
+		public bool Xfdf { get; set; }
 
+
+		#endregion
+
+		#region helper methods
+		public void ToConsole()
+		{
+			Console.WriteLine("Options:");
+			Console.WriteLine($"Selected Form: {Form}");
+			Console.WriteLine($"Pacific Emis Url: {EmisUrl}");
+			Console.WriteLine($"Output Path: {OutputPath}");
+			Console.WriteLine($"Output Pdf: {Destination}");
+			Console.WriteLine("Verbose mode:" + (Verbose ? "On" : "Off"));
+			Console.WriteLine($"Survey Year: {Year}");
+			Console.WriteLine("Open when created:" + (AutoOpen ? "On" : "Off"));
+			if (Toolbox != null)
+			{
+				Console.WriteLine();
+				Console.WriteLine("TOOLBOX MODE");
+				Console.WriteLine("Target " + (Toolbox));
+				Console.WriteLine("Push Javascripts:" + (PushJs ? "Yes" : ""));
+				Console.WriteLine("Write Xfdf:" + (Xfdf ? "Yes" : ""));
+			}
+			Console.WriteLine();
+		}
+
+		public string Destination
+		{
+			get {
+				string[] parts = Form.Split('_');
+				return System.IO.Path.Combine(OutputPath
+					, $"{parts[0]} {Year:0000} {parts[1]}.pdf");
+			}
+		}
 		#endregion
 	}
 }

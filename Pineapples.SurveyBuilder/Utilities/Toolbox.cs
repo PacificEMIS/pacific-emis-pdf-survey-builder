@@ -64,9 +64,14 @@ namespace surveybuilder.Utilities
 			{
 				Populate();
 			}
+			
 			document.Close();
 			System.IO.File.Delete(opts.Toolbox);
 			System.IO.File.Move(tmpfile, opts.Toolbox);
+			if (opts.Xfdf)
+			{
+				Xfdf();
+			}
 			Console.WriteLine("COMPLETED: Running toolbox");
 
 			if (opts.AutoOpen)
@@ -232,7 +237,15 @@ namespace surveybuilder.Utilities
 			Console.ReadKey();
 
 		}
+		public void Xfdf()
+		{
+			Console.WriteLine("writing Xfdf file");
+			PdfForm frm = new PdfForm(opts.Toolbox);
+			string xfdfName = System.IO.Path.ChangeExtension(opts.Toolbox, "xfdf");
+			frm.Xfdf().Save(xfdfName);
+			
 
+		}
 		#endregion
 
 	}
