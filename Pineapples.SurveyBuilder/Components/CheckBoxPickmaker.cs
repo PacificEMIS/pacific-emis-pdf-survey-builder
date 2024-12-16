@@ -77,7 +77,8 @@ namespace surveybuilder
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 
-			Console.WriteLine($"Checkbox picker: {Tag}");
+			builder.pdfDoc.VerboseConsole($"Checkbox picker: {Tag}");
+
 			PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, Tag)
 				.CreateRadioGroup();
 
