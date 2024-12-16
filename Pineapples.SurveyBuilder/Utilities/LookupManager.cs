@@ -23,6 +23,13 @@ namespace surveybuilder
 {
 	public class LookupEntry
 	{
+		public LookupEntry() { }
+		public LookupEntry(string C, string N) 
+		{ 
+			this.C = C; 
+			this.N = N;
+		}
+
 		/// <summary>
 		/// The primary code for the entry (e.g., "C" or equivalent key).
 		/// </summary>
@@ -93,6 +100,58 @@ namespace surveybuilder
 			};
 			return FilterByMetadata(criteria);
 		}
+
+		/// <summary>
+		/// Many grid shaped objects use lookup lists to generate the row and column
+		/// headings of a grid. These values are associated to the row or column number.
+		/// When the form is processed into the database this metadata must be available to the 
+		/// upload procedure, inorder to know what codes are associated to each data item.
+		/// To accomplish this the values are stored as fields.
+		/// Common names look like:
+		/// Tag.R.nn.K Tag.R.nn.V Tag.C.nn.K Tag.C.nn.V
+		/// Tag - the particular table or data context
+		/// R/C row or column
+		/// nn index to the row or column
+		/// K/V key/value ( ie from Code/ Name of the lookup
+		/// 
+		/// Note that it is critically important that List<T> in C# guarantees 
+		/// that elements are returned in the order they were added during iteration.
+		/// In particular they are always iiterated the same, so the rder they appear when populating rows
+		/// is the same as the order they appear in this routine.
+		/// </summary>
+		/// <param name="pdfDoc">PdfDocumemt in which the fields will be created</param>
+		/// <param name="codeFormatter">function converting the row/column number to a string
+		/// which is the name of the field to hold the lookup code
+		/// typically this will use string interpolation: e.g.
+		/// (i) => $"Enrol.R.{i:00}.C"
+		/// </param>
+		/// <param name="nameFormatter">Same as codeFormatter but for the value (loolup name)
+		/// </param>
+		public void AsFields(PdfDocument pdfDoc
+			, Func<int, string> codeFormatter, Func<int, string> nameFormatter)
+		{
+			var form = PdfAcroForm.GetAcroForm(pdfDoc, true);
+
+			int i = 0;
+			foreach (var lkp in this)
+			{
+				string codeFldName = codeFormatter(i);
+				string nameFldName = nameFormatter(i);
+
+				var codefld = new TextFormFieldBuilder(pdfDoc, codeFldName)
+					.CreateText()
+					.SetReadOnly(true)
+					.SetValue(lkp.C);
+				var namefld = new TextFormFieldBuilder(pdfDoc, nameFldName)
+					.CreateText()
+					.SetReadOnly(true)
+					.SetValue(lkp.N);
+				form.AddField(codefld);
+				form.AddField(namefld);
+				i++;
+			}
+		}
+
 	}
 	public class LookupManager:Dictionary<string, LookupList>
 	{

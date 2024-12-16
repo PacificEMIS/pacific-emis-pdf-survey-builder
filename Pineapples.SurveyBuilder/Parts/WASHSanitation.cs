@@ -113,6 +113,10 @@ namespace surveybuilder
 
 			}
 
+
+			toiletTypes.AsFields(document.GetPdfDocument()
+				, (i) => $"Toilets.R.{i:00}.K", (i) => $"Toilets.R.{i:00}.V");
+
 			document.Add(tableToilets);
 
 			return document;
