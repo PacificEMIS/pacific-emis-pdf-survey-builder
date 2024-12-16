@@ -32,6 +32,9 @@ namespace surveybuilder
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var modelb = CellStyleFactory.DefaultNoHeight;
+			var model2 = CellStyleFactory.TwoColumn;
+
+
 
 			document.Add(builder.Heading_3("Water Supply"));
 
@@ -39,18 +42,21 @@ namespace surveybuilder
 				.Add(@"Record the details of your school water supply.")
 			);
 
+			
+
+
 			// IMPORTANT: this is now populated from the table [dbo].[lkpWaterSupplyTypes] (or FROM metaResourceDefs WHERE mresCat = 'Water Supply'?!
 			// Argh...rather annoying to have these defined differently in two different places. Let's take the one from censuswork (i.e. metaResourceDefs)
 
 			int wstCount = waterSupplyTypes.Count;
-			int totalColumns = wstCount + 1;
+			int totalColumns = wstCount * 2 + 1;    
 
 			// Define the percentage for the first column
 			float firstColumnWidth = 40f; // First column gets 40% of the width
 
 			// Calculate the remaining width and distribute it equally among the other columns
 			float remainingWidth = 100f - firstColumnWidth;
-			float otherColumnsWidth = remainingWidth / (totalColumns - 1);
+			float otherColumnsWidth = remainingWidth / (wstCount * 2) ;
 
 			// Create an array of column widths
 			float[] columnWidths = new float[totalColumns];
@@ -72,9 +78,7 @@ namespace surveybuilder
 			foreach (var waterSupplyType in waterSupplyTypes)
 			{
 				// Headers
-				// TODO need to include the field key
-				string fieldK = $"Resource.Water.R.{wstI:00}.K";
-				tableWST.AddCell(ts.TableHeaderStyle(TextCell(modelb, ts.TableHeaderStyle(waterSupplyType.N))));
+				tableWST.AddCell(TextCell(model2,waterSupplyType.N).Style(ts.TableHeaderStyle));
 				wstI++;
 			}
 
@@ -83,7 +87,7 @@ namespace surveybuilder
 			for (int i = 0; i < wstCount; i++)
 			{
 				string fieldNum = $"Resource.Water.D.{i:00}.Num";
-				tableWST.AddCell(NumberCell(model, fieldNum));
+				tableWST.AddCell(NumberCell(model2, fieldNum));
 			}
 
 			// Total Capacity in Litres Row
@@ -93,7 +97,7 @@ namespace surveybuilder
 				// TODO does not handle the water source types where it makes no sense to record the capacity
 				// hard code blank cells?!
 				string fieldNum = $"Resource.Water.D.{i:00}.Qty";
-				tableWST.AddCell(NumberCell(model, fieldNum));
+				tableWST.AddCell(NumberCell(model2, fieldNum));
 			}
 
 			// Tick if properly covered/protected Row
@@ -103,9 +107,14 @@ namespace surveybuilder
 				string fieldNum = $"Resource.Water.D.{i:00}.Protected";
 				PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldNum).CreateRadioGroup();
 				tableWST.AddCell(YesCell(model, rgrp));
+				tableWST.AddCell(NoCell(model, rgrp));
 			}
 
 			document.Add(tableWST);
+			// export the water supply metadata
+			waterSupplyTypes.AsFields(builder.pdfDoc,
+				j => $"Resource.Water.R.{j:00}.K", j => $"Resource.Water.R.{j:00}.V");
+
 
 			document.Add(new Paragraph()
 				.Add(@"On the following scale, rate the adequacy of your water supply for pupils and staff in relationship "

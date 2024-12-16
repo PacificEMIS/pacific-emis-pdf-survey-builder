@@ -128,6 +128,41 @@ namespace surveybuilder
 			return cell;
 		}
 
+		/// <summary>
+		/// a readonly text field The reason to create a field to hold
+		/// this value is to have it exported to the Xfdf, so that this constant value is
+		/// accessible to the stored procedure uploading the data. 
+		/// Note: this approach is somewhat obselete, and is here for legacy support. 
+		/// Use flat text to render the value in its table cell and create a hidden field on the 
+		/// same value to pass into the Xfdf using ExportValue
+		/// </summary>
+		/// <param name="cellmodel"></param>
+		/// <param name="fieldname"></param>
+		/// <param name="value"></param>
+		/// <param name="hidden"></param>
+		/// <returns></returns>
+		public static Cell ValueCell(Cell cellmodel, string fieldname, 	string value, bool hidden = false)
+		{
+			return InputCell(cellmodel, fieldname, 0, value, true, hidden);
+		}
+
+		/// <summary>
+		/// create a hidden form field to pass a value into the Xfdf
+		/// Note that does not return a cell, since we need no visual presence
+		/// </summary>
+		/// <param name="pdfDoc"></param>
+		/// <param name="fieldname"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public static PdfFormField ExportValue(PdfDocument pdfDoc, string fieldname, string value)
+		{
+			var fld = new TextFormFieldBuilder(pdfDoc, fieldname)
+				.CreateText()
+				.SetReadOnly(true)
+				.SetValue(value);
+			PdfAcroForm.GetAcroForm(pdfDoc, true).AddField(fld);
+			return fld;
+		}
 
 		// combo box
 		public static Cell ComboCell(Cell cellmodel, string fieldname, PdfArray options,
@@ -150,6 +185,8 @@ namespace surveybuilder
 			cell.Add(pp);
 			return cell;
 		}
+
+
 		//static text in a cell
 		public static Cell TextCell(Cell cellmodel, string text)
 		{
@@ -160,20 +197,16 @@ namespace surveybuilder
 		// static text passing a paragraph - allows a style to be applied
 		public static Cell TextCell(Cell cellmodel, Paragraph pp)
 		{
-			cellmodel.GetProperty<Border>(Property.BORDER);
+			cellmodel.GetProperty<Border>(Property.BORDER);  //?? does nothing
 			Cell cell = cellmodel.Clone(false);
 			cell.Add(pp);
 			return cell;
 		}
 
-		public static Cell NestedTableCell(Cell cellmodel, Table subTable)
+		public static Cell ElementCell(Cell cellmodel, IBlockElement element)
 		{
 			Cell cell = cellmodel.Clone(false);
-			cell.SetHeight(null);
-			cell.SetMaxHeight(null);
-			cell.SetPaddingTop(5);
-			cell.SetPaddingBottom(5);
-			cell.Add(subTable);
+			cell.Add(element);
 			return cell;
 		}
 

@@ -36,7 +36,7 @@ namespace surveybuilder
 		const string TableBaseStyle = "tablebase";
 
 
-		public Document Build(PdfBuilder builder, Document document, Dictionary<string, string> resourcesCategories)
+		public Document Build(PdfBuilder builder, Document document, LookupList resourcesCategories)
 		{
 			Console.WriteLine("Part: School Resources");
 
@@ -58,15 +58,16 @@ namespace surveybuilder
 			// data rows
 
 			LookupList resources = builder.lookups["metaResourceDefinitions"];
-			foreach (var kvp in resourcesCategories)
+			foreach (var categoryDef in resourcesCategories)
 			{
-				var cat = $"Resource.{kvp.Value}.Cat";
-
+				// make the hidden field with this category definition
+				CellMakers.ExportValue(builder.pdfDoc
+					, $"Resource.{categoryDef.C}.Cat", categoryDef.N);
 
 				// Get the category resources
 				var catResFilter = new Dictionary<string, object>
 					{
-						{ "Cat", $"{kvp.Key}" },
+						{ "Cat", $"{categoryDef.C}" },
 						{ "Surveyed", "True" }
 					};
 				LookupList catResources = resources.FilterByMetadata(catResFilter);
@@ -81,7 +82,7 @@ namespace surveybuilder
 					WriteResourcesHeader(document);
 					
 				}
-				WriteCategoryGroup(document, kvp.Key, catResources);
+				WriteCategoryGroup(document, categoryDef, catResources);
 			}
 
 
@@ -138,12 +139,15 @@ namespace surveybuilder
 			return document;
 		}
 
-		private Document WriteCategoryGroup(Document document, string categoryName, LookupList catResources)
+		private Document WriteCategoryGroup(Document document, LookupEntry category, LookupList catResources)
 		{
+			catResources.AsFields(document.GetPdfDocument(),
+				(j) => $"Resource.{category.C}.R.{j:00}.K", (j) => $"Resource.{category.C}.R.{j:00}.V");
+
 			Table cattable = CellStyleFactory.DefaultTable(40, 10, 10, 10, 10, 10, 10);
 			// first the row subheader (TODO no field included yet here)
 			cattable.AddRow(ss[TableSubHeaderStyle],
-				TextCell(model17, categoryName)
+				TextCell(model17, category.N)
 			);
 
 			// Data fields for each row
@@ -152,7 +156,9 @@ namespace surveybuilder
 			{
 				// may resourcce definitions have spaces in the names
 				// , which generates problematic field names
-				string clean = lookupRes.C.Clean();
+				//string clean = lookupRes.C.Clean();
+				string clean = category.C;			// ie this part will now be Comm, Eqp, Library, Lab 
+
 				string fieldK = $"Resource.{clean}.R.{i:00}.K";
 				string fieldA = $"Resource.{clean}.D.{i:00}.A";
 				string fieldNum = $"Resource.{clean}.D.{i:00}.Num";

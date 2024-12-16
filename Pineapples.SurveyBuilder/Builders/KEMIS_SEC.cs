@@ -127,15 +127,15 @@ namespace surveybuilder
 
 			this.AddOutline(document, staffOutline, "Expected Staff List");
 			document.Add(Heading_2("Expected Staff List"));
+			// new staff is placed here and will get moved by the generate routine once it knows how many
+			// techers there are
+			AddOutline(document, staffOutline, "New Staff");
+			document.Add(Heading_2("New Staff"));
+
 			document = new ExpectedStaff()
 				.Build(this, document);
 			NewPage(document);
 
-			AddOutline(document, staffOutline, "New Staff");
-			document.Add(Heading_2("New Staff"));
-			document = new NewStaff()
-				.Build(this, document);
-			NewPage(document);
 			#endregion
 			stylesheet.Theme = new Theme
 			{
@@ -206,14 +206,13 @@ namespace surveybuilder
 			document.Add(Heading_2("School Resources"));
 
 			// categories vary from survey to survey so pass in from here
-			var resourcesCategories = new Dictionary<string, string>
+			var resourcesCategories = new LookupList()
 			{
-				{ "Communications", "Comm" },
-				// When getting Equipment from metaResourceDefs they are all under Communications category (how to safely clean mismatch?)
-				{ "Equipment", "Eqp" },
-				{ "Power Supply", "Power" },
-				{ "Library Resources", "Library" },
-				{ "Laboratory Resources", "Lab" },
+				new LookupEntry("Comm","Communications"),
+				new LookupEntry("Eqp","Equipment"),
+				new LookupEntry("Power","Power Suppply"),
+				new LookupEntry("Library","Library Resources"),
+				new LookupEntry("Lab","Laboratory Resources")
 			};
 
 			document = new SchoolResources()

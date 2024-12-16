@@ -254,38 +254,14 @@ namespace surveybuilder
 
 				}
 			}
-			// apply some formatting before returning the table
-			var form = PdfFormCreator.GetAcroForm(builder.pdfDoc, true);
-			var fields = form.GetAllFormFields();
-			for (int i = 0; i < Columns.Count; i++)
-			{
-				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.C.{i:00}.K")   // K for key
-					.CreateText();
-				txt.SetValue(Columns[i].C);
-				form.AddField(txt);
-			}
-			for (int i = 0; i < Columns.Count; i++)
-			{
-				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.C.{i:00}.V")   // K for key
-					.CreateText();
-				txt.SetValue(Columns[i].N);
-				form.AddField(txt);
-			}
-			for (int i = 0; i < Rows.Count; i++)
-			{
-				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.R.{i:00}.K")
-					.CreateText();
-				txt.SetValue(Rows[i].C);
-				form.AddField(txt);
-			}
-			for (int i = 0; i < Rows.Count; i++)
-			{
-				var txt = new TextFormFieldBuilder(builder.pdfDoc, $"{Tag}.R.{i:00}.V")
-					.CreateText();
-				txt.SetValue(Rows[i].N);
-				form.AddField(txt);
-			}
 
+			// export row and column info to xfdf
+			Columns.AsFields(builder.pdfDoc
+				, i => $"{Tag}.C.{i:00}.K", i => $"{Tag}.C.{i:00}.V");
+			Rows.AsFields(builder.pdfDoc
+				, i => $"{Tag}.R.{i:00}.K", i => $"{Tag}.R.{i:00}.V");
+
+			//// apply some formatting before returning the table
 			return table
 				.SetBorder(new Borders.SolidBorder(Colors.WebColors.GetRGBColor(color3), 1));
 			;

@@ -214,14 +214,14 @@ namespace surveybuilder
 			document.Add(Heading_2("School Resources"));
 
 			// categories vary from survey to survey so pass in from here
-			var resourcesCategories = new Dictionary<string, string>
+			var resourcesCategories = new LookupList()
 			{
-				{ "Communications", "Comm" },
-				// When getting Equipment from metaResourceDefs they are all under Communications category (how to safely clean mismatch?)
-				{ "Equipment", "Eqp" },
-				{ "Power Supply", "Power" },
-				{ "Library Resources", "Library" }
+				new LookupEntry("Comm","Communications"),
+				new LookupEntry("Eqp","Equipment"),
+				new LookupEntry("Power","Power Suppply"),
+				new LookupEntry("Library","Library Resources")
 			};
+
 			document = new SchoolResources()
 				.Build(this, document, resourcesCategories);
 			NewPage(document);
