@@ -29,6 +29,38 @@ namespace surveybuilder
 	public delegate Cell CellStyler(Cell cell);
 	public delegate Paragraph ParagraphStyler(Paragraph p);
 
+	/// <summary>
+	/// this is to handle those properties that can take a null value; 
+	/// ie value = null, not  value not provided'
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public class ExplicitNullable<T> where T : class
+	{
+		private T value;
+		private bool isSet = false;
+
+		public T Value
+		{
+			get => isSet ? value : throw new InvalidOperationException("Value is not set.");
+			set
+			{
+				this.value = value;
+				this.isSet = true;
+			}
+		}
+
+		public bool IsSet => isSet;
+
+		public T GetValueOrDefault(T defaultValue) => isSet ? value : defaultValue;
+
+		public void Clear()
+		{
+			isSet = false;
+			value = null;
+
+		} 
+	}
+
 	public class PdfStyle
 	{
 
@@ -70,11 +102,27 @@ namespace surveybuilder
 			LeftBorder = Border.NO_BORDER,
 			RightBorder = Border.NO_BORDER,
 			Border = Border.NO_BORDER,
+			Padding = 0,
+			PaddingTop = 0,
+			PaddingBottom = 0,
+			PaddingLeft = 0,
+			PaddingRight = 0,
+
+			// Margin properties
+			Margin = 0,
+			MarginTop = 0,
+			MarginBottom = 0,
+			MarginLeft = 0,
+			MarginRight = 0,
+
+			// Height property
+			SizeToContents = false,
+			Height = 20,
 			//ignore the dynamic colors
 			GetFontColor = null,
 			GetBackgroundColor = null,
 		};
-
+		
 		private PdfStyle baseStyle = DefaultBaseStyle;
 		public string Name { get; set; } 
 
@@ -93,11 +141,29 @@ namespace surveybuilder
 		private float? indentationRight;
 		private float? spacingBefore;
 		private float? spacingAfter;
-		private Border topBorder;
-		private Border bottomBorder;
-		private Border leftBorder;
-		private Border rightBorder;
-		private Border border;
+		private ExplicitNullable<Border> topBorder = new ExplicitNullable<Border>();
+		private ExplicitNullable<Border> bottomBorder = new ExplicitNullable<Border>();
+		private ExplicitNullable<Border> leftBorder = new ExplicitNullable<Border>();
+		private ExplicitNullable<Border> rightBorder = new ExplicitNullable<Border>();
+		private ExplicitNullable<Border> border = new ExplicitNullable<Border>();
+		// Padding properties
+		private int? padding;
+		private int? paddingTop;
+		private int? paddingBottom;
+		private int? paddingLeft;
+		private int? paddingRight;
+
+		// Margin properties
+		private int? margin;
+		private int? marginTop;
+		private int? marginBottom;
+		private int? marginLeft;
+		private int? marginRight;
+
+		// Height property
+		private bool? sizeToContents;
+		private int? height;
+
 		private Color backgroundColor;
 		private string backgroundImage;
 
@@ -205,36 +271,36 @@ namespace surveybuilder
 		public Border TopBorder
 		{
 			get => GetTopBorder?.Invoke(CurrentTheme)
-					?? topBorder ?? inherits?.TopBorder ?? baseStyle?.TopBorder;
-			set => topBorder = value;
+					?? topBorder.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+			set => topBorder.Value = value;
 		}
 
 		public Border BottomBorder
 		{
 			get => GetBottomBorder?.Invoke(CurrentTheme)
-					?? bottomBorder ?? inherits?.BottomBorder ?? baseStyle?.BottomBorder;
-			set => bottomBorder = value;
+					?? bottomBorder.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+			set => bottomBorder.Value = value;
 		}
 
 		public Border LeftBorder
 		{
 			get => GetLeftBorder?.Invoke(CurrentTheme)
-					?? leftBorder ?? inherits?.LeftBorder ?? baseStyle?.LeftBorder;
-			set => leftBorder = value;
+					?? leftBorder.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+			set => leftBorder.Value = value;
 		}
 
 		public Border RightBorder
 		{
 			get => GetRightBorder?.Invoke(CurrentTheme)
-					?? rightBorder ?? inherits?.RightBorder ?? baseStyle?.RightBorder;
-			set => rightBorder = value;
+					?? rightBorder.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+			set => rightBorder.Value = value;
 		}
 
 		public Border Border
 		{
 			get => GetBorder?.Invoke(CurrentTheme)
-					??border ?? inherits?.Border ?? baseStyle?.Border;
-			set => border = value;
+					?? border.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+			set => border.Value = value;
 		}
 
 		// Background properties
@@ -250,12 +316,84 @@ namespace surveybuilder
 
 		public string BackgroundImage
 		{
-			get => backgroundImage ?? inherits?.BackgroundImage ?? baseStyle.BackgroundImage;
+			get => backgroundImage ?? inherits?.BackgroundImage ?? baseStyle?.BackgroundImage;
 			set => backgroundImage = value;
 		}
 
+		// Padding properties
+		public int? Padding
+		{
+			get => padding ?? inherits?.Padding ?? baseStyle.Padding;
+			set => padding = value;
+		}
 
-		public int Height = 0;
+		public int? PaddingTop
+		{
+			get => paddingTop ?? Padding; // Falls back to Padding if not set
+			set => paddingTop = value;
+		}
+
+		public int? PaddingBottom
+		{
+			get => paddingBottom ?? Padding; // Falls back to Padding if not set
+			set => paddingBottom = value;
+		}
+
+		public int? PaddingLeft
+		{
+			get => paddingLeft ?? Padding; // Falls back to Padding if not set
+			set => paddingLeft = value;
+		}
+
+		public int? PaddingRight
+		{
+			get => paddingRight ?? Padding; // Falls back to Padding if not set
+			set => paddingRight = value;
+		}
+
+		// Margin properties
+		public int? Margin
+		{
+			get => margin ?? inherits?.Margin ?? baseStyle.Margin;
+			set => margin = value;
+		}
+
+		public int? MarginTop
+		{
+			get => marginTop ?? Margin; // Falls back to Margin if not set
+			set => marginTop = value;
+		}
+
+		public int? MarginBottom
+		{
+			get => marginBottom ?? Margin; // Falls back to Margin if not set
+			set => marginBottom = value;
+		}
+
+		public int? MarginLeft
+		{
+			get => marginLeft ?? Margin; // Falls back to Margin if not set
+			set => marginLeft = value;
+		}
+
+		public int? MarginRight
+		{
+			get => marginRight ?? Margin; // Falls back to Margin if not set
+			set => marginRight = value;
+		}
+
+		// Height property
+		public bool? SizeToContents
+		{
+			get => sizeToContents ?? inherits?.sizeToContents ?? baseStyle?.sizeToContents;
+			set => sizeToContents = value;
+		}
+		public int? Height
+		{
+			get => height ?? inherits?.Height ?? baseStyle?.Height;
+			set => height = value;
+		}
+		
 		public int ColSpan = 1;
 		public int RowSpan = 1;
 
@@ -348,11 +486,44 @@ namespace surveybuilder
 
 			if (RightBorder != null)
 				c.SetBorderRight(RightBorder);
+
+			// Padding properties
+			if (Padding != null)
+				c.SetPadding(Padding.Value);
+			if (PaddingTop != null)
+				c.SetPaddingTop(PaddingTop.Value);
+			if (PaddingBottom != null)
+				c.SetPaddingBottom(PaddingBottom.Value);
+			if (PaddingLeft != null)
+				c.SetPaddingLeft(PaddingLeft.Value);
+			if (PaddingRight != null)
+				c.SetPaddingRight(PaddingRight.Value);
+
+			// Margin properties
+			if (Margin != null)
+				c.SetMargin(Margin.Value);
+			if (MarginTop != null)
+				c.SetMarginTop(MarginTop.Value);
+			if (MarginBottom != null)
+				c.SetMarginBottom(MarginBottom.Value);
+			if (MarginLeft != null)
+				c.SetMarginLeft(MarginLeft.Value);
+			if (MarginRight != null)
+				c.SetMarginRight(MarginRight.Value);
+
+			// Height property
+			if (SizeToContents.HasValue && SizeToContents.Value)
+			{
+				c.SetHeight(null);
+				c.SetMaxHeight(null);
+			}
+			else
+			{
+				if (Height != null)
+					c.SetHeight(Height.Value);
+			}
 			if (BackgroundColor != null)
 				c.SetBackgroundColor(BackgroundColor);
-
-			if (Height != 0)
-				c.SetHeight(Height);
 
 			// now cascade to apply the style to any paragraphs in the cell
 			foreach (var element in c.GetChildren()
@@ -485,7 +656,7 @@ namespace surveybuilder
 			{
 				FontSize = 20,
 				GetBackgroundColor = (theme) => theme.Primary.GetColor(900),
-				GetFontColor = (theme) => theme.Primary.DefaultHue.Contrast(),
+				GetFontColor = (theme) => theme.Primary.GetColor(900).Contrast()
 			});
 
 			// Define Heading 2 style
@@ -530,6 +701,8 @@ namespace surveybuilder
 
 		}
 		#endregion initialise
+
+
 	}
 
 
@@ -762,7 +935,9 @@ namespace surveybuilder
 				new PdfStyle(styles["tablebase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
-					Border = Border.NO_BORDER
+					Border = Border.NO_BORDER,
+					SizeToContents = true,
+					PaddingTop = 10
 				};
 
 			// seed the CellStyleFactory with tablebase

@@ -14,7 +14,7 @@ namespace surveybuilder
 	{
 		Scheme,					// use Primary Secondary, Tertiary Surface and Error
 		Theme,					// the original AngukarJS Material model of theme
-		Simple
+		Swatch
 	}
 
 	public class Palette
@@ -35,6 +35,13 @@ namespace surveybuilder
 			};
 		}
 
+		public static Palette Swatch(string name)
+		{
+			return new Palette(PaletteMode.Swatch)
+			{
+				Name = name
+			};
+		}
 
 		public string Name { get; set; }
 		public Dictionary<int, Color> Hues { get; private set; }
@@ -70,7 +77,7 @@ namespace surveybuilder
 						return 40;
 					case PaletteMode.Theme:
 						return 500;
-					case PaletteMode.Simple:
+					case PaletteMode.Swatch:
 						return 1;
 					default:
 						return 500;
@@ -237,6 +244,8 @@ namespace surveybuilder
 			.AddHue(700, "#7B1FA2")
 			.AddHue(800, "#6A1B9A")
 			.AddHue(900, "#4A148C");
+
+
 			
 	}
 	#endregion
