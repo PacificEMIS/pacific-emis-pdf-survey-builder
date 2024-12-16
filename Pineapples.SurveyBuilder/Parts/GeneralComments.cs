@@ -42,10 +42,9 @@ namespace surveybuilder
 			document.Add(new Paragraph(@"If you would like to make any comments or provide additional information about your "
 			+ @"school please record these below."));
 
-			Table table = new Table(UnitValue.CreatePercentArray(new float[] { 1 }))
-						.UseAllAvailableWidth();
+			Table table = CellStyleFactory.DefaultTable(1);
 
-			table.AddCell(ts.TableHeaderStyle(InputCell(new Cell().SetHeight(400), "Survey.Comment")));
+			table.AddCell(ts.TableHeaderStyle(InputCell(model.Clone(false).SetHeight(400), "Survey.Comment")).SetHeight(400));
 
 			document.Add(table);
 			builder.NewPage(document);
@@ -54,10 +53,10 @@ namespace surveybuilder
 			builder.AddOutline(document, generalOutline, "Certification");
 			builder.Heading_2("Certification", document);
 
-			table = new Table(UnitValue.CreatePercentArray(new float[] { 100 }))
-				.UseAllAvailableWidth();
+			table = CellStyleFactory.DefaultTable(1);
 
-			string jsCode = "v.doAllValidations();";
+
+			string jsCode = "v.doAllValidations(event);";
 			Cell abs = ts.AbstractCell(new Cell().SetHeight(50));
 			table.AddRow(
 				PushButtonCell(abs, "CheckBtn", "Verify Responses", jsCode)
@@ -70,13 +69,10 @@ namespace surveybuilder
 
 
 
-			Table tableCertification = new Table(UnitValue.CreatePercentArray(new float[] { 60, 40 }))
-						.UseAllAvailableWidth();
+			Table tableCertification = CellStyleFactory.DefaultTable(3, 2);
 
 			PdfButtonFormField grp = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.PrincipalCertification")
 				.CreateRadioGroup();
-
-
 
 			tableCertification.AddRow(
 				TextCell(model, ts.TableRowHeaderStyle("Principal’s Name:")),

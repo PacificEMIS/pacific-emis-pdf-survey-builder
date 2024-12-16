@@ -2,45 +2,64 @@ console.println("core Loading...");
 
 // Core functionality for Acrobat forms
 function OnStartup() {
-	console.println("On startup");
-	var sy = this.getField("Survey.SurveyYear");
-	var year = sy.value;
-	var title = this.info.Title + ' ' + year.toString();
+	console.println("On Startup");
 
-	console.println(title);
-	console.println(year);
+	var sy = gf("Survey.SurveyYear");
+	var year = sy.value;
+	var title = gthis().info.Title + ' ' + year.toString();
+
 	var school =
-		(this.getField("Survey.SchoolNo").value) ?
-			this.getField("Survey.SchoolNo").value + " " + this.getField("Survey.SchoolName").value : title;
+		(gf("Survey.SchoolNo").value) ?
+			gf("Survey.SchoolNo").value + " " + gf("Survey.SchoolName").value : title;
 
 	// Filter field names that start with "Footer."
-	for (var i = 0; i < this.numFields; i++) {
-		var n = this.getNthFieldName(i);
-		if (n.startsWith("Footer.")) {
-			var ff = gf(n);
-			var page = gfpage(ff);
-			if (page % 2 == 0) {  // inside acrobat, page num is 0 based. Therefore the page shown as 1 is actually page 1
-				if (ff.value != title) {
-					ff.value = title;
-				}
-			}
-			else {
-				if (ff.value != school) {
-					ff.value = school;
-				}
 
+	var idx = 2;			// footers start at page 2 since itext numbers from 1
+	do {
+		var n = "Footer." + padStart(idx.toString(), 2, "0");
+		console.println(n);
+		var ff = gf(n);
+		if (ff == null) {
+			console.println(n + " not found");
+			break;
+		}
+		var page = gfpage(ff);
+		if (page % 2 == 0) {  // inside acrobat, page num is 0 based. Therefore the page shown as 1 is actually page 1
+			if (ff.value != title) {
+				ff.value = title;
 			}
 		}
-		if (n.endsWith("tID")) {
-			console.println("tID " + n);
-			var ff = gf(n);
-			if (ff.value) {
-				var fldOnStaff = gf(n.replace("tID", "OnStaff"));
-				actions.applyOnStaff(fldOnStaff);
+		else {
+			if (ff.value != school) {
+				ff.value = school;
 			}
-
 		}
-	}
+		idx++;
+	} while (true);
+
+	idx = 0;
+	do {
+		var n = "TL." + padStart(idx.toString(), 2, "0") + ".tID";
+		console.println(n);
+		var ff = gf(n);
+		if (ff == null) {
+			console.println(n + " not found");
+			break;
+		}
+		if (!ff.value) {
+			console.println(n + " no value");
+			break; // no more prepopulated entries
+		}
+
+		var fldOnStaff = gf(n.replace("tID", "OnStaff"));
+		actions.applyOnStaff(fldOnStaff);
+		idx++;
+
+	} while (true);
+
+
+
+	//}
 }
 
 //****************** Utilities and wrappers *************************
@@ -127,10 +146,7 @@ function gfvx(fieldname) {
 	return ret;
 }
 
-//a global this
-function gthis() {
-	return this;
-}
+
 
 // gets the displayable value for a combobox
 function gfvt(fieldname) {
@@ -165,6 +181,9 @@ function gfpage(fld) {
 	return fld.page[0];
 }
 
+function gthis() {
+	return this;
+}
 function padStart(str, targetLength, padString) {
 	str = String(str); // Ensure the input is a string
 	padString = String(padString || ' '); // Default pad string is a space
@@ -475,208 +494,12 @@ function validatePhone(value) {
 }
 
 
-// *********** end Validation and formatting ***************//
-
-
-
-//*************** Email Handling ************************* //
-function targetEmail() {
-	return "applications@adsafrica.com.au";
-}
-
-function trueCopy() {
-	return "I certify the attached document is a true copy";
-}
-
-// this is a wrapper around mailMsg which doesn;t work in Foxit 5.0 as at 8 10 2011
-
-function doMailMsg(subject, body) {
-	var str = "mailto:" + targetEmail() + "?subject=" + subject + "&body=" + body;
-	console.println(str);
-	app.launchURL(str);
-}
-
-// this function produces a test email, and set the flag accordingly
-function testEMail() {
-	//
-	var str;
-	str = "The application form will now try to make a test email message. If this succeeeds, and you can send the test message, you can select the Desktop Mail option for delivering emails";
-	inform(str);
-	doMailMsg("EMail test", "Send this message to confirm that " + this.title + " can send email using your desktop email system.");
-	var result = yesNo("Did the message send OK?");
-	if (result == 4) {//yes
-		// were able to send
-		inform("You can complete the application using Desktop email.");
-		this.getField("chkEmailType").value = "DESKTOP";
-		return true;
-	}
-	// couldn't send
-	// If this document is not reader-extended, we can't send it?
-
-	else {      // dont send by desktop email
-		this.getField("chkEmailType").value = "WEB";
-		if (isFoxit()) { // foxit can save data
-			inform("You cannot submit the application using Desktop email. To send, you will need to save the application data to your disk, then manually attach the file to an email message. Use the Submit Application button on the first page of this Application form to step through this process.");
-			return;
-		}
-
-		if (RE() == true) {
-			inform("You cannot submit the application using Desktop email. To send, you will need to save the application to your disk, then manually attach the file to an email message.");
-			return true;
-		}
-		// test further if not RE
-		inform("You cannot submit the application using Desktop email. To send, you will need to save the application to your disk, then manually attach the file to an email message. If you are not able to Save the form with all its contents using your current PDF Reader software, you need to open the application using different reader software.");
-
-
-		result = okCancel("Try to save the form with contents now? (If you are not able to do this, you will need to use different PDF software)");
-		if (result == 1) {
-			try {
-				app.execMenuItem("SaveAs");
-				result = yesNo("Were you able to save the form including the contents of filled-in fields?");
-			}
-			catch (err) {
-				exclaim("The application form could not be saved.");
-				result = 0;
-			}
-			if (result == 4) {
-				inform("You can continue to complete the form. When the form is complete, Save it to your hard drive, then email that file to " + targetEmail());
-				return true;
-			}
-			exclaim("You will not be able to complete the form using your current PDF Reader software without a desktop email system. " +
-				"Consider using an alternative PDF Reader, such as Foxit Reader from www.foxitsoftware.com. " +
-				"Alternatively, you can continue to fill in the form, then, when it is complete and checked, print the filled-in form, and post to the address provided on the AAA website.");
-			return false;
-		}
-
-		return true;
-	}
-}
-
-function sendDoc(subject, body) {
-	if (isWebEMail() == 1) {
-
-
-		// foxit doesn;t draw the repsonse box well
-		inform(util.printf("Create a new mail message in your internet email to this recipient: %s with subject: '%s'. " +
-			"(You may copy the document title from the window displayed after this" +
-			" and paste into your email message 'Subject' field.) Attach the document to this email and Send. ", targetEmail(), subject));
-
-
-		var alertText = "Subject for email (copy and paste this text to your email message 'Subject'):";
-		var result = app.response(alertText, "Web Mail", subject);
-	}
-	else
-		//app.mailMsg(true, targetEmail(),"","",subject, body);
-		doMailMsg(subject, body);
-}
-
-function isWebEMail() {
-	if (this.getField("chkEmailType").value == "WEB")
-		return 1;
-	else
-		return 0;
-}
-
-
-function webMailURL() {
-
-	var email = this.getField("sEmail1").value;
-
-	if (email.indexOf("@hotmail.com") > 0)
-		return "http://www.hotmail.com";
-
-	if (email.indexOf("@gmail.com") > 0)
-		return "http://www.gmail.com";
-
-	if (email.indexOf("@fastmail.fm") > 0)
-		return "http://www.fastmail.fm";
-
-	if (email.indexOf("yahoo") > 0)
-		return "http://mail.yahoo.com";
-
-	return "";
-}
-function confirmEMail(msgText) {
-
-
-
-	var checkBoxText = "Open " + webMailURL();
-
-	var alertBox = new Object();
-	var alertResult;
-	alertBox.ocheckBox = {
-		cMsg: checkBoxText,
-		bInitialValue: false
-	}
-
-	if (isWebEMail() == 1 && webMailURL() > "") {
-
-		alertResult = app.alert(msgText, 3, 1, dlgTitle(), this, alertBox.ocheckBox);
-		if (alertResult == 1 &&
-			alertBox.ocheckBox.bAfterValue == true)
-			app.launchURL(webMailURL(), true);
-		return alertResult;
-	}
-	else
-		return app.alert(msgText, 3, 1, dlgTitle(), this);
-}
-
-
-
-function doPreValidate() {
-	try {
-		return preValidate();
-	}
-	catch (err) {
-		return "OK";
-	}
-
-}
-
-
-function checkApplication() {
-
-	// checkEligibility can be a document specific call out - NOT defined here
-	if (doCheckEligibility() == 0)
-		return 0;
-
-	// preValidate is document specific - not defined here
-	var fname = doPreValidate();
-	if (fname == "OK") {
-		inform("Your application is ready to submit", 3, 0);
-		return;
-	}
-
-	if (fname == "") {
-		inform("Your application is not yet ready to submit.");
-	}
-	else {
-		console.println(fname);
-		var f = this.getField(fname);
-		var toolTip = f.userName;
-		var msg = "Your application is not ready to submit. Go to the first identified problem now";
-		if (toolTip != "")
-			msg = msg + " (" + toolTip + ")?";
-		else
-			msg = msg + "?";
-		var resp = okCancel(msg);
-		if (resp == 1) { //ok
-			var f = this.getField(fname);
-			var p = f.page;
-			this.pageNum = p[0];
-			f.setFocus();
-		}
-	}
-}
-
-//-----------------------------------------------------------------------
-
 try {
 	OnStartup();
 }
 catch (ex) {
-	console.println("OnStartup dummy invoke failed");
-	//console.println(ex);
-};
+	console.println("Dummy statup invocaton failed: " + ex);
+
+}
 
 console.println("Core Loaded");

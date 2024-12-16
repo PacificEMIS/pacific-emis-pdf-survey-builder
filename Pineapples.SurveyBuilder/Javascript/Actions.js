@@ -1,8 +1,8 @@
 ﻿console.println("Actions Loading...");
 
 var actions = {
-	// setting the Onstaff switch for a prepopped teacher
 
+	// setting the Onstaff switch for a prepopped teacher
 	onOnStaffChange: function (event) {
 		// first extract the tID part
 		var n = event.target.name;
@@ -79,8 +79,6 @@ var actions = {
 		}
 	}
 }
-
-
 
 
 
