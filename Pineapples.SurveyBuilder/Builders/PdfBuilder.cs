@@ -171,7 +171,20 @@ namespace surveybuilder
 		{
 			var rect = document.GetRenderer().GetCurrentArea().GetBBox();
 			float spaceavailable = rect.GetHeight();
-			if (spaceneeded > spaceavailable)
+			return NewPageIf(document, (spaceneeded > spaceavailable));
+		}
+
+		/// <summary>
+		/// Simple method to add a page base on a boolean condition
+		/// </summary>
+		/// <param name="document"></param>
+		/// <param name="condition">boolean</param>
+		/// <returns></returns>
+		public bool NewPageIf(Document document, bool condition)
+		{
+			var rect = document.GetRenderer().GetCurrentArea().GetBBox();
+			float spaceavailable = rect.GetHeight();
+			if (condition)
 			{
 				NewPage(document);
 				return true;
@@ -311,7 +324,6 @@ namespace surveybuilder
 
 
 			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
-
 
 			foreach (string jsName in jsNames)
 			{
