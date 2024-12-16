@@ -147,13 +147,18 @@ namespace surveybuilder
 
 				Document document = builder.Build();
 				document.Close();
-				Console.WriteLine($"COMPLETED: {dest} created");
+				Console.WriteLine($"Build complete: {dest} created");
 
 				if (!String.IsNullOrEmpty(opts.Populate)) {
 					Console.WriteLine($"Populating from school {opts.Populate} year {opts.Year}");
 					dest = new Toolbox(opts).Populate();
 				}
 
+				if (opts.Xfdf)
+				{
+					 new Toolbox(opts).Xfdf(dest);
+				}
+				Console.WriteLine($"End of processing");
 				if (opts.AutoOpen)
 				{
 					Process.Start(new ProcessStartInfo

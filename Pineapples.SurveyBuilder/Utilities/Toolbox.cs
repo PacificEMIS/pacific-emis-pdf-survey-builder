@@ -28,7 +28,7 @@ namespace surveybuilder.Utilities
 		Options opts;
 		PdfDocument pdfDoc;
 		Document document;
-		public Toolbox(Options opts) 
+		public Toolbox(Options opts)
 		{
 			this.opts = opts;
 		}
@@ -36,8 +36,11 @@ namespace surveybuilder.Utilities
 		public void RunTools()
 		{
 			Console.WriteLine("Running toolbox");
-			pdfDoc = OpenDocument();
-			document = new Document(pdfDoc);
+			if (!String.IsNullOrEmpty(opts.Toolbox))
+			{
+				pdfDoc = OpenDocument();
+				document = new Document(pdfDoc);
+			}
 			if (opts.ClearJs)
 			{
 				ClearJs();
@@ -64,13 +67,13 @@ namespace surveybuilder.Utilities
 			{
 				Populate();
 			}
-			
+
 			document.Close();
 			System.IO.File.Delete(opts.Toolbox);
 			System.IO.File.Move(tmpfile, opts.Toolbox);
 			if (opts.Xfdf)
 			{
-				Xfdf();
+				Xfdf(opts.Toolbox);
 			}
 			Console.WriteLine("COMPLETED: Running toolbox");
 
@@ -148,20 +151,19 @@ namespace surveybuilder.Utilities
 			IEnumerable<string> jsNames = assembly.GetManifestResourceNames()
 							.Where(name => name.EndsWith(".js"));
 
-
-
+			//load JS_Init.js first
 			foreach (string jsName in jsNames)
 			{
-				string jscriptText = LoadEmbeddedResource(assembly, jsName);
-				PdfDictionary jscript = iText.Kernel.Pdf.Action.PdfAction
-					.CreateJavaScript(jscriptText).GetPdfObject();
+
 
 				string[] pp = jsName.Split('.');
 				string name = $"{pp[pp.Length - 2]}.{pp[pp.Length - 1]}";
+				string jscriptText = LoadEmbeddedResource(assembly, jsName);
+				PdfDictionary jscript = iText.Kernel.Pdf.Action.PdfAction
+					.CreateJavaScript(jscriptText).GetPdfObject();
 				Console.WriteLine($"Installing javascript: {name}");
 				javaScriptNameTree.AddEntry(name, jscript);
 			}
-
 		}
 		private string LoadEmbeddedResource(Assembly assembly, string resourceName)
 		{
@@ -237,13 +239,14 @@ namespace surveybuilder.Utilities
 			Console.ReadKey();
 
 		}
-		public void Xfdf()
+		public void Xfdf(string dest)
 		{
 			Console.WriteLine("writing Xfdf file");
-			PdfForm frm = new PdfForm(opts.Toolbox);
-			string xfdfName = System.IO.Path.ChangeExtension(opts.Toolbox, "xfdf");
+			PdfForm frm = new PdfForm(dest);
+			string xfdfName = System.IO.Path.ChangeExtension(dest, "xfdf");
 			frm.Xfdf().Save(xfdfName);
-			
+			Console.WriteLine($"Xfdf saved to {xfdfName}");
+
 
 		}
 		#endregion
