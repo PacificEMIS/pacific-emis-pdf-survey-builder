@@ -47,7 +47,7 @@ namespace surveybuilder
 		}
 		public static Table AddRow(this Table tbl, CellStyler cellStyler, params Cell[] row)
 		{
-			return tbl.AddRow(cellStyler, row);
+			return tbl.AddRow(cellStyler, (IEnumerable<Cell>) row);
 		}
 		public static Table AddRow(this Table tbl, CellStyler cellStyler, IEnumerable<Cell> row)
 		{
@@ -96,6 +96,20 @@ namespace surveybuilder
 		}
 		#endregion Table creation and styling
 
+		#region Layout and measurement
+		public static float HeightEstimate(this Cell cell)
+		{
+			return (cell.GetHeight()?.GetValue()??0)
+				+ (cell.GetPaddingTop()?.GetValue()??0) + (cell.GetPaddingBottom()?.GetValue()??0)
+				+ (cell.GetStrokeWidth()??1) ;  
+		}
+		public static float HeightEstimate(this Table table, Cell cellprototype, int numRows)
+		{
+			return (table.GetMarginBottom()?.GetValue()??0) + (table.GetMarginTop()?.GetValue()??0)
+				+ (cellprototype.HeightEstimate() * numRows);
+		}
+
+		#endregion
 
 		#region PdfDocument
 

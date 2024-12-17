@@ -76,7 +76,8 @@ namespace surveybuilder
 					continue;
 				}
 				// now we are going to determine whether the is enough space on the page for this group
-				float spaceneeded = model.GetHeight().GetValue() * (catResources.Count() + 1);
+				float spaceneeded =
+					CellStyleFactory.DefaultTable(1).HeightEstimate(model, catResources.Count() + 1);
 				if (builder.NewPageIf(document, spaceneeded))
 				{
 					WriteResourcesHeader(document);
@@ -93,13 +94,14 @@ namespace surveybuilder
 			PdfButtonFormField rgrp1 = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.InternetRachel")
 				.CreateRadioGroup();
 
-			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
+			table.AddRow(ss[TableHeaderStyle],
+				TextCell(model, ""),
+				TextCell(model, "Yes"),
+				TextCell(model, "No")
 			);
 			table.AddRow(
-				TextCell(model, ts.TableBaseStyle("Does your school have access to internet or to a device like RACHEL*")),
+				TextCell(model,"Does your school have access to internet or to a device like RACHEL*")
+					.Style(ss[TableBaseStyle]),
 				YesCell(model, rgrp1),
 				NoCell(model, rgrp1)
 			);

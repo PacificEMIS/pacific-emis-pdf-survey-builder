@@ -210,7 +210,7 @@ namespace surveybuilder
 			{
 				new LookupEntry("Comm","Communications"),
 				new LookupEntry("Eqp","Equipment"),
-				new LookupEntry("Power","Power Suppply"),
+				new LookupEntry("Power","Power Supply"),
 				new LookupEntry("Library","Library Resources"),
 				new LookupEntry("Lab","Laboratory Resources")
 			};
