@@ -67,7 +67,7 @@ namespace surveybuilder
 				// Get the category resources
 				var catResFilter = new Dictionary<string, object>
 					{
-						{ "Cat", $"{categoryDef.C}" },
+						{ "Cat", $"{categoryDef.N}" },  // note it is the category name
 						{ "Surveyed", "True" }
 					};
 				LookupList catResources = resources.FilterByMetadata(catResFilter);
