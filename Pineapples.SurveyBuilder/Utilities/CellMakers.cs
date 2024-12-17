@@ -116,7 +116,7 @@ namespace surveybuilder
 		}
 		#endregion
 
-
+		#region Text cells
 		// text input
 		public static Cell InputCell(Cell cellmodel, string fieldname, int maxLen = 0,
 			string value = null, bool readOnly = false, bool hidden = false)
@@ -128,6 +128,28 @@ namespace surveybuilder
 			return cell;
 		}
 
+		public static Cell MultiLineInputCell(Cell cellmodel, string fieldname, int maxLen = 0,
+			string value = null)
+		{
+			Paragraph pp = new Paragraph();
+			Func<PdfFormField, PdfFormField> styler = (fld) =>
+			{
+				PdfTextFormField txt = fld as PdfTextFormField;
+
+				txt.SetMaxLen((maxLen == 0) ? 4000 : maxLen)
+					.SetMultiline(true)
+					.SetFontSize(0);
+				txt.SetValue(value);
+
+				var w = fld.GetFirstFormAnnotation();
+				w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
+				return txt;
+			};
+			pp.SetNextRenderer(new FieldCellRenderer(cellmodel, fieldname, styler));
+			Cell cell = cellmodel.Clone(false);
+			cell.Add(pp);
+			return cell;
+		}
 		/// <summary>
 		/// a readonly text field The reason to create a field to hold
 		/// this value is to have it exported to the Xfdf, so that this constant value is
@@ -164,6 +186,7 @@ namespace surveybuilder
 			return fld;
 		}
 
+		#endregion
 		// combo box
 		public static Cell ComboCell(Cell cellmodel, string fieldname, PdfArray options,
 	string value = null, bool readOnly = false, bool hidden = false)

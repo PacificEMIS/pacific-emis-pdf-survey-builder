@@ -44,7 +44,9 @@ namespace surveybuilder
 
 			Table table = CellStyleFactory.DefaultTable(1);
 
-			table.AddCell(ts.TableHeaderStyle(InputCell(model.Clone(false).SetHeight(400), "Survey.Comment")).SetHeight(400));
+			float height = builder.PageSpaceRemaining(document).GetHeight() - 5;
+			Cell fitted = CellStyleFactory.Default.Clone(false).SetHeight(height);
+			table.AddCell(MultiLineInputCell( fitted, "Survey.Comment"));
 
 			document.Add(table);
 			builder.NewPage(document);
