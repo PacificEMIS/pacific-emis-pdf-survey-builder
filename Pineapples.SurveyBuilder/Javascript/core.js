@@ -2,7 +2,9 @@ console.println("core Loading...");
 
 // Core functionality for Acrobat forms
 function OnStartup() {
+
 	console.println("On Startup");
+	return;
 
 	var sy = gf("Survey.SurveyYear");
 	var year = sy.value;
@@ -495,10 +497,11 @@ function validatePhone(value) {
 
 
 try {
-	OnStartup();
+	var i = this.numFields;
+	var n = gf("Survey.SurveyYear");
 }
 catch (ex) {
-	console.println("Dummy statup invocaton failed: " + ex);
+	console.println("Dummy JS call failed: " + ex);
 
 }
 
