@@ -147,16 +147,12 @@ namespace surveybuilder
 			document.Add(Heading_1("School Staff Information"));
 
 			this.AddOutline(document, staffOutline, "Expected Staff List");
+			AddOutline(document, staffOutline, "New Staff");
 			document.Add(Heading_2("Expected Staff List"));
 			document = new ExpectedStaff()
 				.Build(this, document);
 			NewPage(document);
 
-			AddOutline(document, staffOutline, "New Staff");
-			document.Add(Heading_2("New Staff"));
-			document = new NewStaff()
-				.Build(this, document);
-			NewPage(document);
 			#endregion
 
 			#region ************** Buildings and Rooms *************************
