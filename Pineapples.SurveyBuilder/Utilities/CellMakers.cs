@@ -41,6 +41,7 @@ using iText.Kernel.Pdf.Canvas;
 using iText.IO.Font;
 using Newtonsoft.Json.Linq;
 using iText.Kernel.Colors;
+using surveybuilder.Utilities;
 
 namespace surveybuilder
 {
@@ -81,12 +82,14 @@ namespace surveybuilder
 
 		#region cells for numeric inputs
 		public static Cell NumberCell(Cell cellmodel, string fieldname, float? value = null,
-			int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+			int decimals = 0,
+			AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT,
+			AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 		{
 			Paragraph pp = new Paragraph();
 			pp.SetNextRenderer(new NumberFieldCellRenderer(cellmodel, fieldname, value,
-				decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend));
+				decimals, sepStyle, negStyle, currStyle, strCurrency, prePend));
 			Cell cell = cellmodel.Clone(false);
 			cell.Add(pp);
 			return cell;

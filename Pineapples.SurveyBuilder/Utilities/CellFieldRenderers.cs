@@ -291,7 +291,7 @@ namespace surveybuilder
 		/// <item><description>Examples: <c>$</c>, <c>€</c>, <c>£</c>.</description></item>
 		/// </list>
 		/// </param>
-		/// <param name="bPrePend">
+		/// <param name="prePend">
 		/// Determines the position of the currency symbol:
 		/// <list type="bullet">
 		/// <item><description><c>true</c>: Prepends the currency symbol (e.g., <c>$1234</c>).</description></item>
@@ -299,12 +299,12 @@ namespace surveybuilder
 		/// </list>
 		/// </param>
 		public NumberFieldCellRenderer(Cell modelElement, string name, float? value = null,
-			int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+			int decimals = 0, AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT, AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 			: base(modelElement, name)
 		{
-			formataction = Actions.NFormatJs(decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
-			keystrokeaction = Actions.NKeystrokeJs(decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
+			formataction = Actions.NFormatJs(decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
+			keystrokeaction = Actions.NKeystrokeJs(decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
 			base.styler = FieldStyle;
 		}
 
