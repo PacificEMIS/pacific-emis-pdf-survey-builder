@@ -132,6 +132,8 @@ namespace surveybuilder
 					,CheckBoxType.CIRCLE,CheckBoxType.DIAMOND,CheckBoxType.CROSS };
 			chk.Colors = new Color[] { ColorConstants.ORANGE };
 			chk.Tag = "Wash.Water.Rating";
+			chk.Description = "Adequate water supply";
+
 			chk.Make(builder, document);
 
 			document.Add(builder.Heading_3("Drinking Water"));
@@ -145,6 +147,8 @@ namespace surveybuilder
 			chk.Values = new object[] { 1, 2, 3, 4 };
 			chk.DefaultColor = ColorConstants.PINK;
 			chk.Tag = "Wash.Water.Source";
+			chk.Description = "Primary source of drinking water";
+
 			chk.Make(builder, document);
 
 			document.Add(new Paragraph()
@@ -156,6 +160,8 @@ namespace surveybuilder
 			chk.Values = new object[] { 1, 2, 3, 4 };
 			chk.Colors = new Color[] { ColorConstants.PINK, null, ColorConstants.ORANGE };
 			chk.Tag = "Wash.Water.Treatment";
+			chk.Description = "Water treatment used";
+
 			chk.Make(builder, document);
 
 			document.Add(new Paragraph()

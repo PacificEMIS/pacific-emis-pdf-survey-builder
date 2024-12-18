@@ -43,6 +43,7 @@ namespace surveybuilder
 			chk.Types = new CheckBoxType[] {CheckBoxType.SQUARE, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.CROSS };
 			chk.Tag = "Supplies.Student";
+			chk.Description = "Student supplies received";
 			chk.Make(builder, document);
 
 			document.Add(builder.Heading_3("School Supplies for Teachers"));
