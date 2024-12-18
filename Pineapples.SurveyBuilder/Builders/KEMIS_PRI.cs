@@ -263,7 +263,7 @@ namespace surveybuilder
 			PdfFont customFont2 = PdfFontFactory.CreateFont(fontPath2, PdfEncodings.WINANSI, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
 
 			var fieldPosition = new iText.Kernel.Geom.Rectangle(50, 146, 80, 30);
-			PdfTextFormField textField = new TextFormFieldBuilder(pdfDoc, "Survey.SurveyYear")
+			PdfTextFormField textField = new TextFormFieldBuilder(pdfDoc, "Cover.SurveyYear")
 				.SetWidgetRectangle(fieldPosition)
 				.CreateText();
 
