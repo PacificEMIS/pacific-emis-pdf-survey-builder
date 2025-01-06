@@ -49,28 +49,28 @@ namespace surveybuilder
 						.UseAllAvailableWidth();
 
 			// Heading
-			tableToilets.AddRow(
-				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("Toilet Type"))),
-				ts.TableHeaderStyle(TextCell(model12, ts.TableHeaderStyle("No of Pupil Toilets"))),
-				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Condition"))),
-				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("No of Staff Toilets"))),
-				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Condition"))),
-				ts.TableHeaderStyle(TextCell(model21, ts.TableHeaderStyle("No of Wheelchair Accessible Toilets"))),
-				ts.TableHeaderStyle(TextCell(model13, ts.TableHeaderStyle("Condition")))
+			tableToilets.AddRow(ts.TableHeaderStyle,
+				TextCell(model21, "Toilet Type"),
+				TextCell(model12, "No of Pupil Toilets"),
+				TextCell(model13, "Condition"),
+				TextCell(model21, "No of Staff Toilets"),
+				TextCell(model13, "Condition"),
+				TextCell(model21, "No of Wheelchair Accessible Toilets"),
+				TextCell(model13, "Condition")
 			);
 
-			tableToilets.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("M"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("G"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("P"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("G"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("P"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("G"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("F"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("P")))
+			tableToilets.AddRow(ts.TableHeaderStyle,
+				TextCell(model, "M"),
+				TextCell(model, "F"),
+				TextCell(model, "G"),
+				TextCell(model, "F"),
+				TextCell(model, "P"),
+				TextCell(model, "G"),
+				TextCell(model, "F"),
+				TextCell(model, "P"),
+				TextCell(model, "G"),
+				TextCell(model, "F"),
+				TextCell(model, "P")
 			);
 
 			// Rows
