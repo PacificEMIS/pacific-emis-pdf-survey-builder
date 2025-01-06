@@ -167,7 +167,7 @@ namespace surveybuilder
 
 		#endregion
 
-		#region String cleaning
+		#region String cleaning and manipulation
 		// replace ' ' in a string with nonbreaking space
 
 		public static string Nbsp(this string str)
@@ -180,6 +180,19 @@ namespace surveybuilder
 		{
 			
 			return str.Replace(" ", "_").Replace(@"\","||").Replace(@"/", "|");
+		}
+
+		public static string CamelCase(this string input)
+		{
+			if (string.IsNullOrWhiteSpace(input))
+				return input;
+
+			return char.ToLowerInvariant(input[0]) + input.Substring(1);
+		}
+
+		public static string SingleQuote(this string name)
+		{
+			return $"\"{name}\"";
 		}
 
 		#endregion
