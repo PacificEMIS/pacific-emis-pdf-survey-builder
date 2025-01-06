@@ -21,6 +21,19 @@ using System.Linq.Expressions;
 
 namespace surveybuilder
 {
+	/// <summary>
+	/// Defines the string characters providing the standard checkbox characters
+	/// In dingbats font standard encoding. 
+	/// see alse cbstring which translates from itext.CheckBoxType enum
+	/// </summary>
+	public static class PdfDingbat
+	{
+		public static string Tick = "4";
+		public static string Square = "n";    // Square in Zapf Dingbats
+		public static string Diamond = "u";   // Diamond in Zapf Dingbats
+		public static string Circle = "l";    // Circle in Zapf Dingbats
+		public static string Cross = "7";
+	}
 	public class LookupEntry
 	{
 		public LookupEntry() { }
@@ -151,7 +164,29 @@ namespace surveybuilder
 				i++;
 			}
 		}
+		/// <summary>
+		/// Export the codes of a lookup set as fields. This is used in preference to AsFields if the values are 
+		/// already used on the form,
+		/// </summary>
+		/// <param name="pdfDoc">PdfDocument to add fields to</param>
+		/// <param name="codeFormatter">function to get field name from array position of lookup in List</param>
+		public void CodesAsFields(PdfDocument pdfDoc
+			, Func<int, string> codeFormatter)
+		{
+			var form = PdfAcroForm.GetAcroForm(pdfDoc, true);
+			int i = 0;
+			foreach (var lkp in this)
+			{
+				string codeFldName = codeFormatter(i);
 
+				var codefld = new TextFormFieldBuilder(pdfDoc, codeFldName)
+					.CreateText()
+					.SetReadOnly(true)
+					.SetValue(lkp.C);
+				form.AddField(codefld);
+				i++;
+			}
+		}
 	}
 	public class LookupManager:Dictionary<string, LookupList>
 	{
