@@ -15,11 +15,17 @@ using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
 using System.Net;
 using surveybuilder.Utilities;
+using System.Security.Policy;
 
 namespace surveybuilder
 {
 	public class WASHWater
 	{
+		const string conditionalMsg = "You need to specify the test results of last water test";
+		ConditionalFields conditionalFields = new ConditionalFields("WashWater", conditionalMsg);
+		const string requiredMsg = "Some answers are missing from Wash Water. Review now?";
+		RequiredFields requiredFields = new RequiredFields("WashWater", requiredMsg);
+
 		public WASHWater() { }
 
 		public Document Build(PdfBuilder builder, Document document, LookupList waterSupplyTypes)
@@ -42,21 +48,21 @@ namespace surveybuilder
 				.Add(@"Record the details of your school water supply.")
 			);
 
-			
+
 
 
 			// IMPORTANT: this is now populated from the table [dbo].[lkpWaterSupplyTypes] (or FROM metaResourceDefs WHERE mresCat = 'Water Supply'?!
 			// Argh...rather annoying to have these defined differently in two different places. Let's take the one from censuswork (i.e. metaResourceDefs)
 
 			int wstCount = waterSupplyTypes.Count;
-			int totalColumns = wstCount * 2 + 1;    
+			int totalColumns = wstCount * 2 + 1;
 
 			// Define the percentage for the first column
 			float firstColumnWidth = 40f; // First column gets 40% of the width
 
 			// Calculate the remaining width and distribute it equally among the other columns
 			float remainingWidth = 100f - firstColumnWidth;
-			float otherColumnsWidth = remainingWidth / (wstCount * 2) ;
+			float otherColumnsWidth = remainingWidth / (wstCount * 2);
 
 			// Create an array of column widths
 			float[] columnWidths = new float[totalColumns];
@@ -78,7 +84,7 @@ namespace surveybuilder
 			foreach (var waterSupplyType in waterSupplyTypes)
 			{
 				// Headers
-				tableWST.AddCell(TextCell(model2,waterSupplyType.N).Style(ts.TableHeaderStyle));
+				tableWST.AddCell(TextCell(model2, waterSupplyType.N).Style(ts.TableHeaderStyle));
 				wstI++;
 			}
 
@@ -96,15 +102,18 @@ namespace surveybuilder
 			{
 				// TODO does not handle the water source types where it makes no sense to record the capacity
 				// hard code blank cells?!
+				// No, use the available metadata
 				string fieldNum = $"Resource.Water.D.{i:00}.Qty";
-				tableWST.AddCell(NumberCell(model2, fieldNum));
+				bool promptQty = (bool)waterSupplyTypes[i].Metadata["PromptQty"];
+				tableWST.AddCell(NumberCell(model2, fieldNum,configurer: ReadOnlyConfigurer(!promptQty)));
 			}
 
 			// Tick if properly covered/protected Row
-			tableWST.AddCell(TextCell(model, ts.TableBaseStyle("Tick if properly covered/protected")));
+			tableWST.AddCell(TextCell(model, ts.TableBaseStyle("Supply is properly covered/protected")));
 			for (int i = 0; i < wstCount; i++)
 			{
-				string fieldNum = $"Resource.Water.D.{i:00}.Protected";
+				// OK is a Y/N field supported on the server in xfdfResourceList - use that...
+				string fieldNum = $"Resource.Water.D.{i:00}.OK";
 				PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldNum).CreateRadioGroup();
 				tableWST.AddCell(YesCell(model, rgrp));
 				tableWST.AddCell(NoCell(model, rgrp));
@@ -189,7 +198,15 @@ namespace surveybuilder
 			);
 
 			document.Add(tableWaterTreatment);
-
+			requiredFields.Add("Wash.Water.Treatment");
+			requiredFields.GenerateJavaScript(document.GetPdfDocument());
+			conditionalFields.Add(new ConditionalField()
+			{
+				Test = "Wash.Water.Treatment",
+				Value = new string[] { "1", "2", "3" },
+				Rq = new string[] { "Wash.Water.Test.Date", "Wash.Water.Test.By", "Wash.Water.Test.Result" }
+			});
+			conditionalFields.GenerateJavaScript(document.GetPdfDocument());
 			return document;
 		}
 	}
