@@ -17,13 +17,24 @@ using static surveybuilder.CellMakers;
 
 namespace surveybuilder
 {
+	/// <summary>
+	/// PSA (Preschool Attenders) lists new entrants into firts year of primary
+	/// who have attended preschool. Columns are Age and Gender.
+	/// This grid is unique in allowing the Row header to be editable.
+	/// (EditRowValue parameter is true.)
+	/// Also the row value and row key are passed as Null to facilitate this
+	/// (see stored proc dbo.xfdfGrid for handling of rowdef = '<?>'
+	/// Note that the setting of properties in metaPupilTable items is critical
+	/// </summary>
 	public class PSA
 	{
+
 		public Document Build(PdfBuilder builder, Document document)
 		{
 
 			GenderedGridmaker grd = new GenderedGridmaker();
-			var rows = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }
+			// nulls to support the editable
+			var rows = Enumerable.Repeat<string>(null, 10)
 							.Select(n => new LookupEntry
 							{
 								C = n, // Set the primary code (C)
@@ -49,9 +60,9 @@ namespace surveybuilder
 			);
 
 			grd.Tag = "PSA";
-			grd.RowTotals = false;
-			grd.IncludeFirstColumn = true;
-			document.Add(grd.Make(builder));
+			grd.RowTotals = true;
+			grd.EditRowValue = true;
+			document.Add(grd.Make(builder, document));
 
 			return document;
 		}
