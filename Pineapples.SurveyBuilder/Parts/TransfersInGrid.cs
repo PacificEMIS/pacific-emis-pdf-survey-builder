@@ -48,14 +48,14 @@ namespace surveybuilder
 			);
 			document.Add(tbl);
 
-			document.Add(new Paragraph(@"If YES, Record the number of pupils that transferred in from another islands "
+			document.Add(new Paragraph(@"If YES, Record the number of pupils that transferred in from another island"
 				+ @" at the beginning of the school year."));
 			GenderedGridmaker grd = new GenderedGridmaker();
 			grd.Rows = builder.lookups["islands"];
 			grd.Columns = builder.lookups["classLevels"];
 
 			grd.Tag = "TRIN";
-			document.Add(grd.Make(builder));
+			document.Add(grd.Make(builder, document));
 			return document;
 		}
 	}
