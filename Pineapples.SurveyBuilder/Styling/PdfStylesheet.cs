@@ -4,6 +4,7 @@ using iText.Kernel.Pdf.Canvas.Draw;
 using iText.Layout.Properties;
 using iText.Layout.Borders;
 using iText.Forms.Fields;
+using iText.Kernel.Font;
 using iText.Forms;
 using iText.Kernel.Pdf;
 using iText.Kernel.XMP.Impl;
@@ -20,6 +21,8 @@ using System.Linq;
 using surveybuilder.Utilities;
 using iText.Forms.Fields.Merging;
 using System.Diagnostics;
+using iText.IO.Font;
+using iText.IO.Font.Constants;
 
 
 
@@ -28,6 +31,7 @@ namespace surveybuilder
 {
 	public delegate Cell CellStyler(Cell cell);
 	public delegate Paragraph ParagraphStyler(Paragraph p);
+	public delegate PdfTextFormField TextFormFieldStyler(PdfTextFormField fld);
 
 	/// <summary>
 	/// this is to handle those properties that can take a null value; 
@@ -58,7 +62,7 @@ namespace surveybuilder
 			isSet = false;
 			value = null;
 
-		} 
+		}
 	}
 
 	public class PdfStyle
@@ -90,6 +94,7 @@ namespace surveybuilder
 			FontItalic = false,
 			FontUnderline = false,
 			TextAlignment = TextAlignment.LEFT,
+			VerticalAlignment = VerticalAlignment.TOP,
 			LineSpacing = 1.2f,
 			KeepTogether = false,
 			KeepWithNext = false,
@@ -122,9 +127,9 @@ namespace surveybuilder
 			GetFontColor = null,
 			GetBackgroundColor = null,
 		};
-		
+
 		private PdfStyle baseStyle = DefaultBaseStyle;
-		public string Name { get; set; } 
+		public string Name { get; set; }
 
 		// Local field for each property
 		private int? fontSize;
@@ -160,6 +165,9 @@ namespace surveybuilder
 		private int? marginLeft;
 		private int? marginRight;
 
+		// cellcontents vertical alignment
+		private VerticalAlignment? verticalAlignment;
+
 		// Height property
 		private bool? sizeToContents;
 		private int? height;
@@ -185,9 +193,9 @@ namespace surveybuilder
 
 		public Color FontColor
 		{
-			
+
 			get => GetFontColor?.Invoke(CurrentTheme)
-					??fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
+					?? fontColor ?? inherits?.FontColor ?? baseStyle.FontColor;
 			set
 			{
 				fontColor = value;
@@ -278,28 +286,28 @@ namespace surveybuilder
 		public Border BottomBorder
 		{
 			get => GetBottomBorder?.Invoke(CurrentTheme)
-					?? bottomBorder.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+					?? bottomBorder.GetValueOrDefault(inherits?.BottomBorder ?? baseStyle?.BottomBorder);
 			set => bottomBorder.Value = value;
 		}
 
 		public Border LeftBorder
 		{
 			get => GetLeftBorder?.Invoke(CurrentTheme)
-					?? leftBorder.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+					?? leftBorder.GetValueOrDefault(inherits?.LeftBorder ?? baseStyle?.LeftBorder);
 			set => leftBorder.Value = value;
 		}
 
 		public Border RightBorder
 		{
 			get => GetRightBorder?.Invoke(CurrentTheme)
-					?? rightBorder.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+					?? rightBorder.GetValueOrDefault(inherits?.RightBorder ?? baseStyle?.RightBorder);
 			set => rightBorder.Value = value;
 		}
 
 		public Border Border
 		{
 			get => GetBorder?.Invoke(CurrentTheme)
-					?? border.GetValueOrDefault(inherits?.TopBorder ?? baseStyle?.TopBorder);
+					?? border.GetValueOrDefault(inherits?.Border ?? baseStyle?.Border);
 			set => border.Value = value;
 		}
 
@@ -307,7 +315,7 @@ namespace surveybuilder
 		public Color BackgroundColor
 		{
 			get => GetBackgroundColor?.Invoke(CurrentTheme)
-					?? backgroundColor 
+					?? backgroundColor
 					?? inherits?.BackgroundColor
 					?? baseStyle?.BackgroundColor;
 
@@ -329,25 +337,29 @@ namespace surveybuilder
 
 		public int? PaddingTop
 		{
-			get => paddingTop ?? Padding; // Falls back to Padding if not set
+			get => paddingTop ?? inherits?.paddingTop 
+				?? Padding; // Falls back to Padding if not set
 			set => paddingTop = value;
 		}
 
 		public int? PaddingBottom
 		{
-			get => paddingBottom ?? Padding; // Falls back to Padding if not set
+			get => paddingBottom ?? inherits?.paddingBottom
+				?? Padding; // Falls back to Padding if not set
 			set => paddingBottom = value;
 		}
 
 		public int? PaddingLeft
 		{
-			get => paddingLeft ?? Padding; // Falls back to Padding if not set
+			get => paddingLeft ?? inherits?.paddingLeft
+				?? Padding; // Falls back to Padding if not set
 			set => paddingLeft = value;
 		}
 
 		public int? PaddingRight
 		{
-			get => paddingRight ?? Padding; // Falls back to Padding if not set
+			get => paddingRight ?? inherits?.paddingRight
+				?? Padding; // Falls back to Padding if not set
 			set => paddingRight = value;
 		}
 
@@ -382,10 +394,17 @@ namespace surveybuilder
 			set => marginRight = value;
 		}
 
+		// cell vertical alignment of contents
+		public VerticalAlignment VerticalAlignment
+		{
+			get => verticalAlignment ?? inherits?.VerticalAlignment ?? baseStyle.VerticalAlignment;
+			set => verticalAlignment = value;
+		}
+
 		// Height property
 		public bool? SizeToContents
 		{
-			get => sizeToContents ?? inherits?.sizeToContents ?? baseStyle?.sizeToContents;
+			get => sizeToContents ?? inherits?.SizeToContents ?? baseStyle?.SizeToContents;
 			set => sizeToContents = value;
 		}
 		public int? Height
@@ -393,10 +412,12 @@ namespace surveybuilder
 			get => height ?? inherits?.Height ?? baseStyle?.Height;
 			set => height = value;
 		}
-		
+
 		public int ColSpan = 1;
 		public int RowSpan = 1;
 
+
+		#region Apply and overloads
 		// Apply method
 
 		public T Apply<T>(T t) where T : IElement
@@ -511,6 +532,8 @@ namespace surveybuilder
 			if (MarginRight != null)
 				c.SetMarginRight(MarginRight.Value);
 
+			// vertical alignment applies to cell
+			c.SetVerticalAlignment(VerticalAlignment);
 			// Height property
 			if (SizeToContents.HasValue && SizeToContents.Value)
 			{
@@ -544,7 +567,45 @@ namespace surveybuilder
 				Border = Border.NO_BORDER
 			};
 		}
+
+		#region Apply to form fields
+		public PdfTextFormField Apply(PdfTextFormField c)
+		{
+			var w = c.GetFirstFormAnnotation();
+			if (w != null)
+			{
+				Apply(w);
+				c.SetJustification(TextAlignment);
+			}
+			return c;
+		}
+		private PdfFormAnnotation Apply(PdfFormAnnotation w)
+		{
+
+			w.SetBackgroundColor(BackgroundColor);
+			w.SetColor(FontColor);
+			w.SetFontSize(FontSize);
+			return w;
+
+
+
+		}
+		#endregion
+		#endregion Apply and overloads
+
+		#region utility methods
+
+		public float Measure (string text)
+		{
+			PdfFont font = PdfFontFactory.CreateFont(FontName, PdfEncodings.WINANSI);
+
+			return font.GetContentWidth(new PdfString(text)) * FontSize /1000 + 
+				PaddingLeft.GetValueOrDefault() + PaddingRight.GetValueOrDefault();
+		}
+
+		#endregion
 	}
+
 
 	public class PdfStylesheet : Dictionary<string, PdfStyle>
 	{
@@ -588,7 +649,14 @@ namespace surveybuilder
 		// ie this allows you to change the definition of a style associated to a name.
 		public new PdfStyle this[string key]
 		{
-			get => base[key]; // Return the PdfStyle if it exists
+			get
+			{
+				PdfStyle result;
+				if (base.TryGetValue(key, out result)) {
+					return result;
+				};
+				throw new Exception($"Stylesheet does not contain style {key}");
+			} 
 			set
 			{
 				base[key] = value; // Update or add the PdfStyle
@@ -678,7 +746,7 @@ namespace surveybuilder
 			Add("Heading 4", new PdfStyle(this["headingbase"])
 			{
 				FontSize = 12
-				
+
 				//FontColor = ColorConstants.CYAN
 			});
 
@@ -727,7 +795,7 @@ namespace surveybuilder
 		{
 			FontSize = 10;
 			FontColor = ColorConstants.BLACK;
-			FontName = "Helvetica";
+			FontName = StandardFontFamilies.HELVETICA;
 			FontBold = false;
 			FontItalic = false;
 			FontUnderline = false;
@@ -857,9 +925,14 @@ namespace surveybuilder
 			string color2 = "66AAFF"; // Medium gray for potential use #66FFFF
 			string color3 = "6677FF"; // Darker gray for subheader cells
 
+
+
 			// Define and add styles
 			// using the indexer can Add or update - safer if the styles may already be there
-			styles["tablebase"] = 
+
+			#region Table Styles
+
+			styles["tablebase"] =
 				new PdfStyle(styles["base"])
 				{
 					FontSize = 10,
@@ -895,41 +968,138 @@ namespace surveybuilder
 					GetBackgroundColor = theme => theme.Primary.GetColor(200),
 					GetFontColor = theme => theme.Primary.TextColor
 				};
+			styles["tabletotal"] =
+				new PdfStyle(styles["tablebase"])
+				{
+					GetBackgroundColor = theme => theme.Primary.GetColor(200),
+					GetFontColor = theme => theme.Primary.TextColor,
+					TextAlignment = TextAlignment.RIGHT
+				};
+
+			#endregion Table Styles
+
+			#region  styles for gendered grid maker
+			//base style
 			styles["gridbase"] =
 				new PdfStyle()
 				{
-					FontSize = 8
+					FontSize = 8,
+					Border = new SolidBorder(ColorConstants.LIGHT_GRAY, 1), //, (float).5)
+					TextAlignment = TextAlignment.RIGHT,
+					LineSpacing = 1,
+					GetFontColor = theme => theme.Accent.TextColor,
+
 				};
 
+			//even and odd row
+			styles["evenrow"] =
+				new PdfStyle(styles["gridbase"])
+				{
+					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+				};
+
+			styles["oddrow"] =
+				new PdfStyle(styles["gridbase"])
+				{
+					GetBackgroundColor = theme => theme.Accent.GetColor(300),
+				};
+
+			// overlay style for row label
 			styles["rowheader"] =
 				new PdfStyle(styles["gridbase"])
 				{
+					FontBold = false,
 					TextAlignment = TextAlignment.RIGHT,
-					LineSpacing = 1,
+					PaddingRight = 4,
+					VerticalAlignment = VerticalAlignment.MIDDLE
+				};
+			styles["oddrowheader"] =
+				new PdfStyle(styles["rowheader"])
+				{
+					GetBackgroundColor = theme => theme.Accent.GetColor(300),
+				};
+			styles["evenrowheader"] =
+				new PdfStyle(styles["rowheader"])
+				{
 					GetBackgroundColor = theme => theme.Accent.GetColor(200),
-					GetFontColor = theme => theme.Accent.TextColor,
 				};
 
-			styles["rowheadertotal"] =
+
+			// row header for rows containing column gender total / column total ("Totals")
+			styles["coltotalheader"] =
 				new PdfStyle(styles["rowheader"])
 				{
 					FontBold = true
 				};
 
+			// for row totals and row gender totals
+			styles["evenrowtotal"] =
+				new PdfStyle(styles["evenrow"])
+				{
+					FontBold = true
+				};
+			styles["oddrowtotal"] =
+				new PdfStyle(styles["oddrow"])
+				{
+					FontBold = true
+				};
+
+			// for column gender totals and column totals
+			styles["coltotal"] =
+				new PdfStyle(styles["gridbase"])
+				{
+					GetBackgroundColor = theme => theme.Accent.GetColor(400),
+					FontBold = true
+
+				};
+
+
+			// column headers
+			// 
 			styles["colheader"] =
 				new PdfStyle(styles["gridbase"])
 				{
 					TextAlignment = TextAlignment.CENTER,
-					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+					GetBackgroundColor = theme => theme.Accent.GetColor(100),
 					GetFontColor = theme => theme.Accent.TextColor,
+					VerticalAlignment = VerticalAlignment.BOTTOM,
+					FontBold = true
+				};
+			styles["rowtotalheader"] =
+				new PdfStyle(styles["colheader"])
+				{
+					VerticalAlignment = VerticalAlignment.BOTTOM,
 					FontBold = true
 				};
 
+
+			// column header for gender label row 
 			styles["genderheader"] =
-				new PdfStyle(styles["colheader"]) 
-				{ 
-					FontSize = styles["colheader"].FontSize - 2 
+				new PdfStyle(styles["colheader"])
+				{
+					FontSize = styles["colheader"].FontSize - 1,
+					FontBold = false
 				};
+
+			styles["collabeller"] =
+				new PdfStyle(styles["colheader"])
+				{
+					VerticalAlignment = VerticalAlignment.MIDDLE,
+					TextAlignment = TextAlignment.RIGHT,
+					//FontSize = styles["colheader"].FontSize - 1,
+					FontBold = false,
+					FontItalic = true
+				};
+			styles["rowlabeller"] =
+				new PdfStyle(styles["colheader"])
+				{
+					VerticalAlignment = VerticalAlignment.BOTTOM,
+					TextAlignment = TextAlignment.LEFT,
+					//FontSize = styles["colheader"].FontSize - 1,
+					FontBold = false
+				};
+
+			#endregion grid styles
 
 			styles["abstractcell"] =
 				new PdfStyle(styles["tablebase"])
@@ -1050,7 +1220,7 @@ namespace surveybuilder
 		/// <returns>A <see cref="Paragraph"/> styled with the "rowheadertotal" style.</returns>
 		public Paragraph GridRowHeaderTotal(string text)
 		{
-			return styles.ApplyStyle("rowheadertotal", text);
+			return styles.ApplyStyle("gridtotal", text);
 		}
 
 		/// <summary>
