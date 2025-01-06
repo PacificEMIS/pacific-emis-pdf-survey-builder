@@ -42,6 +42,10 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Size (m²)")))
 			);
 			table.AddRow(
+				TextCell(model, ts.TableBaseStyle("Size of whole school site (m²)")),
+				NumberCell(model, "Site.Site.Size")
+			);
+			table.AddRow(
 				TextCell(model, ts.TableBaseStyle("Size of pupil playground (m²)")),
 				NumberCell(model, "Site.Playground.Size")
 			);
@@ -61,27 +65,35 @@ namespace surveybuilder
 
 			PdfButtonFormField rgrp1 = new RadioFormFieldBuilder(builder.pdfDoc, "Site.Secure")
 				.CreateRadioGroup();
+				rgrp1.SetAlternativeName("Secure fence");
 			PdfButtonFormField rgrp2 = new RadioFormFieldBuilder(builder.pdfDoc, "Site.Services")
 				.CreateRadioGroup();
+				rgrp2.SetAlternativeName("Town services available"); ;
 
-			table2.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
+			table2.AddRow(ts.TableHeaderStyle,
+				TextCell(model, ""),
+				TextCell(model, "Yes"),
+				TextCell(model, "No")
 			);
-			table2.AddRow(
-				TextCell(model, ts.TableBaseStyle("School Site is securely fenced (Y / N)")),
+
+			table2.AddRow(ts.TableBaseStyle,
+				TextCell(model, "School Site is securely fenced"),
 				YesCell(model, rgrp1),
 				NoCell(model, rgrp1)
 			);
 			table2.AddRow(
-				TextCell(model, ts.TableBaseStyle("In the area in which your school is located, is there access to piped water, "
-				+ "town power and waste disposal services (town sever, septic pump out and garbage collection)?")),
+				TextCell(model.SetMaxHeight(40), ts.TableBaseStyle("In the area in which your school is located, is there access to piped water, "
+				+ "town power and waste disposal services (town sewer, septic pump out and garbage collection)?")),
 				YesCell(model, rgrp2),
 				NoCell(model, rgrp2)
 			);
 
 			document.Add(table2);
+			new RequiredFields("School Site",
+				"School site is missing information. Review now?"
+				)
+			.AddFields("Site.Secure", "Site.Services", "Site.Size", "Site.Playground.Size","Site.Garden.Size")
+			.GenerateJavaScript(document.GetPdfDocument());
 			return document;
 		}
 	}

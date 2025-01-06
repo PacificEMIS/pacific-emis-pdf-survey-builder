@@ -130,7 +130,7 @@ namespace surveybuilder
 			grd.Tag = "DIS";
 			grd.Rows = builder.lookups["disabilities"];
 			grd.Columns = builder.lookups["classLevels"];
-			document.Add(grd.Make(builder));
+			document.Add(grd.Make(builder, document));
 
 			return document;
 		}

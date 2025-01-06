@@ -23,7 +23,7 @@ namespace surveybuilder
 		public Document Build(PdfBuilder builder, Document document)
 		{
 			Console.WriteLine("Part: School Supplies");
-				;
+			;
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 			// Cell layout/styling models
@@ -59,6 +59,7 @@ namespace surveybuilder
 			chk.Types = new CheckBoxType[] {CheckBoxType.SQUARE, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.CROSS };
 			chk.Tag = "Supplies.Teacher";
+			chk.Description = "Teacher supplies received";
 			chk.Make(builder, document);
 
 			document.Add(builder.Heading_3("New Curriculum Materials"));
@@ -88,12 +89,25 @@ namespace surveybuilder
 				NoCell(model, rgrp1)
 			);
 			table.AddRow(
-				TextCell(model, ts.TableBaseStyle("Have you started using them in the classroom?")),
+				TextCell(model, ts.TableBaseStyle("If YES, have you started using them in the classroom?")),
 				YesCell(model, rgrp2),
 				NoCell(model, rgrp2)
 			);
 
 			document.Add(table);
+
+			string msg = "School Supplies information is not complete. Review now?";
+			new RequiredFields("School Supplies",
+				msg
+				)
+			.AddFields("Supplies.Student", "Supplies.Teacher", "Supplies.Curriculum")
+			.GenerateJavaScript(document.GetPdfDocument());
+
+			var cf = new ConditionalFields("School Supplies",
+				msg
+				);
+			cf.Add(ConditionalField.IfYes("Supplies.Curriculum", "Supplies.InUse"));
+			cf.GenerateJavaScript(document.GetPdfDocument());
 
 			return document;
 		}

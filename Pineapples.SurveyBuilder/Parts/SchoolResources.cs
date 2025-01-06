@@ -35,10 +35,16 @@ namespace surveybuilder
 		const string TableSubHeaderStyle = "tablesubheader";
 		const string TableBaseStyle = "tablebase";
 
+		const string conditionalMsg = "You need to specify the Condition of each available resource. Review School Resources now?";
+		ConditionalFields conditionalFields = new ConditionalFields("SchoolResources", conditionalMsg);
+		const string requiredMsg = "You need to specify the availability of each school resource. Review School Resources now?";
+		RequiredFields requiredFields = new RequiredFields("SchoolResources", requiredMsg);
 
 		public Document Build(PdfBuilder builder, Document document, LookupList resourcesCategories)
 		{
 			Console.WriteLine("Part: School Resources");
+			// create the dictionary to hold Conditionals
+			
 
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
@@ -93,6 +99,8 @@ namespace surveybuilder
 
 			PdfButtonFormField rgrp1 = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.InternetRachel")
 				.CreateRadioGroup();
+			rgrp1.SetAlternativeName("RACHEL access");
+			requiredFields.Add(rgrp1.GetFieldName().ToString());
 
 			table.AddRow(ss[TableHeaderStyle],
 				TextCell(model, ""),
@@ -113,6 +121,8 @@ namespace surveybuilder
 				+ "contains education resources that can be used for teacher and learning even offline.")
 			);
 
+			requiredFields.GenerateJavaScript(document.GetPdfDocument());
+			conditionalFields.GenerateJavaScript(document.GetPdfDocument());
 			return document;
 		}
 
@@ -169,18 +179,22 @@ namespace surveybuilder
 				PdfButtonFormField rgrpAvail = new RadioFormFieldBuilder(document.GetPdfDocument(), fieldA).CreateRadioGroup();
 				PdfButtonFormField rgrpC = new RadioFormFieldBuilder(document.GetPdfDocument(), fieldC).CreateRadioGroup();
 
+				bool promptNum = (bool)lookupRes.Metadata["PromptNum"];
 				cattable.AddRow(
 					TextCell(model, $"{lookupRes.N}").Style(ss[TableBaseStyle]),
 					YesCell(model, rgrpAvail),
 					NoCell(model, rgrpAvail),
-					NumberCell(model, fieldNum),
+					NumberCell(model, fieldNum,configurer:ReadOnlyConfigurer(!promptNum)),
 					SelectCell(model, rgrpC, "G"),
 					SelectCell(model, rgrpC, "F"),
 					SelectCell(model, rgrpC, "P")
 				);
+				requiredFields.Add(fieldA);
+				conditionalFields.Add(ConditionalField.IfYes(fieldA, fieldC));
 				i++;
 			}
 			document.Add(cattable);
+
 			return document;
 		}
 	}

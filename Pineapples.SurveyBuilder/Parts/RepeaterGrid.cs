@@ -56,7 +56,18 @@ namespace surveybuilder
 			grd.Columns = builder.lookups["classLevels"];
 
 			grd.Tag = "Rep";
-			document.Add(grd.Make(builder));
+			document.Add(grd.Make(builder, document));
+
+			RequiredFields flds = new RequiredFields("Repeaters",
+				"Repeater certification not set. Review now?"
+			);
+			flds.Add("Rep.HasData");
+			flds.GenerateJavaScript(document.GetPdfDocument());
+			ConditionalFields cflds = new ConditionalFields("Repeaters",
+				"Repeater data is not complete. Review now?"
+			);
+			cflds.Add(ConditionalField.IfYes("Rep.HasData", "Rep.T.T.T.T"));
+			cflds.GenerateJavaScript(document.GetPdfDocument());
 			return document;
 		}
 	}
