@@ -38,7 +38,7 @@ namespace surveybuilder
 			}
 		}
 
-		[Option('o', "output", Required = false, HelpText = "Url pointing to the Pacific EMIS Rest Api. Used to source data (especially lookup tables) from the target implementation of Pacific EMIS")]
+		[Option('o', "output", Required = false, HelpText = "Folder for output file")]
 		public string OutputPath
 		{
 			get
@@ -51,8 +51,11 @@ namespace surveybuilder
 				filesPath = value;
 			}
 		}
-		[Option('n', "open", Required = false, HelpText = "Url pointing to the Pacific EMIS Rest Api. Used to source data (especially lookup tables) from the target implementation of Pacific EMIS")]
+		[Option('n', "open", Required = false, HelpText = "Open PDF document on creation")]
 		public bool AutoOpen { get; set; }
+
+		[Option('w', "wait", Required = false, HelpText = "Wait for key-press before terminating (ignored when 'open' option specified)")]
+		public bool Wait { get; set; }
 
 		[Option('y', "year", Required = false, HelpText = "Year for the document")]
 		public int Year 
@@ -106,7 +109,8 @@ namespace surveybuilder
 		[Option("xfdf", Required = false, HelpText = "Export the pdf Xfdf file")]
 		public bool Xfdf { get; set; }
 
-
+		[Option("loadxfdf", Required = false, HelpText = "Load an Xfdf file into the toolbox target")]
+		public string LoadXfdf { get; set; }
 		#endregion
 
 		#region helper methods
@@ -119,6 +123,7 @@ namespace surveybuilder
 			Console.WriteLine($"Output Pdf: {Destination}");
 			Console.WriteLine("Verbose mode:" + (Verbose ? "On" : "Off"));
 			Console.WriteLine($"Survey Year: {Year}");
+			Console.WriteLine("Wait on completion:" + (Wait ? "On" : "Off"));
 			Console.WriteLine("Open when created:" + (AutoOpen ? "On" : "Off"));
 			if (Toolbox != null)
 			{
@@ -127,6 +132,7 @@ namespace surveybuilder
 				Console.WriteLine("Target " + (Toolbox));
 				Console.WriteLine("Push Javascripts:" + (PushJs ? "Yes" : ""));
 				Console.WriteLine("Write Xfdf:" + (Xfdf ? "Yes" : ""));
+				Console.WriteLine($"Write LoadXfdf:  {LoadXfdf}");
 			}
 			Console.WriteLine();
 		}

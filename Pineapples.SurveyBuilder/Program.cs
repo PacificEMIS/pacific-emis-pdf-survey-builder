@@ -167,7 +167,7 @@ namespace surveybuilder
 						UseShellExecute = true // Use the OS shell to open the file with its associated app
 					});
 				}
-				else
+				else if (opts.Wait)
 				{
 					Console.ReadKey();
 				}
@@ -176,6 +176,8 @@ namespace surveybuilder
 			catch (Exception e)
 			{
 				Console.WriteLine($"Error: {e.Message}");
+				Console.WriteLine();
+				Console.WriteLine(e);
 				Console.ReadKey();
 			}
 		}

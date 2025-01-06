@@ -18,6 +18,7 @@ using iText.Kernel.Pdf.Action;
 using iText.Kernel.Utils.Annotationsflattening;
 using iText.Forms.Fields;
 using System.CodeDom.Compiler;
+using System.Xml.Linq;
 
 namespace surveybuilder.Utilities
 {
@@ -36,7 +37,9 @@ namespace surveybuilder.Utilities
 		public void RunTools()
 		{
 			Console.WriteLine("Running toolbox");
-			if (!String.IsNullOrEmpty(opts.Toolbox))
+			if (!String.IsNullOrEmpty(opts.Toolbox) &&
+				(opts.ClearJs || opts.PushJs || (opts.LoadXfdf != null) || (opts.OpenActionJs != null))
+			)				
 			{
 				pdfDoc = OpenDocument();
 				document = new Document(pdfDoc);
@@ -68,9 +71,16 @@ namespace surveybuilder.Utilities
 				Populate();
 			}
 
-			document.Close();
-			System.IO.File.Delete(opts.Toolbox);
-			System.IO.File.Move(tmpfile, opts.Toolbox);
+			if (!String.IsNullOrEmpty(opts.LoadXfdf))
+			{
+				LoadXfdf(opts.LoadXfdf);
+			}
+			if (document != null)
+			{
+				document.Close();
+				System.IO.File.Delete(opts.Toolbox);
+				System.IO.File.Move(tmpfile, opts.Toolbox);
+			}
 			if (opts.Xfdf)
 			{
 				Xfdf(opts.Toolbox);
@@ -85,7 +95,7 @@ namespace surveybuilder.Utilities
 					UseShellExecute = true // Use the OS shell to open the file with its associated app
 				});
 			}
-			else
+			else if (opts.Wait)
 			{
 				Console.ReadKey();
 			}
@@ -97,6 +107,7 @@ namespace surveybuilder.Utilities
 
 			string retry = "";
 			PdfDocument pdfDoc = null;
+			
 			do
 			{
 				try
@@ -141,7 +152,11 @@ namespace surveybuilder.Utilities
 			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
 
 			//removeall
-			foreach (var jsName in javaScriptNameTree.GetKeys())
+			//in toolbox mode, we only remove those javascripts that come from Embedded resources
+			// these have the .js extension
+			foreach (var jsName in javaScriptNameTree.GetKeys()
+				.Where(name => name.ToString().EndsWith(".js"))
+			)
 			{
 				Console.WriteLine($"Removing javascript: {jsName}");
 				javaScriptNameTree.RemoveEntry(jsName);
@@ -154,8 +169,6 @@ namespace surveybuilder.Utilities
 			//load JS_Init.js first
 			foreach (string jsName in jsNames)
 			{
-
-
 				string[] pp = jsName.Split('.');
 				string name = $"{pp[pp.Length - 2]}.{pp[pp.Length - 1]}";
 				string jscriptText = LoadEmbeddedResource(assembly, jsName);
@@ -246,6 +259,47 @@ namespace surveybuilder.Utilities
 			string xfdfName = System.IO.Path.ChangeExtension(dest, "xfdf");
 			frm.Xfdf().Save(xfdfName);
 			Console.WriteLine($"Xfdf saved to {xfdfName}");
+
+
+		}
+
+		public void LoadXfdf(string filename)
+		{
+			
+			XfdfObject xfdfData;
+			XDocument xdoc= null;
+			// push the xfdf into the document
+
+
+			if (System.IO.Path.GetExtension(filename) == "xfdf" ||
+				System.IO.Path.GetExtension(filename) == "xml")
+			{
+				Console.WriteLine($"loading Xfdf file {filename}");
+				try
+				{
+					xdoc = XDocument.Load(filename);
+					
+				}
+
+				catch (Exception ex)
+				{
+					Console.WriteLine($"ERROR Loading Xfdf file: {ex}");
+				}
+			}
+			else
+			{
+				// assume its a Pdf - use the custom routine to get Xfdf and deal
+				// with both herarchical and flat field names structures
+				Console.WriteLine($"loading Xfdf from pdf file {filename}");
+				xdoc = new PdfForm(filename).Xfdf();
+			}
+			MemoryStream mem = new MemoryStream();
+			xdoc.Save(mem);
+			mem.Position= 0;
+			xfdfData = new XfdfObjectFactory().CreateXfdfObject(mem);
+			// push the xfdf into the document
+			xfdfData.MergeToPdf(pdfDoc, opts.Toolbox);
+			PdfForm.StandardizeCheckboxes(pdfDoc);
 
 
 		}
