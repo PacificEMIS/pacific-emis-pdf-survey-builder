@@ -48,6 +48,45 @@ namespace surveybuilder
 
 	public class CellMakers
 	{
+		public static float MeasureTextWidth(Document document, string text, float fontSize)
+		{
+			// Create a temporary Paragraph and measure its width
+			Paragraph paragraph = new Paragraph(text).SetFontSize(fontSize);
+			var bbox =  paragraph.CreateRendererSubTree().SetParent(document.GetRenderer())
+				.Layout(new iText.Layout.Layout.LayoutContext(new iText.Layout.Layout.LayoutArea(0, new iText.Kernel.Geom.Rectangle(0, 0, float.MaxValue, float.MaxValue))))
+				.GetOccupiedArea().GetBBox();
+
+			return bbox.GetWidth();
+		}
+
+		/// <summary>
+		/// A configurer to apply a PdfStyle to a textformfield. This provides a way tp ass this configuration
+		/// into the cellRenderer that creates the form field
+		/// </summary>
+		/// <param name="style">style to apply</param>
+		/// <returns></returns>
+		public static TextFormFieldStyler StyleConfigurer(PdfStyle style)
+		{
+			return (txtField) =>
+			{
+				style.Apply(txtField);
+				// change the /DA? - this prevents readony fields from chaning font size when focused
+				string da = $"/{style.FontName} {style.FontSize} Tf 0 g";
+				txtField.GetPdfObject().Put(PdfName.DA, new PdfString(da));
+				return txtField;
+			};
+		}
+		public static TextFormFieldStyler ReadOnlyConfigurer(bool readOnly)
+		{
+			return (txtField) =>
+			{
+				txtField.SetReadOnly(readOnly);
+
+				var w = txtField.GetFirstFormAnnotation();
+				w.SetBackgroundColor(readOnly?NamedColors.White:NamedColors.OldLace);
+				return txtField;
+			};
+		}
 		#region cells for checkboxes
 		public static Cell YesCell(Cell cellmodel, PdfButtonFormField grp)
 		{
@@ -85,15 +124,45 @@ namespace surveybuilder
 			int decimals = 0,
 			AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT,
 			AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
-			int currStyle = 0, string strCurrency = "", bool prePend = true)
+			int currStyle = 0, string strCurrency = "", bool prePend = true
+			, TextFormFieldStyler configurer = null)
 		{
 			Paragraph pp = new Paragraph();
 			pp.SetNextRenderer(new NumberFieldCellRenderer(cellmodel, fieldname, value,
-				decimals, sepStyle, negStyle, currStyle, strCurrency, prePend));
+				decimals, sepStyle, negStyle, currStyle, strCurrency, prePend, configurer));
 			Cell cell = cellmodel.Clone(false);
 			cell.Add(pp);
 			return cell;
 
+		}
+		/// <summary>
+		/// Cell to appear in GenderedGrids,  Actions support running totals of the grid
+		/// and row/column tracking within the row headers and column headers
+		/// 
+		/// </summary>
+		/// <param name="cellmodel"></param>
+		/// <param name="fieldname"></param>
+		/// <param name="value"></param>
+		/// <param name="decimals"></param>
+		/// <param name="sepStyle"></param>
+		/// <param name="negStyle"></param>
+		/// <param name="currStyle"></param>
+		/// <param name="strCurrency"></param>
+		/// <param name="prePend"></param>
+		/// <param name="configurer"></param>
+		/// <returns></returns>
+		public static Cell GridCell(Cell cellmodel, string fieldname, 
+			int decimals = 0,
+			AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT,
+			AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true
+			, TextFormFieldStyler configurer = null)
+		{
+			Paragraph pp = new Paragraph();
+			pp.SetNextRenderer(new GridDataFieldCellRenderer(cellmodel, fieldname));
+			Cell cell = cellmodel.Clone(false);
+			cell.Add(pp);
+			return cell;
 		}
 		#endregion
 
@@ -104,9 +173,9 @@ namespace surveybuilder
 		/// <param name="cellmodel">The model cell to clone.</param>
 		/// <param name="fieldname">The unique field name associated with the date cell.</param>
 		/// <param name="dateValue">The optional date value to prepopulate.</param>
-		/// <param name="dateFormat">The date format string (e.g., "MM/dd/yyyy").</param>
+		/// <param name="dateFormat">The date format string (e.g., "yyyy-MM-dd").</param>
 		/// <returns>A new cell configured for date input.</returns>
-		public static Cell DateCell(Cell cellmodel, string fieldname, DateTime? dateValue = null, string dateFormat = "MM/dd/yyyy")
+		public static Cell DateCell(Cell cellmodel, string fieldname, DateTime? dateValue = null, string dateFormat = "yyyy-MM-dd")
 		{
 			// Create a paragraph and set a custom renderer for dates
 			Paragraph pp = new Paragraph();
@@ -122,10 +191,10 @@ namespace surveybuilder
 		#region Text cells
 		// text input
 		public static Cell InputCell(Cell cellmodel, string fieldname, int maxLen = 0,
-			string value = null, bool readOnly = false, bool hidden = false)
+			string value = null, bool readOnly = false, TextFormFieldStyler configurer = null)
 		{
 			Paragraph pp = new Paragraph();
-			pp.SetNextRenderer(new TextFieldCellRenderer(cellmodel, fieldname, maxLen, value, readOnly, hidden));
+			pp.SetNextRenderer(new TextFieldCellRenderer(cellmodel, fieldname, maxLen, value, readOnly, configurer));
 			Cell cell = cellmodel.Clone(false);
 			cell.Add(pp);
 			return cell;
@@ -157,8 +226,10 @@ namespace surveybuilder
 		/// a readonly text field The reason to create a field to hold
 		/// this value is to have it exported to the Xfdf, so that this constant value is
 		/// accessible to the stored procedure uploading the data. 
-		/// Note: this approach is somewhat obselete, and is here for legacy support. 
-		/// Use flat text to render the value in its table cell and create a hidden field on the 
+		/// Note: this approach is somewhat obselete, and is here for legacy support
+		/// or in cases where e.g. a column or row header is implemented as a field
+		/// so it can be manipulated in Javascript. 
+		/// Otherwise, use flat text to render the value in its table cell and create a hidden field on the 
 		/// same value to pass into the Xfdf using ExportValue
 		/// </summary>
 		/// <param name="cellmodel"></param>
@@ -166,11 +237,21 @@ namespace surveybuilder
 		/// <param name="value"></param>
 		/// <param name="hidden"></param>
 		/// <returns></returns>
-		public static Cell ValueCell(Cell cellmodel, string fieldname, 	string value, bool hidden = false)
+		public static Cell ValueCell(Cell cellmodel, string fieldname, 	string value
+			, TextFormFieldStyler configurer = null)
 		{
-			return InputCell(cellmodel, fieldname, 0, value, true, hidden);
+			return InputCell(cellmodel, fieldname, 0, value, true, configurer);
 		}
 
+		public static Cell TotalCell(Cell cellmodel, string fieldname, string value = null
+			, TextFormFieldStyler configurer = null)
+		{
+			Paragraph p = new Paragraph();
+			p.SetNextRenderer(new TotalFieldRenderer(cellmodel, fieldname));
+			Cell cell = cellmodel.Clone(false);
+			cell.Add(p);
+			return cell;
+		}
 		/// <summary>
 		/// create a hidden form field to pass a value into the Xfdf
 		/// Note that does not return a cell, since we need no visual presence
@@ -201,6 +282,15 @@ namespace surveybuilder
 			return cell;
 		}
 
+		/// <summary>
+		/// Create a cell filled with a push button
+		/// </summary>
+		/// <param name="cellmodel">cell prototype</param>
+		/// <param name="fieldname">field name of button</param>
+		/// <param name="label">text caption on button</param>
+		/// <param name="js">javascript command for push action</param>
+		/// <param name="configurer">configuration action</param>
+		/// <returns></returns>
 		public static Cell PushButtonCell(Cell cellmodel, string fieldname, string label,
 			string js, Action<PdfButtonFormField> configurer = null)
 
@@ -212,15 +302,25 @@ namespace surveybuilder
 			return cell;
 		}
 
-
-		//static text in a cell
+		/// <summary>
+		/// Cell containing static text
+		/// </summary>
+		/// <param name="cellmodel">cell prototype</param>
+		/// <param name="text">text to display in cell</param>
+		/// <returns></returns>
 		public static Cell TextCell(Cell cellmodel, string text)
 		{
 			Cell cell = cellmodel.Clone(false);
 			cell.Add(new Paragraph(text));
 			return cell;
 		}
-		// static text passing a paragraph - allows a style to be applied
+
+		/// <summary>
+		/// Cell containing static text 
+		/// </summary>
+		/// <param name="cellmodel">cell prototype</param>
+		/// <param name="pp">Paragraph to include in cell</param>
+		/// <returns></returns>
 		public static Cell TextCell(Cell cellmodel, Paragraph pp)
 		{
 			cellmodel.GetProperty<Border>(Property.BORDER);  //?? does nothing
