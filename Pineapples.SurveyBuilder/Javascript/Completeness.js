@@ -1,40 +1,11 @@
-﻿
-console.println("Completeness loading...");
+﻿console.println("Completeness loading...");
 
-// - conditionals -- fields that be be mandatory depending on the value of another
-// members of the conditional object are
-// test - the field to check
-// value the array of values to which the condition applies - usually Y or N
-// rq the array of field names that become required if the condition is met
-function conditionals() {
-	var a = [];
-	var j = 0;
+var requiredsTable = [];
 
-	// Parent Committee
-	a[j++] = {
-		test: "PC.Exists",
-		value: ["Y"],
-		rq: [["PC.Members.M", 1], ["PC.Members.F", 1], ["PC.Meet", 1]]
-	};
-
-	return a;
+var isReadWrite = function (fieldName) {
+	return(!gf(fieldname).readonly);
 }
 
-function mandatoryFields() {
-	console.println("MandatoryFields");
-	var a = [
-		["PC.Exists", 2],
-		["Survey.Pupils", 2],
-		["Survey.Teachers", 2],
-
-		// grid control
-		["Rep.HasData", 2],
-		["DIS.HasData", 2],
-		["TRIN.HasData", 2]
-	];
-	console.println(a.length);
-	return a;
-}
 
 function setRequired(fld, required) {
 	fname = fld.name;
@@ -93,9 +64,19 @@ function setRequired(fld, required) {
 		}
 	}
 }
+
+///convenince function to set required value
+/// rq - array of names
+function setRequiredArray(rq, required) {
+	for (j = 0; j < rq.length; j++) {
+		setRequired(gf(rq[i]));
+	}
+	
+}
 /// find the first required field that is empty
+// if rqArray is supplied, check only those fields
 // returns array
-function firstRequired() {
+function firstRequired(rqArray) {
 	var fieldname;
 	var problemname = "";
 	var fld;
@@ -104,10 +85,12 @@ function firstRequired() {
 	var firstproblemtop = 0;
 
 	try {
-		var numFields = gthis().numFields;
+
+		var numFields = (rqArray == undefined) ?gthis().numFields : rqArray.length;
 		console.println("firstRequired numFields = " + numFields);
 		for (var i = 0; i < numFields; i++) {
-			fieldname = gthis().getNthFieldName(i);
+
+			fieldname = (rqArray == undefined) ? gthis().getNthFieldName(i) :rqArray[i];
 
 			fld = gf(fieldname);
 			switch (fld.type) {
@@ -138,5 +121,7 @@ function firstRequired() {
 	}
 
 }
+
+///function teacher checks
 
 console.println("Completeness loaded");
