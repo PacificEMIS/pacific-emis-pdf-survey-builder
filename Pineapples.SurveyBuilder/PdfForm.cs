@@ -14,37 +14,35 @@ using iText.Kernel.Font;
 using iText.Kernel.Pdf.Canvas;
 using iText.Kernel.Pdf.Xobject;
 using iText.Kernel.Geom;
+using iText.IO.Font.Constants;
 
-public class FormValue
-{
-	public FormValue(string path, string value)
-	{
-		string[] parts = path.Split(new char[] { '.', '!' });
-		Name = parts[parts.Length - 1];
-		ParentPath = String.Join(".", parts, 0, parts.Length - 1);
-		Path = path;
-		Value = value;
-	}
-	public FormValue(string path) : this(path, null)
-	{
-
-	}
-
-	public string Name;                // the truncted part of the name
-	public string Value;               // the form field value
-	public string Path;                // the full path through the hierarchy - this is uniqu
-	public string ParentPath;
-}
-
-/// <summary>
-/// Read a form within a PDF document
-/// Relies on nuget package PdfFileAnalyser
-/// and file PdfGetFormData, used under CPOL licence
-/// see pdfGetFormData for details.
-/// https://www.codeproject.com/Articles/5140785/Extract-User-Data-Fields-From-Fillable-PDF-Documen
-/// </summary>
 namespace surveybuilder
 {
+
+	public class FormValue
+	{
+		public FormValue(string path, string value)
+		{
+			string[] parts = path.Split(new char[] { '.', '!' });
+			Name = parts[parts.Length - 1];
+			ParentPath = String.Join(".", parts, 0, parts.Length - 1);
+			Path = path;
+			Value = value;
+		}
+		public FormValue(string path) : this(path, null)
+		{
+
+		}
+
+		public string Name;                // the truncted part of the name
+		public string Value;               // the form field value
+		public string Path;                // the full path through the hierarchy - this is uniqu
+		public string ParentPath;
+	}
+
+	/// <summary>
+	/// Read a form within a PDF document
+	/// </summary>
 	public class PdfForm
 	{
 		public PdfForm(string fileName)
@@ -395,5 +393,166 @@ namespace surveybuilder
 
 		#endregion
 
+		#region Fix up utilities
+
+		/// <summary>
+		/// After importing an Xfdf file, the checkboxes appear to lose their custom 
+		/// styling. This routing replaces it. This is copied from the routine used 
+		/// in pdfSurveyController.Generate for the same purpose.
+		/// There, it is critical to maintain the desired visual presention
+		/// after populating a form. Here, it is used only by the loadXfdf
+		/// routine in Toolbox.
+		/// </summary>
+		/// <param name="pdfDocument"></param>
+		/// <returns></returns>
+		public static PdfDocument StandardizeCheckboxes(PdfDocument pdfDocument)
+		{
+			// make the default Y and N appearances
+			// Load ZapfDingbats font for the symbols
+			PdfFont dingbatFont = PdfFontFactory.CreateFont(StandardFonts.ZAPFDINGBATS);
+
+
+			var tickAppearance = PdfForm.CheckSymbol(pdfDocument, dingbatFont
+									, PdfDingbat.Tick, new DeviceRgb(0, 128, 0)); // Tick (✓) - green
+			var crossAppearance = PdfForm.CheckSymbol(pdfDocument, dingbatFont
+									, PdfDingbat.Cross, new DeviceRgb(128, 0, 0));   // Cross (✗) - red
+			var uncheckedAppearance = PdfForm.CheckEmpty(pdfDocument); // Empty square
+
+			// Down (/D) versions
+			var tickAppearanceDown = PdfForm.CheckSymbolDown(pdfDocument, dingbatFont, PdfDingbat.Tick); // Tick (✓) - green
+			var crossAppearanceDown = PdfForm.CheckSymbolDown(pdfDocument, dingbatFont, PdfDingbat.Cross);
+			var uncheckedAppearanceDown = PdfForm.CheckEmptyDown(pdfDocument); // Empty squa
+
+			var tickMK = PdfForm.CheckMK(PdfDingbat.Tick);
+			var crossMK = PdfForm.CheckMK(PdfDingbat.Cross);
+			var blockMK = PdfForm.CheckMK(PdfDingbat.Square);
+
+			tickAppearance.MakeIndirect(pdfDocument);
+			crossAppearance.MakeIndirect(pdfDocument);
+			uncheckedAppearance.MakeIndirect(pdfDocument);
+			tickAppearanceDown.MakeIndirect(pdfDocument);
+			crossAppearanceDown.MakeIndirect(pdfDocument);
+			uncheckedAppearanceDown.MakeIndirect(pdfDocument);
+
+			// BLOCKS
+
+			PdfFormXObject GoldBlockAppearance = PdfForm.CheckBlock(pdfDocument, new DeviceRgb(255, 215, 0));   // 
+			PdfFormXObject BlackBlockAppearance = PdfForm.CheckBlock(pdfDocument, new DeviceRgb(0, 0, 0));
+			PdfFormXObject GreyBlockAppearance = PdfForm.CheckBlock(pdfDocument, new DeviceRgb(96, 96, 96));
+			PdfFormXObject RedBlockAppearance = PdfForm.CheckBlock(pdfDocument, new DeviceRgb(128, 0, 0));
+			PdfFormXObject BlockAppearanceDown = PdfForm.CheckBlockDown(pdfDocument);
+
+			GoldBlockAppearance.MakeIndirect(pdfDocument);
+			BlackBlockAppearance.MakeIndirect(pdfDocument);
+			GreyBlockAppearance.MakeIndirect(pdfDocument);
+			RedBlockAppearance.MakeIndirect(pdfDocument);
+			BlockAppearanceDown.MakeIndirect(pdfDocument);
+
+
+			PdfAcroForm form = PdfAcroForm.GetAcroForm(pdfDocument, true);
+			var ifielddic = form.GetAllFormFields();
+			foreach (string n in ifielddic.Keys)
+			{
+				PdfFormField f = ifielddic[n];
+
+				if (f is PdfButtonFormField btn)
+				{
+					if ((btn.GetFieldFlags() & 0x10000) == 0) // not a push button
+					{
+						string[] apstates = btn.GetAppearanceStates();
+
+						foreach (var widg in btn.GetWidgets())
+						{
+							//SizeWidget(widg, 13, 13);
+
+							PdfDictionary appearanceDict = widg.GetAppearanceDictionary();
+							// Check if the appearance dictionary has normal appearances (default visual state)
+							PdfDictionary currentNormal = widg.GetNormalAppearanceObject();
+							PdfDictionary normalAppearance = new PdfDictionary();
+							PdfDictionary downAppearance = new PdfDictionary();
+
+							PdfDictionary mk = new PdfDictionary();
+
+
+							{
+								//	some GOOD FAIR POOR appear as G F P
+								//	Resource provision NONE SOME..... ALL
+								//	Make sure the blocks are all correcllty colored
+								//	
+
+								foreach (PdfName key in currentNormal.KeySet())
+								{
+									string keyValue = key.GetValue();
+
+									switch (keyValue)
+									{
+										case "Off":
+											normalAppearance.Put(key, uncheckedAppearance.GetPdfObject());
+											break;
+										case "Y":
+											normalAppearance.Put(key, tickAppearance.GetPdfObject());
+											break;
+										case "N":
+											normalAppearance.Put(key, crossAppearance.GetPdfObject());
+											break;
+
+										// GOOD FAIR POOR // G F P // NONE SOME ALLL...
+										// note FAIR, SOME etc are all Grey Blocks (default)
+										case "G":
+										case "GOOD":
+										case "ALL":
+											normalAppearance.Put(key, GoldBlockAppearance.GetPdfObject());
+											break;
+										case "P":
+										case "POOR":
+										case "NONE":
+											normalAppearance.Put(key, RedBlockAppearance.GetPdfObject());
+											break;
+										case "F":
+										case "FAIR":
+											normalAppearance.Put(key, GreyBlockAppearance.GetPdfObject());
+											break;
+										default:
+											//everything else is a grey block
+											normalAppearance.Put(key, GreyBlockAppearance.GetPdfObject());
+											break;
+									}
+									// treat down appearance
+									switch (keyValue)
+									{
+										case "Off":
+											downAppearance.Put(key, uncheckedAppearanceDown.GetPdfObject());
+											break;
+
+										case "Y":
+											downAppearance.Put(key, tickAppearanceDown.GetPdfObject());
+											mk = tickMK;
+											break;
+										case "N":
+											downAppearance.Put(key, crossAppearanceDown.GetPdfObject());
+											mk = crossMK;
+											break;
+
+										default:
+											// all of these blocks, whatever colour, use the same down state
+											downAppearance.Put(key, BlockAppearanceDown.GetPdfObject());
+											mk = blockMK;
+											break;
+									}
+
+								}
+								// appply the new appearances to the widget
+								appearanceDict.Put(PdfName.N, normalAppearance);
+								appearanceDict.Put(PdfName.D, downAppearance);      // for now make the Down appearance the same
+								widg.SetAppearanceCharacteristics(mk);
+							}
+						}
+					}
+				}
+			}
+			return pdfDocument;
+		}
+
+		#endregion
 	}
 }
