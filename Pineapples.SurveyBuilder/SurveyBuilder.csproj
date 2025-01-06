@@ -198,6 +198,7 @@
     <Compile Include="Parts\SingleTeacherClasses.cs" />
     <Compile Include="Utilities\RestApi.cs" />
     <Compile Include="Utilities\Toolbox.cs" />
+    <Compile Include="Utilities\ValidationManager.cs" />
     <Compile Include="Utilities\WebColors.cs" />
     <Compile Include="XfdfDocument.cs" />
   </ItemGroup>
@@ -246,7 +247,7 @@
     <EmbeddedResource Include="Javascript\Validation.js" />
     <EmbeddedResource Include="Javascript\core.js" />
     <EmbeddedResource Include="Javascript\pineapples.js" />
-	<EmbeddedResource Include="Javascript\Actions.js" />
+    <EmbeddedResource Include="Javascript\Actions.js" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
