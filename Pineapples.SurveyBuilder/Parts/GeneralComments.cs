@@ -44,7 +44,11 @@ namespace surveybuilder
 
 			Table table = CellStyleFactory.DefaultTable(1);
 
-			table.AddCell(ts.TableHeaderStyle(InputCell(model.Clone(false).SetHeight(400), "Survey.Comment")).SetHeight(400));
+			float height = table.HeightEstimate(CellStyleFactory.Default.SetHeight(5),1);
+
+			float space = builder.PageSpaceRemaining(document).GetHeight() - 5;
+			Cell fitted = CellStyleFactory.Default.Clone(false).SetHeight(space - height);
+			table.AddCell(MultiLineInputCell( fitted, "Survey.Comment"));
 
 			document.Add(table);
 			builder.NewPage(document);
@@ -57,7 +61,7 @@ namespace surveybuilder
 
 
 			string jsCode = "v.doAllValidations(event);";
-			Cell abs = ts.AbstractCell(new Cell().SetHeight(50));
+			Cell abs = ts.AbstractCell(new Cell()).SetHeight(60);
 			table.AddRow(
 				PushButtonCell(abs, "CheckBtn", "Verify Responses", jsCode)
 			);

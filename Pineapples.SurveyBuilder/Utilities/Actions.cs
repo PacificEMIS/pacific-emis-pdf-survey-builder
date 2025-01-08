@@ -22,43 +22,98 @@ using System.CodeDom;
 
 namespace surveybuilder.Utilities
 {
+	public enum AF_SEPSTYLE
+	{
+		/// <summary>
+		/// Comma-separated thousands with a period for decimals.
+		/// Example: 1,234.56
+		/// </summary>
+		COMMA_DOT = 0,
+
+		/// <summary>
+		/// No thousands separator with a period for decimals.
+		/// Example: 1234.56
+		/// </summary>
+		NONE_DOT = 1,
+
+		/// <summary>
+		/// Period-separated thousands with a comma for decimals.
+		/// Example: 1.234,56
+		/// </summary>
+		DOT_COMMA = 2,
+
+		/// <summary>
+		/// No thousands separator with a comma for decimals.
+		/// Example: 1234,56
+		/// </summary>
+		NONE_COMMA = 3
+	}
+	public enum AF_NEGSTYLE
+	{
+		/// <summary>
+		/// Negative sign before the number.
+		/// Example: -1234.56
+		/// </summary>
+		MINUS = 0,
+
+		/// <summary>
+		/// Negative sign before the number with red text.
+		/// Example: -1234.56 (displayed in red)
+		/// </summary>
+		RED_MINUS = 1,
+
+		/// <summary>
+		/// Negative number enclosed in parentheses.
+		/// Example: (1234.56)
+		/// </summary>
+		PARENS = 2,
+
+		/// <summary>
+		/// Negative number enclosed in parentheses with red text.
+		/// Example: (1234.56) (displayed in red)
+		/// </summary>
+		RED_PARENS = 3
+	}
+
 	internal class Actions
 	{
 		/// <summary>
 		/// create a numeric format action using the built-in acrobat macro
 		/// </summary>
-		public static PdfAction NFormat(int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+		public static PdfAction NFormat(int decimals = 0,
+			AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT,
+			AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 		{
-			return AF("Format", decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
+			return AF("Format", decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
 		}
-		public static PdfAction NKeystroke(int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+		public static PdfAction NKeystroke(int decimals = 0, AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT, AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 		{
-			return AF("Keystroke", decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
+			return AF("Keystroke", decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
 		}
 
-		private static PdfAction AF(string type, int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+		private static PdfAction AF(string type, int decimals = 0, AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT, AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 		{
-			return PdfAction.CreateJavaScript(AFjs(type, decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend));
+			return PdfAction.CreateJavaScript(AFjs(type, decimals, sepStyle, negStyle, currStyle, strCurrency, prePend));
 		}
-		public static String NFormatJs(int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+		public static String NFormatJs(int decimals = 0, AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT, AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 		{
-			return AFjs("Format", decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
+			return AFjs("Format", decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
 
 		}
-		public static string NKeystrokeJs(int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+		public static string NKeystrokeJs(int decimals = 0, AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT, AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 		{
-			return AFjs("Keystroke", decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
+			return AFjs("Keystroke", decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
 		}
-		private static string AFjs(string type, int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+		private static string AFjs(string type, int decimals = 0, AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT, AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true)
 		{
 
-			string args = $"{decimals:0}, {sepStyle:0}, {negStyle:0}, {currStyle:0}, '{strCurrency}', {(bPrePend ? "true" : "false")}";
+			string args = $"{decimals:0}, {(int)sepStyle:0}, {(int)negStyle:0}, {currStyle:0}, '{strCurrency}', {(prePend ? "true" : "false")}";
 			return ($"AFNumber_{type}({args});");
 		}
 

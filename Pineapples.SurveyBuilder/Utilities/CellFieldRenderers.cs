@@ -74,10 +74,16 @@ namespace surveybuilder
 			PdfDocument thisDoc = drawContext.GetDocument();
 
 			// Define the coordinates of the middle
-			float r = 10; // radius
-			float x = (GetOccupiedAreaBBox().GetLeft() + GetOccupiedAreaBBox().GetRight()) / 2;
-			float y = (GetOccupiedAreaBBox().GetTop() + GetOccupiedAreaBBox().GetBottom()) / 2;
+			
+			Rectangle occrect = GetOccupiedAreaBBox();
+			//centre x
+			float x = (occrect.GetLeft() + occrect.GetRight()) / 2;
+			//centre y 
+			float y = (occrect.GetTop() + occrect.GetBottom()) / 2;           
 			// Define the position of a check box that measures 20 by 20
+			// or if rect is not 20 high, just use the available height
+			float r = occrect.GetHeight() >= 20 ? 10 : occrect.GetHeight()/2 -2 ;  
+
 			Rectangle rect = new Rectangle(x - r, y - r, 2 * r, 2 * r);
 
 			var chkbtn = new RadioFormFieldBuilder(thisDoc, "tmp")
@@ -176,6 +182,7 @@ namespace surveybuilder
 		private bool readOnly;
 		private bool hidden;
 		private string value;
+		private TextFormFieldStyler configurer = null;
 
 		public TextFieldCellRenderer(Cell modelElement, string name) :
 			this(modelElement, name, 0, null, false, false)
@@ -196,9 +203,19 @@ namespace surveybuilder
 			this.hidden = hidden;
 		}
 
+		// constructor to pass a configurer function
+		public TextFieldCellRenderer(Cell modelElement, string name, int maxLen, 
+			string value, bool readOnly,
+			TextFormFieldStyler configurer) :
+			this(modelElement, name, maxLen, value)
+		{
+			this.readOnly = readOnly;
+			this.hidden = false;
+			this.configurer = configurer;
+		}
 		public override IRenderer GetNextRenderer()
 		{
-			return new TextFieldCellRenderer((Cell)modelElement, name, maxLen, value, readOnly, hidden);
+			return new TextFieldCellRenderer((Cell)modelElement, name, maxLen, value, readOnly, configurer);
 		}
 
 		public override void Draw(DrawContext drawContext)
@@ -228,6 +245,7 @@ namespace surveybuilder
 			{
 				dataField.SetValue(value);
 			}
+			configurer?.Invoke(dataField);
 
 			PdfAcroForm.GetAcroForm(thisDoc, true).AddField(dataField);
 
@@ -291,7 +309,7 @@ namespace surveybuilder
 		/// <item><description>Examples: <c>$</c>, <c>€</c>, <c>£</c>.</description></item>
 		/// </list>
 		/// </param>
-		/// <param name="bPrePend">
+		/// <param name="prePend">
 		/// Determines the position of the currency symbol:
 		/// <list type="bullet">
 		/// <item><description><c>true</c>: Prepends the currency symbol (e.g., <c>$1234</c>).</description></item>
@@ -299,13 +317,14 @@ namespace surveybuilder
 		/// </list>
 		/// </param>
 		public NumberFieldCellRenderer(Cell modelElement, string name, float? value = null,
-			int decimals = 0, int sepStyle = 0, int negStyle = 0,
-			int currStyle = 0, string strCurrency = "", bool bPrePend = true)
+			int decimals = 0, AF_SEPSTYLE sepStyle = AF_SEPSTYLE.NONE_DOT, AF_NEGSTYLE negStyle = AF_NEGSTYLE.MINUS,
+			int currStyle = 0, string strCurrency = "", bool prePend = true
+			, TextFormFieldStyler configurer = null)
 			: base(modelElement, name)
 		{
-			formataction = Actions.NFormatJs(decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
-			keystrokeaction = Actions.NKeystrokeJs(decimals, sepStyle, negStyle, currStyle, strCurrency, bPrePend);
-			base.styler = FieldStyle;
+			formataction = Actions.NFormatJs(decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
+			keystrokeaction = Actions.NKeystrokeJs(decimals, sepStyle, negStyle, currStyle, strCurrency, prePend);
+			base.styler = MakeStyler(configurer);
 		}
 
 		/// <summary>
@@ -315,12 +334,14 @@ namespace surveybuilder
 		/// <param name="name">The unique name of the numeric field.</param>
 		/// <param name="formataction">The JavaScript action for formatting the field.</param>
 		/// <param name="keystrokeaction">The JavaScript action for validating keystrokes.</param>
-		public NumberFieldCellRenderer(Cell modelElement, string name, string formataction, string keystrokeaction)
+		public NumberFieldCellRenderer(Cell modelElement, string name, string formataction, string keystrokeaction
+			, TextFormFieldStyler configurer = null)
 			: base(modelElement, name)
 		{
 			this.formataction = formataction;
 			this.keystrokeaction = keystrokeaction;
-			base.styler = FieldStyle;
+			
+			base.styler = MakeStyler(configurer);
 		}
 		/// <summary>
 		/// Creates the next renderer for this field.
@@ -332,24 +353,33 @@ namespace surveybuilder
 			return new NumberFieldCellRenderer((Cell)modelElement, name, formataction, keystrokeaction);
 		}
 
+		Func<PdfFormField, PdfFormField> MakeStyler(TextFormFieldStyler configurer)
+		{
+			if (configurer == null)
+			{ 
+				return FieldStyler;
+			}
+			return fld => configurer((PdfTextFormField)FieldStyler(fld));
+		}
 		/// <summary>
 		/// Styles the numeric field with predefined properties.
 		/// </summary>
 		/// <param name="field">The <see cref="PdfFormField"/> to style.</param>
 		/// <returns>The styled <see cref="PdfFormField"/>.</returns>
-		public PdfFormField FieldStyle(PdfFormField field)
+		PdfFormField FieldStyler(PdfFormField field)
 		{
-			field
-				.SetReadOnly(false)
-				.SetAdditionalAction(PdfName.F, PdfAction.CreateJavaScript(formataction))
-				.SetAdditionalAction(PdfName.K, PdfAction.CreateJavaScript(keystrokeaction))
-				.SetJustification(TextAlignment.RIGHT)
-				.SetFontSize(10)
-				.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
+				field
+					.SetReadOnly(false)
+					.SetAdditionalAction(PdfName.F, PdfAction.CreateJavaScript(formataction))
+					.SetAdditionalAction(PdfName.K, PdfAction.CreateJavaScript(keystrokeaction))
+					.SetJustification(TextAlignment.RIGHT)
+					.SetFontSize(10)
+					.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
 
-			var w = field.GetFirstFormAnnotation();
-			w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
-			return (PdfFormField)field;
+				var w = field.GetFirstFormAnnotation();
+				w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
+
+				return (PdfFormField)field;
 		}
 	}
 
@@ -372,15 +402,17 @@ namespace surveybuilder
 		/// <param name="name">The unique name of the date field.</param>
 		/// <param name="dateValue">An optional prepopulated date value for the field.</param>
 		/// <param name="dateFormat">The desired date format for input validation and display (e.g., "MM/dd/yyyy").</param>
-		public DateFieldCellRenderer(Cell modelElement, string name, DateTime? dateValue = null, string dateFormat = "MM/dd/yyyy")
+		public DateFieldCellRenderer(Cell modelElement, string name, DateTime? dateValue = null, string dateFormat = "yyyy-MM-dd")
 			: base(modelElement, name)
 		{
 			this.dateValue = dateValue;
-			this.dateFormat = dateFormat;
+			this.dateFormat = dateFormat;  //NOT USED anymore
 
 			// Define JavaScript actions for date validation and keystroke formatting
-			validationAction = $"AFDate_FormatEx('{dateFormat}');";
-			keystrokeAction = $"AFDate_Keystroke('{dateFormat}');";
+			//			validationAction = $"AFDate_FormatEx('{dateFormat}');";
+			//			keystrokeAction = $"AFDate_Keystroke('{dateFormat}');";
+			keystrokeAction = $"p.dateKeystrokeUI(event)";
+			validationAction = $"p.dateKeystrokeUI(event)";
 
 			base.styler = FieldStyle; // Apply field styling
 		}
@@ -450,6 +482,8 @@ namespace surveybuilder
 				.SetAdditionalAction(PdfName.F, Actions.NFormat())
 				.SetAdditionalAction(PdfName.K, Actions.NKeystroke())
 				.SetAdditionalAction(PdfName.V, PdfAction.CreateJavaScript("p.grdv(event)"))
+				.SetAdditionalAction(PdfName.Fo, PdfAction.CreateJavaScript("p.grdfo(event)"))
+				.SetAdditionalAction(PdfName.Bl, PdfAction.CreateJavaScript("p.grdbl(event)"))
 				.SetJustification(TextAlignment.RIGHT)
 				.SetFontSize(10)
 				.SetFont(PdfFontFactory.CreateFont(StandardFonts.HELVETICA));
@@ -560,9 +594,6 @@ namespace surveybuilder
 
 			PdfDocument thisDoc = drawContext.GetDocument();
 
-			// Define the coordinates of the middle
-
-			// Define the position of a check box that measures 20 by 20
 			Rectangle rect = GetOccupiedAreaBBox();
 
 
@@ -570,14 +601,16 @@ namespace surveybuilder
 				.SetWidgetRectangle(rect)
 				.SetOptions(optsarray)
 				.CreateComboBox();
-
+			
 			var w = combo.GetFirstFormAnnotation();
 			w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
 			w.SetBorderColor(ColorConstants.LIGHT_GRAY)
-				.SetBorderWidth(1);
+				.SetBorderWidth(1)
+				.SetFontSize(10);
 
 			var form = PdfAcroForm.GetAcroForm(thisDoc, true);
 			form.AddField(combo);
+
 		}
 	}
 

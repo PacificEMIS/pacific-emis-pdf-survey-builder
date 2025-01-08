@@ -35,10 +35,16 @@ namespace surveybuilder
 		const string TableSubHeaderStyle = "tablesubheader";
 		const string TableBaseStyle = "tablebase";
 
+		const string conditionalMsg = "You need to specify the Condition of each available resource. Review School Resources now?";
+		ConditionalFields conditionalFields = new ConditionalFields("SchoolResources", conditionalMsg);
+		const string requiredMsg = "You need to specify the availability of each school resource. Review School Resources now?";
+		RequiredFields requiredFields = new RequiredFields("SchoolResources", requiredMsg);
 
 		public Document Build(PdfBuilder builder, Document document, LookupList resourcesCategories)
 		{
 			Console.WriteLine("Part: School Resources");
+			// create the dictionary to hold Conditionals
+			
 
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
@@ -67,7 +73,7 @@ namespace surveybuilder
 				// Get the category resources
 				var catResFilter = new Dictionary<string, object>
 					{
-						{ "Cat", $"{categoryDef.C}" },
+						{ "Cat", $"{categoryDef.N}" },  // note it is the category name
 						{ "Surveyed", "True" }
 					};
 				LookupList catResources = resources.FilterByMetadata(catResFilter);
@@ -76,7 +82,8 @@ namespace surveybuilder
 					continue;
 				}
 				// now we are going to determine whether the is enough space on the page for this group
-				float spaceneeded = model.GetHeight().GetValue() * (catResources.Count() + 1);
+				float spaceneeded =
+					CellStyleFactory.DefaultTable(1).HeightEstimate(model, catResources.Count() + 1);
 				if (builder.NewPageIf(document, spaceneeded))
 				{
 					WriteResourcesHeader(document);
@@ -92,14 +99,17 @@ namespace surveybuilder
 
 			PdfButtonFormField rgrp1 = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.InternetRachel")
 				.CreateRadioGroup();
+			rgrp1.SetAlternativeName("RACHEL access");
+			requiredFields.Add(rgrp1.GetFieldName().ToString());
 
-			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
+			table.AddRow(ss[TableHeaderStyle],
+				TextCell(model, ""),
+				TextCell(model, "Yes"),
+				TextCell(model, "No")
 			);
 			table.AddRow(
-				TextCell(model, ts.TableBaseStyle("Does your school have access to internet or to a device like RACHEL*")),
+				TextCell(model,"Does your school have access to internet or to a device like RACHEL*")
+					.Style(ss[TableBaseStyle]),
 				YesCell(model, rgrp1),
 				NoCell(model, rgrp1)
 			);
@@ -111,6 +121,8 @@ namespace surveybuilder
 				+ "contains education resources that can be used for teacher and learning even offline.")
 			);
 
+			requiredFields.GenerateJavaScript(document.GetPdfDocument());
+			conditionalFields.GenerateJavaScript(document.GetPdfDocument());
 			return document;
 		}
 
@@ -167,18 +179,22 @@ namespace surveybuilder
 				PdfButtonFormField rgrpAvail = new RadioFormFieldBuilder(document.GetPdfDocument(), fieldA).CreateRadioGroup();
 				PdfButtonFormField rgrpC = new RadioFormFieldBuilder(document.GetPdfDocument(), fieldC).CreateRadioGroup();
 
+				bool promptNum = (bool)lookupRes.Metadata["PromptNum"];
 				cattable.AddRow(
 					TextCell(model, $"{lookupRes.N}").Style(ss[TableBaseStyle]),
 					YesCell(model, rgrpAvail),
 					NoCell(model, rgrpAvail),
-					NumberCell(model, fieldNum),
+					NumberCell(model, fieldNum,configurer:ReadOnlyConfigurer(!promptNum)),
 					SelectCell(model, rgrpC, "G"),
 					SelectCell(model, rgrpC, "F"),
 					SelectCell(model, rgrpC, "P")
 				);
+				requiredFields.Add(fieldA);
+				conditionalFields.Add(ConditionalField.IfYes(fieldA, fieldC));
 				i++;
 			}
 			document.Add(cattable);
+
 			return document;
 		}
 	}

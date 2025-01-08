@@ -40,6 +40,8 @@ namespace surveybuilder
 			chk.Types = new CheckBoxType[] {CheckBoxType.SQUARE, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.CROSS };
 			chk.Tag = "Wash.Handwashing.Type";
+			chk.Description = "Type of handwashing station";
+
 			chk.Make(builder, document);
 
 			document.Add(new Paragraph()
@@ -50,6 +52,8 @@ namespace surveybuilder
 			chk.Names = new string[] { "Soap and water", "Water only", "Soap Only", "Neither" };
 			chk.Values = new object[] { 1, 2, 3, 0 };
 			chk.Tag = "Wash.Handwashing.SoapAndWater";
+			chk.Description = "Soap and/or water available";
+
 			chk.Make(builder, document);
 
 			document.Add(new Paragraph()

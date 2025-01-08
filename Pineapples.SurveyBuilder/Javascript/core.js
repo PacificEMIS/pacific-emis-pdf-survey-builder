@@ -2,7 +2,15 @@ console.println("core Loading...");
 
 // Core functionality for Acrobat forms
 function OnStartup() {
+
 	console.println("On Startup");
+	console.println("Dynamic requireds:");
+	if (requiredsTable) {
+		for (var i = 0; i < requiredsTable.length; i++) {
+			console.println(requiredsTable[i].name );
+		}
+	}
+	return;
 
 	var sy = gf("Survey.SurveyYear");
 	var year = sy.value;
@@ -495,11 +503,11 @@ function validatePhone(value) {
 
 
 try {
-	OnStartup();
+	var i = this.numFields;
+	var n = gf("Survey.SurveyYear");
 }
 catch (ex) {
-	console.println("Dummy statup invocaton failed: " + ex);
-
+	console.println("Dummy JS call");
 }
 
 console.println("Core Loaded");

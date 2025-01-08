@@ -97,7 +97,7 @@ namespace surveybuilder
 
 			PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, "PC.Exists")
 				.CreateRadioGroup();
-			rgrp.SetRequired(true);
+			rgrp.SetAlternativeName("Parent committee exists");
 
 			table.AddRow(
 				TextCell(model, ts.TableRowHeaderStyle("Does your school have a Parents' Committee")),
@@ -136,6 +136,7 @@ namespace surveybuilder
 			chk.Types = new CheckBoxType[] {CheckBoxType.CHECK, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.SQUARE };
 			chk.Tag = "PC.Support";
+			chk.Description = "Local community support";
 			chk.Make(builder, document);
 
 			#region School Structure

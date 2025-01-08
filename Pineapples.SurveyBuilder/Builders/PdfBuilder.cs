@@ -163,13 +163,25 @@ namespace surveybuilder
 		}
 
 		/// <summary>
+		/// Get the rectanle of the current space remaining on the page
+		/// Of Particular use is Height, which we can use to resize objects, or to throw a 
+		/// page break if an object will not fit
+		/// </summary>
+		/// <param name="document"></param>
+		/// <returns></returns>
+		public Rectangle PageSpaceRemaining(Document document)
+		{
+			return document.GetRenderer().GetCurrentArea().GetBBox();
+			
+		}
+		/// <summary>
 		/// Throw a new page if the space remaining on the current page is less than space needed
 		/// spaceneeded may be calculated based e.g. on the numer of rows in a table
 		/// </summary>
 		/// <param name="spaceneeded">ampount of space needed</param>
 		public bool NewPageIf(Document document, float spaceneeded)
 		{
-			var rect = document.GetRenderer().GetCurrentArea().GetBBox();
+			var rect = PageSpaceRemaining(document);
 			float spaceavailable = rect.GetHeight();
 			return NewPageIf(document, (spaceneeded > spaceavailable));
 		}
@@ -182,8 +194,6 @@ namespace surveybuilder
 		/// <returns></returns>
 		public bool NewPageIf(Document document, bool condition)
 		{
-			var rect = document.GetRenderer().GetCurrentArea().GetBBox();
-			float spaceavailable = rect.GetHeight();
 			if (condition)
 			{
 				NewPage(document);

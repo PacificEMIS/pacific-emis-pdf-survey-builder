@@ -97,15 +97,16 @@ namespace surveybuilder
 			// Currently the Resource Lookup C (keys) don't match the XML field so hard coded here.
 			var teacherHousingCategories = new Dictionary<string, string>
 			{
-				{ "Staff Housing Permanent", "TchHP" },
-				{ "Staff Housing Traditional", "TchHT" }
+				{ "Staff Housing Permanent", "TchHousePerm" },
+				{ "Staff Housing Traditional", "TchHouseTrad" }
 			};
 
 			foreach (var kvp in teacherHousingCategories)
 			{
+				// export the full category name
 				var cat = $"Resource.{kvp.Value}.Cat";
-
-				// first the row subheader (TODO no field included yet here)
+				ExportValue(builder.pdfDoc, cat, kvp.Key);
+				
 				tableTHTConditions.AddRow(
 					ts.TableSubHeaderStyle(TextCell(model15, ts.TableHeaderStyle($"{kvp.Key}")))
 				);
@@ -118,21 +119,24 @@ namespace surveybuilder
 					};
 
 				LookupList catResources = resources.FilterByMetadata(catResFilter);
+				// create the row fields from the lookup list
+				catResources.AsFields(document.GetPdfDocument(),
+					(j) => $"Resource.{kvp.Value}.R.{j:00}.K", (j) => $"Resource.{kvp.Value}.R.{j:00}.V");
 
 				// Data fields for each row
 				var i = 0;
 				foreach (var lookupRes in catResources)
 				{
-					string cleanKey = kvp.Key.Clean();
-					string fieldK = $"Resource.{cleanKey}.R.{i:00}.K";
-					string fieldA = $"Resource.{cleanKey}.D.{i:00}.A"; // Not used
-					string fieldNum = $"Resource.{cleanKey}.D.{i:00}.Num";
-					string fieldC = $"Resource.{cleanKey}.D.{i:00}.C";
+					string tag = kvp.Value; //.Clean();
+					string fieldK = $"Resource.{tag}.R.{i:00}.K";
+					string fieldA = $"Resource.{tag}.D.{i:00}.A"; // Not used
+					string fieldNum = $"Resource.{tag}.D.{i:00}.Num";
+					string fieldC = $"Resource.{tag}.D.{i:00}.C";
 
 					PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
 
 					tableTHTConditions.AddRow(
-						TextCell(model, ts.TableBaseStyle($"{lookupRes.N}")),
+						TextCell(model, lookupRes.N).Style(ts.TableBaseStyle),
 						NumberCell(model, fieldNum),
 						SelectCell(model, rgrp, "G"),
 						SelectCell(model, rgrp, "F"),

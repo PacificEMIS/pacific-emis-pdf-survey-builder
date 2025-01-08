@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Contexts;
+using System.Diagnostics;
 
 namespace surveybuilder
 {
@@ -79,30 +80,12 @@ namespace surveybuilder
 							var entry = new LookupEntry
 							{
 								C = code,
-								N = name
+								N = name,
+								Metadata = item.ToObject<Dictionary<string, object>>()
 							};
-
-							// Extract additional metadata
-							foreach (var additionalField in item.Properties())
-							{
-								string fieldName = additionalField.Name;
-
-								// Skip the primary "Code" and "Name" keys
-								if (fieldName == "C" || fieldName == "N" ||
-									fieldName == "QualCode" || fieldName == "QualName" ||
-									fieldName == "mresName" || fieldName == "ToiletType")
-								{
-									continue;
-								}
-
-								// Add other fields to Metadata
-								entry.Metadata[fieldName] = additionalField.Value?.ToObject<object>();
-							}
-
-							// Add the entry to the list
 							entryList.Add(entry);
-						}
 
+						}
 						// Add the processed list to the dictionary
 						dic[key] = entryList;
 					}

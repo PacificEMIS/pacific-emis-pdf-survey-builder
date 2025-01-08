@@ -18,6 +18,7 @@ using iText.IO.Font;
 using iText.Kernel.Pdf.Navigation;
 using iText.Kernel.Colors;
 using iText.StyledXmlParser.Css.Resolve.Shorthand.Impl;
+using iText.Kernel.Pdf.Annot;
 
 namespace surveybuilder
 {
@@ -87,25 +88,63 @@ namespace surveybuilder
 
 			AddOutline(document, enrolOutline, "Enrolment");
 			document.Add(Heading_2("Enrolment of Pupils by Age, Class Level and Gender"));
-			
-			document.Add(new Paragraph(@"Record the number of pupils enrolled at your school this year according to their age, class level and gender. "
-+ @"Age is at 31 March this year."));
-
-			grd.Tag = "Enrol";
-			document.Add(grd.Make(this));
+			new EnrolmentGrid().Build(this, document);
 			NewPage(document);
+			Rectangle rect = new Rectangle(100, 700, 20, 20); // x, y, width, height
+
+			// Create the annotation with explanatory text
+			PdfAnnotation annotation = new PdfTextAnnotation(rect)
+				.SetIconName(new PdfName("Help")) // Set the "Help" icon
+				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
+				.SetContents("This is some explanatory text."); // The text displayed when clicked
+				
+			
+
+			//annotation.SetOpen(false); // Annotation is closed by default
+
+			// Add the annotation to the page
+			int currentPageNumber = pdfDoc.GetNumberOfPages();
+			PdfPage currentPage = pdfDoc.GetPage(currentPageNumber);
+
+			currentPage.AddAnnotation(annotation);
+
+			rect = new Rectangle(100, 600, 40, 40); // x, y, width, height
+
+			// Create the annotation with explanatory text
+			annotation = new PdfTextAnnotation(rect)
+				.SetIconName(new PdfName("Comment")) // Set the "Help" icon
+				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
+				.SetContents("This is some explanatory text."); // The text displayed when clicked
+			annotation.SetFlags(PdfAnnotation.READ_ONLY + PdfAnnotation.LOCKED + PdfAnnotation.LOCKED_CONTENTS);
+			currentPage.AddAnnotation(annotation);
+
+			rect = new Rectangle(300, 500, 60, 60); // x, y, width, height
+
+			// Create the annotation with explanatory text
+			annotation = new PdfTextAnnotation(rect)
+				.SetIconName(new PdfName("Note")) // Set the "Help" icon
+				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
+				.SetContents("This is some explanatory text. https://www.google.com"); // The text displayed when clicked
+			annotation.SetFlags(PdfAnnotation.READ_ONLY + PdfAnnotation.LOCKED + PdfAnnotation.LOCKED_CONTENTS);
+			currentPage.AddAnnotation(annotation);
+
+			rect = new Rectangle(300, 400, 30, 30); // x, y, width, height
+
+			// Create the annotation with explanatory text
+			annotation = new PdfTextAnnotation(rect)
+				.SetIconName(new PdfName("Info")) // Set the "Help" icon
+				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
+				.SetContents("This is some explanatory text. The Internet Rachcel device cn be learned about here."); // The text displayed when clicked
+			annotation.SetFlags(PdfAnnotation.READ_ONLY + PdfAnnotation.LOCKED);
+			currentPage.AddAnnotation(annotation);
 
 			AddOutline(document, enrolOutline, "Repeaters");
 			document.Add(Heading_2("Repeaters"));
 
-			document.Add(new Paragraph(@"For each class, record the number of pupils who were enrolled in the same class in the previous school year. "
-			+ @"Record the repeating students by their age as at 31 March this year."));
-
-			grd.Tag = "Rep";
-			document.Add(grd.Make(this));
+			new RepeaterGrid().Build(this, document);
 			NewPage(document);
 
-			AddOutline(document,enrolOutline, "Distance from School");
+			AddOutline(document, enrolOutline, "Distance from School");
 			document.Add(Heading_2("Distance from School"));
 			document = new DistanceFromSchool()
 				.Build(this, document, lookups["distanceCodes"]);
@@ -122,7 +161,6 @@ namespace surveybuilder
 			document = new TransfersInGrid()
 				.Build(this, document);
 			NewPage(document);
-
 
 			AddOutline(document, enrolOutline, "Pre-School Attendance");
 			document.Add(Heading_2("Pupils Who Have Attended Pre-School"));
@@ -147,16 +185,12 @@ namespace surveybuilder
 			document.Add(Heading_1("School Staff Information"));
 
 			this.AddOutline(document, staffOutline, "Expected Staff List");
+			AddOutline(document, staffOutline, "New Staff");
 			document.Add(Heading_2("Expected Staff List"));
 			document = new ExpectedStaff()
 				.Build(this, document);
 			NewPage(document);
 
-			AddOutline(document, staffOutline, "New Staff");
-			document.Add(Heading_2("New Staff"));
-			document = new NewStaff()
-				.Build(this, document);
-			NewPage(document);
 			#endregion
 
 			#region ************** Buildings and Rooms *************************
@@ -218,7 +252,7 @@ namespace surveybuilder
 			{
 				new LookupEntry("Comm","Communications"),
 				new LookupEntry("Eqp","Equipment"),
-				new LookupEntry("Power","Power Suppply"),
+				new LookupEntry("Power","Power Supply"),
 				new LookupEntry("Library","Library Resources")
 			};
 
@@ -267,7 +301,7 @@ namespace surveybuilder
 			PdfFont customFont2 = PdfFontFactory.CreateFont(fontPath2, PdfEncodings.WINANSI, PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED);
 
 			var fieldPosition = new iText.Kernel.Geom.Rectangle(50, 146, 80, 30);
-			PdfTextFormField textField = new TextFormFieldBuilder(pdfDoc, "Survey.SurveyYear")
+			PdfTextFormField textField = new TextFormFieldBuilder(pdfDoc, "Cover.SurveyYear")
 				.SetWidgetRectangle(fieldPosition)
 				.CreateText();
 
@@ -330,6 +364,29 @@ namespace surveybuilder
 			new LookupEntry { C = "P6", N = "Class 6" }
 			};
 			lookups.Add("classLevels", classLevels);
+
+
+			// teacher roles vary across school types
+
+			LookupList tmp = lookups["schoolTypeRoles"]
+							.FilterByMetadata("T", "P");       // use values for combined sec school
+			lookups.Add("filteredRoles", tmp);
+			tmp = lookups["teacherQualGroups"]
+							.FilterByMetadata("E", true);       // ed quals
+			lookups.Add("qualEd", tmp);
+			tmp = lookups["teacherQualGroups"]
+				.FilterByMetadata("E", false);       
+			lookups.Add("qualN", tmp);
+
+			// resource types we'll filter from the ResourceDefinitions lookup
+			// this gives us access to the Prompt... info which we don't otherwise have
+			// Changing the definition of the lookup in DSLookups is problematic
+			// becuase it is used for the census workbook processing
+			tmp = lookups["metaResourceDefinitions"]
+					.FilterByMetadata("Cat", "Water Supply");
+			lookups.Remove("waterSupplyTypes");
+			lookups.Add("waterSupplyTypes", tmp);
+
 		}
 
 	}

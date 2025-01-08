@@ -129,8 +129,7 @@ namespace surveybuilder
 			document.Add(Heading_2("Expected Staff List"));
 			// new staff is placed here and will get moved by the generate routine once it knows how many
 			// techers there are
-			AddOutline(document, staffOutline, "New Staff");
-			document.Add(Heading_2("New Staff"));
+			AddOutline(document, staffOutline, "New Staff");  // this is moved to the firdst available empty slot by generate R
 
 			document = new ExpectedStaff()
 				.Build(this, document);
@@ -210,7 +209,7 @@ namespace surveybuilder
 			{
 				new LookupEntry("Comm","Communications"),
 				new LookupEntry("Eqp","Equipment"),
-				new LookupEntry("Power","Power Suppply"),
+				new LookupEntry("Power","Power Supply"),
 				new LookupEntry("Library","Library Resources"),
 				new LookupEntry("Lab","Laboratory Resources")
 			};

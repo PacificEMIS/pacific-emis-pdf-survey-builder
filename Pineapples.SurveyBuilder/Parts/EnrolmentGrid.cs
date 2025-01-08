@@ -42,7 +42,13 @@ namespace surveybuilder
 			grd.Columns = builder.lookups["classLevels"];
 
 			grd.Tag = "Enrol";
-			document.Add(grd.Make(builder));
+			document.Add(grd.Make(builder, document));
+
+			RequiredFields flds = new RequiredFields("Enrolment",
+				"No enrolments are recorded. Review now?"
+				);
+			flds.Add("Enrol.T.T.T.T");
+			flds.GenerateJavaScript(document.GetPdfDocument());
 			return document;
 		}
 	}

@@ -60,6 +60,7 @@ namespace surveybuilder
 		public Color DefaultColor;
 
 		public string Tag;
+		public string Description = null;
 		// Import common table/grid styles
 		
 
@@ -81,7 +82,7 @@ namespace surveybuilder
 
 			PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, Tag)
 				.CreateRadioGroup();
-
+			rgrp.SetAlternativeName(Description ?? Tag);
 
 			// Create a table with 
 			Table table = new Table(UnitValue.CreatePercentArray(Names.Length))
@@ -105,10 +106,8 @@ namespace surveybuilder
 			var form = PdfFormCreator.GetAcroForm(builder.pdfDoc, true);
 
 			form.AddField(rgrp);
-
-			var fields = form.GetAllFormFields();
-
 			document.Add(table);
+
 			return document;
 		}
 
