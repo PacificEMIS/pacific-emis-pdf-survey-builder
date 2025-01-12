@@ -18,7 +18,7 @@ namespace surveybuilder
 
 		string toolbox = null;
 
-		[Option('f', "form", Required = true, HelpText = "Specifies the form to use.")]
+		[Option('f', "form", Required = false, HelpText = "Specifies the form to use.")]
 		public string Form { get; set; }
 
 		[Option('v', "verbose", Required = false, HelpText = "Generate uncompressed PDF output to allow debugging in a text editor.")]
@@ -125,6 +125,7 @@ namespace surveybuilder
 			Console.WriteLine($"Survey Year: {Year}");
 			Console.WriteLine("Wait on completion:" + (Wait ? "On" : "Off"));
 			Console.WriteLine("Open when created:" + (AutoOpen ? "On" : "Off"));
+			Console.WriteLine($"Populate: {Populate}");
 			if (Toolbox != null)
 			{
 				Console.WriteLine();
@@ -132,7 +133,8 @@ namespace surveybuilder
 				Console.WriteLine("Target " + (Toolbox));
 				Console.WriteLine("Push Javascripts:" + (PushJs ? "Yes" : ""));
 				Console.WriteLine("Write Xfdf:" + (Xfdf ? "Yes" : ""));
-				Console.WriteLine($"Write LoadXfdf:  {LoadXfdf}");
+				Console.WriteLine($"Load Xfdf:  {LoadXfdf}");
+				Console.WriteLine($"Generate school survey:  {Populate} {Year}");
 			}
 			Console.WriteLine();
 		}
@@ -140,10 +142,37 @@ namespace surveybuilder
 		public string Destination
 		{
 			get {
+				if (Form == null)
+				{
+					return null;
+				}
 				string[] parts = Form.Split('_');
 				return System.IO.Path.Combine(OutputPath
 					, $"{parts[0]} {Year:0000} {parts[1]}.pdf");
 			}
+		}
+
+		public void TestOptions()
+		{
+			if (Form == null && Toolbox == null)
+			{
+				throw new Exception("'form' option is required in Builder mode. Specify a form, or use the Toolbox option");
+			}
+			if (EmisUrl == null && Toolbox == null)
+			{
+				throw new Exception("'url' option is required in Builder mode. Specify the Rest Endpoint of your Pacific EMIS deployment");
+			}
+			if (OutputPath == null && Toolbox == null)
+			{
+				throw new Exception("'output' option is required in Builder mode. Specify the Rest Endpoint of your Pacific EMIS deployment");
+			}
+
+			if (EmisUrl == null && Populate != null)
+			{
+				throw new Exception("'url' option is required for Populate tool mode. Specify the Rest Endpoint of your Pacific EMIS deployment to genereate a populated survey");
+			}
+
+
 		}
 		#endregion
 	}
