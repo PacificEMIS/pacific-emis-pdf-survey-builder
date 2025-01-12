@@ -601,16 +601,18 @@ namespace surveybuilder
 				.SetWidgetRectangle(rect)
 				.SetOptions(optsarray)
 				.CreateComboBox();
-			
+
+			combo.SetFontSize(8);
 			var w = combo.GetFirstFormAnnotation();
 			w.SetBackgroundColor(Colors.WebColors.GetRGBColor("OldLace"));
 			w.SetBorderColor(ColorConstants.LIGHT_GRAY)
-				.SetBorderWidth(1)
-				.SetFontSize(10);
+				.SetBorderWidth(1);
+
 
 			var form = PdfAcroForm.GetAcroForm(thisDoc, true);
 			form.AddField(combo);
 
+			base.Draw(drawContext);
 		}
 	}
 
