@@ -22,6 +22,7 @@ using iText.Kernel.Pdf.Annot;
 using iText.Forms.Form.Renderer;
 using System.Web.UI.WebControls;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using iText.Layout.Borders;
 
 namespace surveybuilder
 {
@@ -104,15 +105,18 @@ namespace surveybuilder
 			var model15 = CellStyleFactory.FiveColumn;
 			var model21 = CellStyleFactory.TwoRowOneColumn;
 			var model31 = CellStyleFactory.ThreeRowOneColumn;
+			
+			// shorthand
+			LookupList classLevels = builder.lookups["classLevels"];
 
 			var colwidths = new float[] { 40, 60, 60, 10, 10, 30, 10, 10 };
 			var subcolwidths = new float[] { 40, 20, 20, 20, 5, 20, 20, 20, 20, 20, 20, 10 };
-			int dutiesLength = builder.lookups["classLevels"].Count + 2;
+			int dutiesLength = classLevels.Count + 2;
 			float[] subsubcolwidths = Enumerable.Repeat<float>(10f, dutiesLength).ToArray();
 
 			PdfAction onOnStaffChange = PdfAction.CreateJavaScript("actions.onOnStaffChange(event);");
 
-			const int MaxTeachers = 80;
+			const int MaxTeachers = 8;
 			for (int i = 0; i < MaxTeachers; i++)
 			{
 				condOnStaff.Add(ConditionalField.IfAny($"TL.{i:00}.tID", $"TL.{i:00}.OnStaff"));
@@ -130,7 +134,7 @@ namespace surveybuilder
 					}
 				);
 
-				const int teachersPerPage = 2;
+				const int teachersPerPage = 3;
 				builder.NewPageIf(document, ((i % teachersPerPage) == teachersPerPage - 1));
 
 				Table table = CellStyleFactory.DefaultTable(colwidths);
@@ -165,9 +169,9 @@ namespace surveybuilder
 					.CreateRadioGroup();
 				grpFP.SetAlternativeName("Does this teacher work full-time or part-time this year?");
 
-				var grpTAM = new RadioFormFieldBuilder(builder.pdfDoc, $"TL.{i:00}.Duties")
-					.CreateRadioGroup();
-				grpTAM.SetAlternativeName("Teachers duties:\nT = teaching only\nA = administration only\nM = mixed; some teaching and some admin");
+				//var grpTAM = new RadioFormFieldBuilder(builder.pdfDoc, $"TL.{i:00}.Duties")
+				//	.CreateRadioGroup();
+				//grpTAM.SetAlternativeName("Teachers duties:\nT = teaching only\nA = administration only\nM = mixed; some teaching and some admin");
 
 				var grpHouse = new RadioFormFieldBuilder(builder.pdfDoc, $"TL.{i:00}.House")
 					.CreateRadioGroup();
@@ -184,55 +188,57 @@ namespace surveybuilder
 					NoCell(model, grpOnStaff)
 				);
 
+				
 				// details in sub table
 				Table subtable = CellStyleFactory.DefaultTable(subcolwidths)
 					.SetMarginBottom(0);
 
 				// holds the duties array as copied from the Census workbook sheet
 				Table subsubTable = CellStyleFactory.DefaultTable(subsubcolwidths)
-					.SetMarginBottom(0);
+					.SetMarginBottom(0)
+					.SetMarginTop(0);
 
-				for (int idx = 0; idx < builder.lookups["classLevels"].Count; idx++)
+				//subsubTable
+				//	.AddRow(ThinHeader,
+				//			TextCell(CellStyleFactory.CreateCell(1, subsubTable.GetNumberOfColumns()),
+				//				"Classes Taught/Tasks Performed (select all that apply)")
+				//);
+				for (int idx = 0; idx < classLevels.Count; idx++)
 				{
 					subsubTable
 							.AddRow(ThinHeader,
-								TextCell(model, builder.lookups["classLevels"][idx].N)
+								TextCell(model, classLevels[idx].N)
 							);
 				}
 				subsubTable.AddRow(ThinHeader,
 					TextCell(model, "Admin"),
 					TextCell(model, "Other")
 					);
-				// number cells per class level	
-				for (int idx = 0; idx < builder.lookups["classLevels"].Count; idx++)
-				{
-					subsubTable
-						.AddRow(ThinData,
-							NumberCell(model, $"TL.{i:00}.Class.A.{idx:00}"));
-				}
-				subsubTable.AddRow(ThinData,
-					NumberCell(model, $"TL.{i:00}.Class.A.A"),
-					NumberCell(model, $"TL.{i:00}.Class.A.X")
-					);
 				//CheckBox cells per class level
 				PdfButtonFormField grp;
 				for (int idx = 0; idx < dutiesLength; idx++)
 				{
+					
 					string id;
-					if (idx == dutiesLength)
-					{
-						id = $"TL.{i:00}.Class.X.X";
-					}
+					string tooltip;
 					if (idx == dutiesLength - 1)
 					{
-						id = $"TL.{i:00}.Class.X.A";
+						id = $"TL.{i:00}.Activity.X";
+						tooltip = "Other duties";
+					} else
+					if (idx == dutiesLength - 2)
+					{
+						id = $"TL.{i:00}.Activity.A";
+						tooltip = "Admin duties";
 					}
 					else
 					{
-						id = $"TL.{i:00}.Class.X.{idx:00}";
+						id = $"TL.{i:00}.Activity.{classLevels[idx].C}";
+						tooltip = $"Teaches {classLevels[idx].N}";
 					}
 					grp = new RadioFormFieldBuilder(builder.pdfDoc, id)
 							.CreateRadioGroup();
+					grp.SetAlternativeName(tooltip);
 					subsubTable
 							.AddRow(ThinData,
 						CellMakers.CheckCell(model, grp, "X", CheckBoxType.SQUARE));
@@ -241,49 +247,24 @@ namespace surveybuilder
 
 				// Role and TAM - most important
 				subtable.AddRow(ThinHeader,
-					TextCell(model21, "Role"),
-					TextCell(model13, ""),
-					TextCell(model, ""),
-					TextCell(model, "T"),
-					TextCell(model, "A"),
-					TextCell(model, "M"),
-					TextCell(model, "F/T"),
-					TextCell(model, "P/T"),
-					TextCell(model12, "days / week")
+					TextCell(model12, "Role"),
+					TextCell(CellStyleFactory.CreateCell(1, subtable.GetNumberOfColumns() - 2),
+						"Classes Taught/Tasks Performed (select all that apply)")
 
 					);
 				subtable.AddRow(ThinData,
 
-					ComboCell(model13, $"TL.{i:00}.Role", builder.lookups.Opt("filteredRoles")),
-					TextCell(model, ""),
-					SelectCell(model, grpTAM, "T"),
-					SelectCell(model, grpTAM, "A"),
-					SelectCell(model, grpTAM, "M"),
-					SelectCell(model, grpFP, "FT"),
-					SelectCell(model, grpFP, "PT"),
-					NumberCell(model12, $"TL.{i:00}.Days")
-					);
-
-				// class levels
-				subtable.AddRow(ThinHeader,
-					TextCell(model31, "Levels Taught"),
-					TextCell(model13, "From:"),
-					TextCell(model, ""),
-					TextCell(model13, "To"),
-					TextCell(model14, "")
-					);
-
-				subtable.AddRow(ThinData,
-
-					ComboCell(model13, $"TL.{i:00}.Class.Min", builder.lookups.Opt("classLevels")),
-					TextCell(model, ""),
-					ComboCell(model13, $"TL.{i:00}.Class.Max", builder.lookups.Opt("classLevels")),
-					TextCell(model14, "")
+					ComboCell(model12, $"TL.{i:00}.Role", builder.lookups.Opt("filteredRoles"))
+					//TextCell(model, "")
+					
 					);
 
 				// Activities array
-				Cell activities = new Cell(1, subtable.GetNumberOfColumns() - 1);
-				subtable.AddRow(ElementCell(activities, subsubTable).Style(ss["abstractcell"]));
+				Cell activities = CellStyleFactory.CreateCell(1, subtable.GetNumberOfColumns() - 1);
+					
+				subtable.AddRow(ss["unpaddedabstractcell"],
+					ElementCell(activities, subsubTable)
+					);
 
 				// above Qualifications, put the labels 'Education' 'General'
 				subtable.AddRow(ThinHeader,
@@ -291,17 +272,17 @@ namespace surveybuilder
 					TextCell(model13, "Education"),
 					TextCell(model, ""),
 					TextCell(model13, "General"),
-					TextCell(model14, "Last Inservice  year/topic")
+					TextCell(model14, "Last Inservice: year & topic")
 					);
 
 				subtable.AddRow(ThinData,
 					//TextCell(model, "Qualification"),
-					ComboCell(model13, $"TL.{i:00}.Qual", builder.lookups.Opt("qualN")),
-					TextCell(model, ""),
 					ComboCell(model13, $"TL.{i:00}.QualEd", builder.lookups.Opt("qualEd")),
+					TextCell(model, ""),
+					ComboCell(model13, $"TL.{i:00}.Qual", builder.lookups.Opt("qualN")),
 					NumberCell(model, $"TL.{i:00}.InService.Year"),
-					TextCell(model, "Topic"),
-					InputCell(model13, $"TL.{i:00}.InService.Topic", 20)
+					//TextCell(model, "Topic"),
+					InputCell(model14, $"TL.{i:00}.InService.Topic", 20)
 					);
 
 				
@@ -320,15 +301,22 @@ namespace surveybuilder
 					TextCell(model13, "Salary Paid By"),
 					TextCell(model, ""),
 					TextCell(model13, "Status"),
-					TextCell(model14, "Year started teaching")
+					TextCell(model, "F/T"),
+					TextCell(model, "P/T"),
+					TextCell(model, "days/week"),
+					TextCell(model, "")
 					);
 				subtable.AddRow(ThinData,
 
-					ComboCell(model13, $"TL.{i:00}.PaidBy", builder.lookups.Opt("nationalities")),
+					ComboCell(model13, $"TL.{i:00}.PaidBy", builder.lookups.Opt("authorities")),
 					TextCell(model, ""),
-					ComboCell(model13, $"TL.{i:00}.EmpStatus", builder.lookups.Opt("nationalities")),
-					NumberCell(model12, $"TL.{i:00}.YearStarted"),
+					ComboCell(model13, $"TL.{i:00}.EmpStatus", builder.lookups.Opt("teacherStatus")),
+					// now collected as F P, not FT PT note tchFullPart is nvarchar(1) so this has always neem truncated
+					SelectCell(model, grpFP, "F"),		
+					SelectCell(model, grpFP, "P"),
+					NumberCell(model, $"TL.{i:00}.Days"),
 					TextCell(model12, "")
+
 				);
 
 				////// Employment
@@ -348,14 +336,18 @@ namespace surveybuilder
 					TextCell(model13, "Citizenship"),
 					TextCell(model, ""),
 					TextCell(model13, "Home Island"),
-					TextCell(model14, "")
+					TextCell(model, ""),
+					TextCell(model13, "Year Started Teaching")
 					);
 				subtable.AddRow(ThinData,
 
 					ComboCell(model13.SetHeight(16), $"TL.{i:00}.Citizenship", builder.lookups.Opt("nationalities")),
 					TextCell(model.SetHeight(16), ""),
 					ComboCell(model13.SetHeight(16), $"TL.{i:00}.HomeIsland", builder.lookups.Opt("islands")),
-					TextCell(model14.SetHeight(16), "")
+					TextCell(model.SetHeight(16), ""),
+					NumberCell(model, $"TL.{i:00}.YearStarted"),
+					TextCell(model12.SetHeight(16), "")
+
 					);
 
 				// family status
@@ -364,12 +356,13 @@ namespace surveybuilder
 					TextCell(model13, "Marital Status"),
 					TextCell(model, ""),
 					TextCell(model13, "Dependant children"),
-					TextCell(model14, "House Provided")
+					TextCell(model12, "House Provided"),
+					TextCell(model12, "")
 					);
 
 				subtable.AddRow(ThinData,
 
-					ComboCell(model13.SetHeight(18), $"TL.{i:00}.MaritalStatus", builder.lookups.Opt("nationalities")),
+					ComboCell(model13.SetHeight(18), $"TL.{i:00}.MaritalStatus", builder.lookups.Opt("maritalStatus")),
 					TextCell(model.SetHeight(18), ""),
 					NumberCell(model13.SetHeight(18), $"TL.{i:00}.Dep"),
 					YesCell(model.SetHeight(18), grpHouse),
