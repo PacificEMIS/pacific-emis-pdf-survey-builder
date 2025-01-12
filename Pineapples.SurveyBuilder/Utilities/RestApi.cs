@@ -12,6 +12,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Contexts;
 using System.Diagnostics;
+using iText.Kernel.Pdf;
+using System.Security.Cryptography;
 
 namespace surveybuilder
 {
@@ -149,10 +151,30 @@ namespace surveybuilder
 
 						// Write the PDF to a file
 						// Destination file path (e.g., saving to Downloads folder)
-						string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", filename);
-						File.WriteAllBytes(filePath, pdfData);
 
-						Console.WriteLine($"PDF downloaded successfully and saved to: {filePath}");
+						string retry = "";
+						string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", filename);
+						do
+						{
+							
+							try
+							{
+								retry = "";
+								File.WriteAllBytes(filePath, pdfData);
+
+								Console.WriteLine($"PDF downloaded successfully and saved to: {filePath}");
+
+							}
+							catch(Exception e)
+							{
+								Console.WriteLine($"Unable to open {filePath} for writing. Press Y to retry...");
+								retry = Console.ReadLine();
+								if (retry.ToLower() != "y")
+								{
+									throw e;
+								}
+							}
+						} while (retry.ToLower() == "y");
 						return filePath;
 					}
 					else

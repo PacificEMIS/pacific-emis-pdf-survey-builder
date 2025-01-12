@@ -68,7 +68,8 @@ namespace surveybuilder.Utilities
 			}
 			if (!String.IsNullOrEmpty(opts.Populate))
 			{
-				Populate();
+				Console.WriteLine($"Generating survey for {opts.Populate} year {opts.Year}");
+				opts.Toolbox = Populate();
 			}
 
 			if (!String.IsNullOrEmpty(opts.LoadXfdf))
