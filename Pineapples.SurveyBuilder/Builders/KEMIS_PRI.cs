@@ -92,52 +92,6 @@ namespace surveybuilder
 			NewPage(document);
 			Rectangle rect = new Rectangle(100, 700, 20, 20); // x, y, width, height
 
-			// Create the annotation with explanatory text
-			PdfAnnotation annotation = new PdfTextAnnotation(rect)
-				.SetIconName(new PdfName("Help")) // Set the "Help" icon
-				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
-				.SetContents("This is some explanatory text."); // The text displayed when clicked
-				
-			
-
-			//annotation.SetOpen(false); // Annotation is closed by default
-
-			// Add the annotation to the page
-			int currentPageNumber = pdfDoc.GetNumberOfPages();
-			PdfPage currentPage = pdfDoc.GetPage(currentPageNumber);
-
-			currentPage.AddAnnotation(annotation);
-
-			rect = new Rectangle(100, 600, 40, 40); // x, y, width, height
-
-			// Create the annotation with explanatory text
-			annotation = new PdfTextAnnotation(rect)
-				.SetIconName(new PdfName("Comment")) // Set the "Help" icon
-				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
-				.SetContents("This is some explanatory text."); // The text displayed when clicked
-			annotation.SetFlags(PdfAnnotation.READ_ONLY + PdfAnnotation.LOCKED + PdfAnnotation.LOCKED_CONTENTS);
-			currentPage.AddAnnotation(annotation);
-
-			rect = new Rectangle(300, 500, 60, 60); // x, y, width, height
-
-			// Create the annotation with explanatory text
-			annotation = new PdfTextAnnotation(rect)
-				.SetIconName(new PdfName("Note")) // Set the "Help" icon
-				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
-				.SetContents("This is some explanatory text. https://www.google.com"); // The text displayed when clicked
-			annotation.SetFlags(PdfAnnotation.READ_ONLY + PdfAnnotation.LOCKED + PdfAnnotation.LOCKED_CONTENTS);
-			currentPage.AddAnnotation(annotation);
-
-			rect = new Rectangle(300, 400, 30, 30); // x, y, width, height
-
-			// Create the annotation with explanatory text
-			annotation = new PdfTextAnnotation(rect)
-				.SetIconName(new PdfName("Info")) // Set the "Help" icon
-				.SetTitle(new PdfString("Note")) // Title of the note (shown in Acrobat)
-				.SetContents("This is some explanatory text. The Internet Rachcel device cn be learned about here."); // The text displayed when clicked
-			annotation.SetFlags(PdfAnnotation.READ_ONLY + PdfAnnotation.LOCKED);
-			currentPage.AddAnnotation(annotation);
-
 			AddOutline(document, enrolOutline, "Repeaters");
 			document.Add(Heading_2("Repeaters"));
 
@@ -375,7 +329,7 @@ namespace surveybuilder
 							.FilterByMetadata("E", true);       // ed quals
 			lookups.Add("qualEd", tmp);
 			tmp = lookups["teacherQualGroups"]
-				.FilterByMetadata("E", false);       
+				.FilterByMetadata("E", false);
 			lookups.Add("qualN", tmp);
 
 			// resource types we'll filter from the ResourceDefinitions lookup
@@ -386,6 +340,13 @@ namespace surveybuilder
 					.FilterByMetadata("Cat", "Water Supply");
 			lookups.Remove("waterSupplyTypes");
 			lookups.Add("waterSupplyTypes", tmp);
+			//
+			tmp = lookups["teacherStatus"]
+					.Where(entry => new[] { "C", "P", "T", "V" }.Contains(entry.C)).ToLookupList();
+			lookups.Remove("teacherStatus");
+			lookups.Add("teacherStatus", tmp);
+
+
 
 		}
 

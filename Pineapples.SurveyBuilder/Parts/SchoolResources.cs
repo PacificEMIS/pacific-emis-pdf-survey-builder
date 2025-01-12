@@ -93,33 +93,6 @@ namespace surveybuilder
 			}
 
 
-			document.Add(builder.Heading_3("Internet Resources"));
-
-			Table table = CellStyleFactory.DefaultTable(80, 10, 10);
-
-			PdfButtonFormField rgrp1 = new RadioFormFieldBuilder(builder.pdfDoc, "Survey.InternetRachel")
-				.CreateRadioGroup();
-			rgrp1.SetAlternativeName("RACHEL access");
-			requiredFields.Add(rgrp1.GetFieldName().ToString());
-
-			table.AddRow(ss[TableHeaderStyle],
-				TextCell(model, ""),
-				TextCell(model, "Yes"),
-				TextCell(model, "No")
-			);
-			table.AddRow(
-				TextCell(model,"Does your school have access to internet or to a device like RACHEL*")
-					.Style(ss[TableBaseStyle]),
-				YesCell(model, rgrp1),
-				NoCell(model, rgrp1)
-			);
-
-			document.Add(table);
-
-			document.Add(new Paragraph()
-				.Add(@"* RACHEL (Remote Area Community Hotspot for Education and Learning) is a portable, battery-powered, device that "
-				+ "contains education resources that can be used for teacher and learning even offline.")
-			);
 
 			requiredFields.GenerateJavaScript(document.GetPdfDocument());
 			conditionalFields.GenerateJavaScript(document.GetPdfDocument());

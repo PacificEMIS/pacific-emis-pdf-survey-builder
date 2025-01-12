@@ -1109,7 +1109,11 @@ namespace surveybuilder
 					SizeToContents = true,
 					PaddingTop = 10
 				};
-
+			styles["unpaddedabstractcell"] =
+				new PdfStyle(styles["abstractcell"])
+				{
+					PaddingTop = 0
+				};
 			// seed the CellStyleFactory with tablebase
 			// which will get applied to everything
 			CellStyleFactory.BaseStyle = styles["tablebase"];

@@ -98,6 +98,7 @@ namespace surveybuilder
 
 		static void RunWithOptions(Options opts)
 		{
+			opts.TestOptions();
 			string dest = opts.Destination;
 			opts.ToConsole();
 			// deal with the toolbox
