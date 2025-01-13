@@ -39,6 +39,8 @@ namespace surveybuilder
 		public int SurveyYear;			// placeholder for the survey year
 
 		public Boolean facingPages = false;
+		public float leftMargin = 36;
+		public float rightMargin = 36;
 
 		#region IBuilder interface
 		public virtual string Description
@@ -78,6 +80,7 @@ namespace surveybuilder
 
 
 
+		// most of this not used
 		private string pageHeaderLeft;
 		private string pageHeaderRight;
 		public PdfBuilder SetPageHeader(string pageHeader)
@@ -108,6 +111,15 @@ namespace surveybuilder
 		{
 			return this.facingPages;
 		}
+		public PdfBuilder SetMargin(float leftMargin, float rightMargin)
+		{
+			this.leftMargin = leftMargin;
+			this.rightMargin = rightMargin;
+			return this;
+		}
+
+
+
 
 		private IEventHandler currentPageHandler = null;
 		private IEventHandler currentHeaderHandler = null;
@@ -136,7 +148,7 @@ namespace surveybuilder
 			}
 
 			IEventHandler headerHandler = new HeaderEventHandler(dynamicHeaderText, facingPages);
-			IEventHandler footerHandler = new FieldFooterEventHandler(facingPages);
+			IEventHandler footerHandler = new FieldFooterEventHandler(facingPages, leftMargin, rightMargin);
 			IEventHandler compositeHandler = new CompositeEventHandler(headerHandler, footerHandler);
 			currentPageHandler = compositeHandler;
 			currentHeaderHandler = headerHandler;

@@ -48,7 +48,7 @@ namespace surveybuilder
 
 			Document document = new Document(pdfDoc, PageSize.A4);
 			SetFacingPages(true);
-			SetPageHeader("left page", "right page");
+			SetMargin(document.GetLeftMargin(), document.GetRightMargin());
 			// add the javascript libraries
 			LoadJs();
 

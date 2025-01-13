@@ -130,10 +130,14 @@ namespace surveybuilder
 	{
 
 		private bool facingPages;
+		private float leftMargin;
+		private float rightMargin;
 
-		public FieldFooterEventHandler(bool facingPages)
+		public FieldFooterEventHandler(bool facingPages, float leftMargin, float rightMargin)
 		{
 			this.facingPages = facingPages;
+			this.leftMargin = leftMargin;
+			this.rightMargin = rightMargin;
 		}
 		public void HandleEvent(Event @event)
 		{
@@ -158,24 +162,26 @@ namespace surveybuilder
 			TextAlignment fieldalignment = TextAlignment.CENTER;
 			if (facingPages)
 			{
-				var x = pageNumber % 2 == 0 ? pageSize.GetLeft() + 10: (pageSize.GetRight()-10 -300);
-				footerFieldRect = new Rectangle(x, 20, 300, 20); // (x, y, width, height)
+				var x = pageNumber % 2 == 0 ?
+					pageSize.GetLeft() + leftMargin: (pageSize.GetRight()- rightMargin -300);
+				footerFieldRect = new Rectangle(x, 10, 300, 10); // (x, y, width, height)
 				fieldalignment = pageNumber % 2 == 0 ? TextAlignment.LEFT : TextAlignment.RIGHT;
 			}
 			else
 			{
 				var x = (pageSize.GetLeft() + pageSize.GetRight() )/ 2 - 150;
-				footerFieldRect = new Rectangle(x, 20, 300, 20); // (x, y, width, height)
+				footerFieldRect = new Rectangle(x, 0, 300, 10); // (x, y, width, height)
 			}
 			
-			float footerX = facingPages && pageNumber % 2 == 0 ? pageSize.GetRight() -10: pageSize.GetLeft() + 10;
-			float footerY = pageSize.GetBottom() + 20;
+			float footerX = facingPages && pageNumber % 2 == 0 ? 
+				pageSize.GetRight() - rightMargin: pageSize.GetLeft() + leftMargin;
+			float footerY = pageSize.GetBottom() + 10;
 			TextAlignment alignment = facingPages && pageNumber % 2 == 0 ? TextAlignment.RIGHT : TextAlignment.LEFT;
 
 			// Add footer
 			Canvas canvas = new Canvas(page, pageSize);
 			canvas
-				.SetFontSize(10)
+				.SetFontSize(8)
 				.ShowTextAligned(new Paragraph("Page " + displayedPageNumber),
 								   footerX, footerY, alignment);
 			canvas.Close();
@@ -186,14 +192,14 @@ namespace surveybuilder
 				.SetWidgetRectangle(footerFieldRect)
 				.SetPage(pageNumber)
 				.CreateText();
-		
-			newField.SetFieldFlag(PdfFormField.FF_READ_ONLY, true);
-			newField.SetValue(pdfDoc.GetDocumentInfo().GetTitle());
-			newField.SetJustification(fieldalignment);
 
+			newField.SetFieldFlag(PdfFormField.FF_READ_ONLY, true)
+				.SetValue(pdfDoc.GetDocumentInfo().GetTitle())
+				.SetJustification(fieldalignment)
+				.SetFontAndSize(PdfFontFactory.CreateFont(StandardFonts.HELVETICA),8);
 			
-
-			var w = newField.GetFirstFormAnnotation();
+			// for debugging position of footer
+			//var w = newField.GetFirstFormAnnotation();
 			//w.SetBackgroundColor(NamedColors.BurlyWood);
 
 			// Add the field to the AcroForm
