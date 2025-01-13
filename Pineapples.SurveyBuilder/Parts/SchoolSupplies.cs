@@ -38,8 +38,8 @@ namespace surveybuilder
 			);
 
 			var chk = new CheckBoxPickmaker();
-			chk.Names = new string[] { "None Received", "Some Received", "Half Received", "Most Received", "All Received" };
-			chk.Values = new object[] { 0, 1, 2, 3, 4 };
+			chk.Names = new string[] { "All Received", "Most Received","Half Received","Some Received", "None Received" };
+			chk.Values = new object[] { "All", "Most", "Half", "Some", "None" };
 			chk.Types = new CheckBoxType[] {CheckBoxType.SQUARE, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.CROSS };
 			chk.Tag = "Supplies.Student";

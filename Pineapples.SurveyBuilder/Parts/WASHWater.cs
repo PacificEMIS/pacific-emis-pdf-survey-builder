@@ -115,6 +115,7 @@ namespace surveybuilder
 				// OK is a Y/N field supported on the server in xfdfResourceList - use that...
 				string fieldNum = $"Resource.Water.D.{i:00}.OK";
 				PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldNum).CreateRadioGroup();
+				rgrp.SetAlternativeName($"{waterSupplyTypes[i].N} covered/protected");
 				tableWST.AddCell(YesCell(model, rgrp));
 				tableWST.AddCell(NoCell(model, rgrp));
 			}
@@ -131,7 +132,7 @@ namespace surveybuilder
 			);
 
 			string[] Columns = { "Excellent", "Very Good", "Satisfactory", "Poor", "Very Bad" };
-			object[] values = { 4, 3, 2, 1, 0 };
+			object[] values = { "Excellent", "Very_Good", "Satisfactory", "Poor", "Very_Bad" };
 
 			var chk = new CheckBoxPickmaker();
 			chk.Names = Columns;
@@ -153,7 +154,7 @@ namespace surveybuilder
 
 			chk = new CheckBoxPickmaker();
 			chk.Names = new string[] { "Rainwater", "Groundwater", "Desalinated water", "Bottled water" };
-			chk.Values = new object[] { 1, 2, 3, 4 };
+			chk.Values = new object[] { "Rainwater", "Groundwater", "Desal", "Bottled" };
 			chk.DefaultColor = ColorConstants.PINK;
 			chk.Tag = "Wash.Water.Source";
 			chk.Description = "Primary source of drinking water";
@@ -166,7 +167,7 @@ namespace surveybuilder
 
 			chk = new CheckBoxPickmaker();
 			chk.Names = new string[] { "Boiling", "Chlorination", "SODIS", "No water treatment" };
-			chk.Values = new object[] { 1, 2, 3, 4 };
+			chk.Values = new object[] { "Boil", "Chlorinate", "SODIS", "None" };
 			chk.Colors = new Color[] { ColorConstants.PINK, null, ColorConstants.ORANGE };
 			chk.Tag = "Wash.Water.Treatment";
 			chk.Description = "Water treatment used";
@@ -185,7 +186,7 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Answer")))
 			);
 			tableWaterTreatment.AddRow(
-				TextCell(model, ts.TableBaseStyle("Date tested:")),
+				TextCell(model, ts.TableBaseStyle("Date tested (yyyy-mm-dd):")),
 				DateCell(model, "Wash.Water.Test.Date")
 			);
 			tableWaterTreatment.AddRow(
@@ -203,7 +204,7 @@ namespace surveybuilder
 			conditionalFields.Add(new ConditionalField()
 			{
 				Test = "Wash.Water.Treatment",
-				Value = new string[] { "1", "2", "3" },
+				Value = new string[] { "Boil", "Chlorinate", "SODIS" },
 				Rq = new string[] { "Wash.Water.Test.Date", "Wash.Water.Test.By", "Wash.Water.Test.Result" }
 			});
 			conditionalFields.GenerateJavaScript(document.GetPdfDocument());

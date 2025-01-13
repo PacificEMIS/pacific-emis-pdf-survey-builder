@@ -128,7 +128,7 @@ namespace surveybuilder
 			builder.AddParagraph(prompt, document);
 
 			string[] Columns = { "Excellent", "Very Good", "Satisfactory", "Poor", "Very Bad" };
-			object[] values = { 1, 2, 3, 4, 5 };
+			object[] values = { "Excellent", "Very_Good", "Satisfactory", "Poor", "Very_Bad" };
 
 			var chk = new CheckBoxPickmaker();
 			chk.Names = Columns;
