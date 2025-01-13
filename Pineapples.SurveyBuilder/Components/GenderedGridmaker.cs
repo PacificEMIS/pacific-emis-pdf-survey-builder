@@ -233,8 +233,7 @@ namespace surveybuilder
 
 				{
 					float textwidth = headerStyle.Measure(Rows[i].N.Nbsp());
-
-					Debug.WriteLine($"{Rows[i].N.Nbsp()} {textwidth}");
+					
 					table.AddRow(headerStyle,
 							ValueCell(cellmodel.Clone(false).SetMinWidth(textwidth), $"{Tag}.R.{i:00}.V", Rows[i].N.Nbsp(),
 							StyleConfigurer(headerStyle))
