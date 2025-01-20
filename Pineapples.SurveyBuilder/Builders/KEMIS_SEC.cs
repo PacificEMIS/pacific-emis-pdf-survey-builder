@@ -276,6 +276,21 @@ namespace surveybuilder
 			tmp = lookups["teacherQualGroups"]
 				.FilterByMetadata("E", false);       // use values for combined sec school
 			lookups.Add("qualN", tmp);
+
+			// resource types we'll filter from the ResourceDefinitions lookup
+			// this gives us access to the Prompt... info which we don't otherwise have
+			// Changing the definition of the lookup in DSLookups is problematic
+			// becuase it is used for the census workbook processing
+			tmp = lookups["metaResourceDefinitions"]
+					.FilterByMetadata("Cat", "Water Supply");
+			lookups.Remove("waterSupplyTypes");
+			lookups.Add("waterSupplyTypes", tmp);
+			//
+			tmp = lookups["teacherStatus"]
+					.Where(entry => new[] { "C", "P", "T", "V" }.Contains(entry.C)).ToLookupList();
+			lookups.Remove("teacherStatus");
+			lookups.Add("teacherStatus", tmp);
+
 		}
 
 
