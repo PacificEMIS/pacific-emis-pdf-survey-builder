@@ -144,7 +144,9 @@ namespace surveybuilder
 
 						if (contentDisposition != null && !string.IsNullOrEmpty(contentDisposition.FileName))
 						{
-							filename = contentDisposition.FileName.Trim('"');
+							// there is one school in KI as of Jan 2025 with a / in its name
+							// KPS019- this breaks the download
+							filename = contentDisposition.FileName.Trim('"').Replace(@"/","-");
 						}
 						// Read the PDF content as a byte array
 						byte[] pdfData = await response.Content.ReadAsByteArrayAsync();
