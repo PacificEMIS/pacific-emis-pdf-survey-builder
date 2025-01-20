@@ -196,8 +196,9 @@ namespace surveybuilder.Utilities
 			Console.WriteLine("Removing Javascript");
 			var javaScriptNameTree = pdfDoc.GetCatalog().GetNameTree(PdfName.JavaScript);
 
-			//removeall
-			foreach (var jsName in javaScriptNameTree.GetKeys())
+			//removeall - preserve those that are 'dynamically' generated
+			foreach (var jsName in javaScriptNameTree.GetKeys()
+				.Where(jsname => jsname.ToString().EndsWith(".js")))
 			{
 				Console.WriteLine($"Removing javascript: {jsName}");
 				javaScriptNameTree.RemoveEntry(jsName);
@@ -306,5 +307,44 @@ namespace surveybuilder.Utilities
 		}
 		#endregion
 
+		#region Scripting
+		public void Script()
+		{
+			// must have year, emisurl, and access to the lookup listof schools
+			if (opts.Year == 0)
+			{
+				Console.WriteLine($"Year must be supplied when scripting");
+				return;	
+			}
+			if (String.IsNullOrEmpty(opts.EmisUrl))
+			{
+				Console.WriteLine($"EmisUrl must be supplied when scripting");
+				return;
+			}
+
+			string app = Assembly.GetExecutingAssembly().Location;
+			LookupManager lm = new LookupManager(null, opts.EmisUrl);
+			LookupList schools = lm["schoolNames"]
+				.OrderBy(entry => entry.C).ToLookupList();
+			
+			// open a text file for output
+			string script = System.IO.Path.Combine(opts.OutputPath, opts.Script);
+			// change extension to .bat
+			script = System.IO.Path.ChangeExtension(script, "bat");
+			FileStream fs = new FileStream(script, FileMode.Create, FileAccess.Write);
+			StreamWriter sw = new StreamWriter(fs);
+			sw.WriteLine($"SET EmisUrl={opts.EmisUrl}");
+			sw.WriteLine($"SET AppPath=\"{app}\"");
+
+			foreach (LookupEntry school in schools)
+			{
+				sw.WriteLine($"REM {school.C} {school.N}");
+				sw.WriteLine($"\"%appPath%\" -u %EmisUrl% -y {opts.Year} --toolbox \" \" --populate {school.C}");
+			}
+			
+			sw.Close();
+		}
+		#endregion
 	}
+	
 }

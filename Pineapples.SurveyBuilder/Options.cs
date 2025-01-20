@@ -111,6 +111,10 @@ namespace surveybuilder
 
 		[Option("loadxfdf", Required = false, HelpText = "Load an Xfdf file into the toolbox target")]
 		public string LoadXfdf { get; set; }
+
+		[Option("script", Required = false, HelpText = "Script file name for output")]
+		public string Script { get; set; }
+
 		#endregion
 
 		#region helper methods
@@ -126,7 +130,13 @@ namespace surveybuilder
 			Console.WriteLine("Wait on completion:" + (Wait ? "On" : "Off"));
 			Console.WriteLine("Open when created:" + (AutoOpen ? "On" : "Off"));
 			Console.WriteLine($"Populate: {Populate}");
-			if (Toolbox != null)
+
+			if (Script != null) { 
+			Console.WriteLine();
+			Console.WriteLine("SCRIPT MODE");
+			Console.WriteLine($"Script: {Script}");
+			}
+			else if(Toolbox != null)
 			{
 				Console.WriteLine();
 				Console.WriteLine("TOOLBOX MODE");
@@ -154,19 +164,26 @@ namespace surveybuilder
 
 		public void TestOptions()
 		{
-			if (Form == null && Toolbox == null)
+			if (Form == null && Toolbox == null && Script == null)
 			{
 				throw new Exception("'form' option is required in Builder mode. Specify a form, or use the Toolbox option");
 			}
-			if (EmisUrl == null && Toolbox == null)
+			if (EmisUrl == null && Toolbox == null && Script == null)
 			{
 				throw new Exception("'url' option is required in Builder mode. Specify the Rest Endpoint of your Pacific EMIS deployment");
 			}
-			if (OutputPath == null && Toolbox == null)
+			if (EmisUrl == null && Script != null)
 			{
-				throw new Exception("'output' option is required in Builder mode. Specify the Rest Endpoint of your Pacific EMIS deployment");
+				throw new Exception("'url' option is required in Script mode. Specify the Rest Endpoint of your Pacific EMIS deployment");
 			}
-
+			if (OutputPath == null && Toolbox == null && Script == null)
+			{
+				throw new Exception("'output' option is required in Builder mode. Specify the folder for the generated survey");
+			}
+			if (OutputPath == null && Script != null)
+			{
+				throw new Exception("'output' option is required in Script mode. Specify the folder for the generated script");
+			}
 			if (EmisUrl == null && Populate != null)
 			{
 				throw new Exception("'url' option is required for Populate tool mode. Specify the Rest Endpoint of your Pacific EMIS deployment to genereate a populated survey");
