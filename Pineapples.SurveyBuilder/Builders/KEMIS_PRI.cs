@@ -122,16 +122,6 @@ namespace surveybuilder
 				.Build(this, document);
 			NewPage(document);
 
-			AddOutline(document, enrolOutline, "Single Teacher Classes");
-			document.Add(Heading_2("Single Teacher Classes"));
-			document = new SingleTeacherClasses().Build(this, document);
-			NewPage(document);
-
-			AddOutline(document, enrolOutline, "Joint Teacher Classes");
-			document.Add(Heading_2("Joint Teacher Classes"));
-			document = new JointTeacherClasses().Build(this, document);
-			NewPage(document);
-
 			#endregion
 
 			#region *********** Staff *************
