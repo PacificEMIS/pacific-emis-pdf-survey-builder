@@ -1,4 +1,5 @@
 ﻿using iText.Kernel.Pdf;
+using Org.BouncyCastle.Tls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,107 @@ using System.Threading.Tasks;
 
 namespace surveybuilder
 {
+	public static class ValidationManager
+	{
+		static int sequence = 0;
+		/// <summary>
+		/// Adds a list of required fields to the document
+		/// </summary>
+		/// <param name="pdfDoc">The document to add the fields to</param>
+		/// <param name="fields">The fields to add</param>
+		/// <returns>The JavaScript that was added to the document</returns>
+		public static string AddRequiredFields(PdfDocument pdfDoc, RequiredFields fields)
+		{
+			string script =  fields.GenerateJavaScript(pdfDoc, sequence++);
+			// write the script to a debug file in the current directory
+			// this is useful for debugging the script
+			// and for checking that the script is being generated correctly
+			// the script can be copied from the file and pasted into the console
+			// for testing
+			string folder = System.IO.Directory.GetCurrentDirectory();
+			string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
+			System.IO.File.WriteAllText(debugFile, script);
+			return script;
+		}
+		/// <summary>
+		/// Adds a list of conditional fields to the document
+		/// </summary>
+		/// <param name="pdfDoc">The document to add the fields to</param>
+		/// <param name="fields">The fields to add</param>
+		/// <returns>The JavaScript that was added to the document</returns>
+		public static string AddConditionalFields(PdfDocument pdfDoc, ConditionalFields fields)
+		{
+			string script =  fields.GenerateJavaScript(pdfDoc, sequence++);
+			string folder = System.IO.Directory.GetCurrentDirectory();
+			string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
+			System.IO.File.WriteAllText(debugFile, script);
+			return script;
+
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="pdfDoc"></param>
+		/// <param name="fields"></param>
+		/// <returns></returns>
+		private static string AddRequiredFields(PdfDocument pdfDoc, List<RequiredFields> fields)
+		{
+			StringBuilder jsBuilder = new StringBuilder();
+			foreach (var field in fields)
+			{
+				jsBuilder.AppendLine(AddRequiredFields(pdfDoc, field));
+			}
+			return jsBuilder.ToString();
+		}
+
+		private static string AddConditionalFields(PdfDocument pdfDoc, List<ConditionalFields> fields)
+		{
+			StringBuilder jsBuilder = new StringBuilder();
+			foreach (var field in fields)
+			{
+				jsBuilder.AppendLine(AddConditionalFields(pdfDoc, field));
+			}
+			return jsBuilder.ToString();
+		}
+
+		/// <summary>
+		/// Convert an array of strings into an array of string arrays
+		/// this is used for preparing arguments of this form from simple strings
+		public static string[][] ToArrayArray(params string[] array)
+		{
+			string[][] result = new string[array.Length][];
+			for (int i = 0; i < array.Length; i++)
+			{
+				result[i] = new string[] { array[i] };
+			}
+			return result;
+		}
+		/// <summary>
+		/// Convert an array of strings into a list of string arrays
+		/// </summary>
+		/// <param name="array"></param>
+		/// <returns></returns>
+		public static List<string[]> ToArrayList(params string[] array)
+		{
+			List<string[]> result = new List<string[]>();
+			for (int i = 0; i < array.Length; i++)
+			{
+				result.Add(new string[] { array[i] });
+			}
+			return result;
+		}
+
+		public static string ArrayToJson(string[] array)
+		{
+			return $"[{string.Join(", ", array.Select(item => $"\"{item}\""))}]";
+		}
+
+		public static string ArrayArrayToJson(string[][] arrayArray)
+		{
+			return $"[{string.Join(", ", arrayArray.Select(array => ArrayToJson(array)))}]";
+		}
+	}
 	/// <summary>
 	/// Describes a test of fields that are required (or not) based on the value of another field
 	/// </summary>
@@ -27,9 +129,9 @@ namespace surveybuilder
 		public string[] Value;
 
 		/// <summary>
-		/// An array of the names of dependent fields
+		/// An list of arrays of the names of dependent fields
 		/// </summary>
-		public string[] Rq;
+		public List<string[]> Rq = new List<string[]>();
 
 		/// <summary>
 		/// Convenience function to create a test that makes a single field required, based on the value
@@ -38,12 +140,11 @@ namespace surveybuilder
 		/// <param name="test">name of field to test</param>
 		/// <param name="rq">name of dependent field</param>
 		/// <returns></returns>
-		public static ConditionalField IfYes(string test, string rq)
+		public static ConditionalField IfYes(string test)
 		{
 			return new ConditionalField(test)
 			{
 				Value = new string[] { "Y" },
-				Rq = new string[] { rq }
 			};
 		}
 		/// <summary>
@@ -54,31 +155,92 @@ namespace surveybuilder
 		/// <returns></returns>
 		public static ConditionalField IfYes(string test, params string[] rq)
 		{
-			return new ConditionalField(test)
+			var cf =  new ConditionalField(test)
 			{
-				Value = new string[] { "Y" },
-				Rq = rq
+				Value = new string[] { "Y" }
 			};
+			cf.AddAll(rq);
+			return cf;
+		}
+		public static ConditionalField IfYesAlternatives(string test, params string[] rq)
+		{
+			var cf = new ConditionalField(test)
+			{
+				Value = new string[] { "Y" }
+			};
+			cf.AddAlternatives(rq);
+			return cf;
 		}
 
 		//values is a 0-length array when any non-null value is a match
 		public static ConditionalField IfAny(string test, string rq)
 		{
-			return new ConditionalField(test)
+			var cf = new ConditionalField(test)
 			{
-				Value = new string[] { },
-				Rq = new string[] { rq }
+				Value = new string[] { }
 			};
+			cf.AddAll(rq);
+			return cf;
 		}
 		/// <param name="rq">Accept an array of dependent fields</param>
 		public static ConditionalField IfAny(string test, params string[] rq)
 		{
-			return new ConditionalField(test)
+			var cf = new ConditionalField(test)
 			{
-				Value = new string[] { },
-				Rq = rq
+				Value = new string[] { }
 			};
+			cf.AddAll(rq);
+			return cf;
 		}
+
+		public static ConditionalField IfAnyAlternatives(string test, params string[] rq)
+		{
+			var cf = new ConditionalField(test)
+			{
+				Value = new string[] { }
+			};
+			cf.AddAlternatives(rq);
+			return cf;
+		}
+		// manipulating the dependent fields
+		/// <summary>
+		/// Add a single field to the list of dependent fields
+		/// </summary>
+		/// <param name="rq"></param>
+		/// <returns></returns>
+		private ConditionalField Add(string rq)
+		{
+			Rq.Add(new string[] { rq });
+			return this;
+		}
+
+		/// <summary>
+		/// Add a list of fields to the list of dependent fields
+		/// Each field is required if the test field matches the Value
+		/// </summary>
+		/// <param name="rq"></param>
+		/// <returns></returns>
+		public ConditionalField AddAll(params string[] rq)
+		{
+			foreach (string s in rq)
+			{
+				Rq.Add(new string[] { s });
+			}
+			return this;
+		}
+
+		/// <summary>
+		/// Add a set of alternative fields to the list of dependent fields
+		/// At least one of these values is required if the test field matches the Value
+		/// </summary>
+		/// <param name="rq"></param>
+		/// <returns>the Conditional</returns>
+		public ConditionalField AddAlternatives(params string[] rq)
+		{
+			Rq.Add(rq);
+			return this;
+		}
+
 	};
 
 	public class ConditionalFields : List<ConditionalField>
@@ -105,7 +267,7 @@ namespace surveybuilder
 		/// </summary>
 		public string Filter { get; set; }
 
-		public string GenerateJavaScript(PdfDocument pdfDoc)
+		public string GenerateJavaScript(PdfDocument pdfDoc, int sequence)
 		{
 			StringBuilder jsBuilder = new StringBuilder();
 
@@ -122,8 +284,8 @@ namespace surveybuilder
 			{
 				jsBuilder.AppendLine("    a[j++] = {");
 				jsBuilder.AppendLine($"        test: \"{condition.Test}\",");
-				jsBuilder.AppendLine($"        value: [{string.Join(", ", ArrayToJavaScriptArray(condition.Value))}],");
-				jsBuilder.AppendLine($"        rq: [{string.Join(", ", ArrayToJavaScriptArray(condition.Rq))}]");
+				jsBuilder.AppendLine($"        value: {ValidationManager.ArrayToJson(condition.Value)},");
+				jsBuilder.AppendLine($"        rq: {ValidationManager.ArrayArrayToJson(condition.Rq.ToArray())}");
 				jsBuilder.AppendLine("    };");
 			}
 			jsBuilder.AppendLine("    return a;");
@@ -134,7 +296,8 @@ namespace surveybuilder
 		tests: {functionName},
 		message: '{Message}',
 		type: 'C',
-		filter: {(string.IsNullOrEmpty(Filter) ? "null" : Filter)}
+		filter: {(string.IsNullOrEmpty(Filter) ? "null" : Filter)},
+		sort: '{sequence:00}'    
 }}";
 
 			jsBuilder.AppendLine($"requiredsTable[requiredsTable.length] = {jsObject}");
@@ -152,38 +315,61 @@ namespace surveybuilder
 			javaScriptNameTree.AddEntry($"{functionName}.djs", jscript);
 			return jscriptText;
 		}
-
-
-		static IEnumerable<string> ArrayToJavaScriptArray(string[] array)
-		{
-			foreach (var item in array)
-			{
-				yield return $"\"{item}\"";
-			}
-		}
 	}
 
-	public class RequiredFields : List<string>
+	public class RequiredFields
 	{
+		List<string[]> fields = new List<string[]>();
 		public RequiredFields(string name, string message)
 		{
+
 			Name = name;
 			Message = message;
 		}
-			/// <summary>
-			/// Add an array of field names to this validation
-			/// </summary>
-			/// <param name="fields">names to add</param>
-			/// <returns>this, for fluent interface</returns>
-			public RequiredFields AddFields(params string[] fields)
+		/// <summary>
+		/// Adds single field names to the validation list.
+		/// Each name is added as a separate array of one element.
+		/// </summary>
+		/// <param name="fields">Field names to add.</param>
+		/// <returns>The current <see cref="RequiredFields"/> instance, for fluent chaining.</returns>
+		public RequiredFields Add(params string[] fields)
+		{
+			foreach (string fld in fields)
 			{
-				foreach (string fld in fields)
+				if (string.IsNullOrWhiteSpace(fld))
 				{
-					Add(fld);
+					throw new ArgumentException("Field names cannot be null or empty", nameof(fields));
 				}
-				return this;
+				this.fields.Add(new[] { fld });
 			}
-		
+			return this;
+		}
+
+		/// <summary>
+		/// Adds an array of alternative field names as a single entry in the validation list.
+		/// </summary>
+		/// <param name="alternatives">Alternative field names.</param>
+		/// <returns>The current <see cref="RequiredFields"/> instance, for fluent chaining.</returns>
+		public RequiredFields AddAlternatives(params string[] alternatives)
+		{
+			if (alternatives == null || alternatives.Length == 0)
+			{
+				throw new ArgumentException("Alternatives cannot be null or empty", nameof(alternatives));
+			}
+
+			fields.Add(alternatives);
+			return this;
+		}
+
+		/// <summary>
+		/// Retrieves all the fields added to the validation list.
+		/// </summary>
+		/// <returns>A list of field name arrays.</returns>
+		public IReadOnlyList<string[]> GetFields()
+		{
+			return fields.AsReadOnly();
+		}
+
 		public string Name { get; set; }
 		public string Message { get; set; }
 
@@ -194,7 +380,7 @@ namespace surveybuilder
 		/// </summary>
 		public string Filter { get; set; }
 
-		public string GenerateJavaScript(PdfDocument pdfDoc)
+		public string GenerateJavaScript(PdfDocument pdfDoc, int sequence)
 		{
 			StringBuilder jsBuilder = new StringBuilder();
 
@@ -207,9 +393,9 @@ namespace surveybuilder
 			jsBuilder.AppendLine("    var a = [];");
 			jsBuilder.AppendLine("    var j = 0;");
 
-			foreach (var name in this)
+			foreach (var nameArray in GetFields())
 			{
-				jsBuilder.AppendLine($"    a[j++] = {name.SingleQuote()};");
+				jsBuilder.AppendLine($"    a[j++] = {ValidationManager.ArrayToJson(nameArray)};");
 			}
 			jsBuilder.AppendLine("    return a;");
 			jsBuilder.AppendLine("};");
@@ -219,7 +405,8 @@ namespace surveybuilder
 		tests: {functionName},
 		message: '{Message}',
 		type: 'R',
-		filter: {(string.IsNullOrEmpty(Filter) ? "null" : Filter)}
+		filter: {(string.IsNullOrEmpty(Filter) ? "null" : Filter)},
+		sort: '{sequence:00}'
 }}";
 
 			jsBuilder.AppendLine($"requiredsTable[requiredsTable.length] = {jsObject}");
@@ -230,13 +417,14 @@ namespace surveybuilder
 			PdfDictionary jscript = iText.Kernel.Pdf.Action.PdfAction
 					.CreateJavaScript(jscriptText).GetPdfObject();
 
-			// extension doesn;t actually matter here
+			// extension doesn't actually matter here
 			// so use .djs to distinguish between dynamic and static js
 			// allows toolbox pushjs mode to preserve these
 			Console.WriteLine($"Installing dynamic javascript: {functionName}.djs");
 			javaScriptNameTree.AddEntry($"{functionName}.djs", jscript);
 			return jscriptText;
 		}
+
 
 	}
 }

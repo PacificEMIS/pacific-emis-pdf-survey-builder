@@ -4,36 +4,38 @@
 var v = {
 
 	//#region Main validation routine
-	// validation routein
+
+	/**
+	 * Main Validation
+	 * @param {any} event - event invoking this function - the MouseUp event of the 
+	 * Validation button FormField 
+	 * @returns sets the Status of the form to Complete or Incomplete
+	 */
 	doAllValidations: function (event) {
 		var result;
 		var status = "Complete";
 
+		console.show();
+		console.clear();
 		// step through the requireds table checking all entries
 		var idx = 0;
 		for (idx = 0; idx < requiredsTable.length; idx++) {
 			var entry = requiredsTable[idx];
 			var ca = entry.tests.call(this);
 			var m = entry.message;
-
-			console.println(entry.name);
-			console.println(ca.length);
-
-			var rtype = entry.type;
+			event.target.value = "Checking " + entry.name + (".").repeat(idx);
+			
+			var rtype = entry.type;		// C for conditional, R for required
 			switch (rtype) {
 				case 'C':
-					console.println("Checking conditionals...");
-					result = this.doCheckAllConditionals(entry);
-					
+						result = this.doCheckAllConditionals(entry);
 					break;
 				case 'R':
-					console.println("Checking requireds...");
-					result = 0;
 					result = this.doCheckIncompleteness(entry);
 			}
-			console.println("conditionals result : " + result);
+			console.println("conditionals result: " + entry.name + ': ' + result);
 
-			
+
 			switch (result) {
 				case 0: // no errors press ahead
 					break;
@@ -76,29 +78,43 @@ var v = {
 	//------------ Mandatory field testing----------------------------------
 	// make a field required if it has no value
 	// return number of fields found as now required ie if 0 returned all is OK
-	// a: Array of field names to test 
+	// a: Array of arrays of field names to test 
 	// rqArray: required fields are added to rqArray
 	mandatoryIfEmpty: function (a, rqArray) {
-		console.println("Mandatory if empty " + a.length);
 		var numFound = 0;
 		var result = false;
 		for (i = 0; i < a.length; i++) {
 			try {
-				var fname = (a[i]);
-				var fld = gf(fname);		// if the field is not there, it must be ok
-				if (fld == null) {
-					return false;
+				// array if alternative fields - usually only one will be required
+				var alternativeArray = (a[i]);
+				if (!Array.isArray(alternativeArray)) {
+					inform("alternative Not an array - " + alternativeArray);
 				}
+				var altOK = false;
+				for (j = 0; j < alternativeArray.length; j++) {
+					fname = alternativeArray[j];
+					
+					var fld = gf(fname);
+					if (fld != null) {
+						if (gfvx(fname)) {
+							altOK = true;
+							break;
+						}
+					}
 
-				if (gfvx(fname) == "") {
-					// empty
-					setRequired(fld, true);
+				}
+				if (altOK == false) {
+					setRequiredArray(alternativeArray, true);
 					numFound++;
-					rqArray[rqArray.length] = fname;
+					// add all the alternative fields to the required array
+					for (var k = 0; k < alternativeArray.length; k++) {
+						rqArray.push(alternativeArray[k]);
+					};
 				}
 				else {
-					setRequired(fld, false);
+					setRequiredArray(alternativeArray, false);
 				}
+
 			}
 			catch (ex) {
 				console.println("Error in mandatory If Empty" + a[i][0] + " " + ex);
@@ -127,11 +143,14 @@ var v = {
 		var result = this.checkIncomplete(entry, rqArray); // true if incomplete, false if no problems
 		if (!result) return 0;
 
-		var resp = yesNoCancel(entry.message);
+
+		var msg = entry.message + "\nReview now?\n\nYes: Review Now\n\nNo: Continue checking\n\nCancel: Exit check";
+		var resp = yesNoCancel(msg);
+		
 		switch (resp) {
 			case alertYes:
 				var problemname = firstRequired(rqArray);
-				console.println("Problemname" + problemname);
+				console.println("Problemname: " + problemname);
 
 				if (problemname != "") {
 					var f = gf(problemname);
@@ -145,23 +164,25 @@ var v = {
 
 	//#region Conditional Field Testing
 
-	//------------------- Conditional field testing
-	//---- Make fields required based n the value in another field
-	//----- return true if any field is made required
-	// conditionalDef - a conditional object 
-	//	return 0 (false): no issues found
-	// if issues found
-	//  1 (Yes) - reviewing
-	//  2 (No) Don't review continue reporting
-	//  3 (Cancel) stop
+	/**
+	 * Make fields required based on the value in another field
+	 * Get user feedback if required fields found empty
+	 * @param {any} conditionalDef a conditionalFields item
+	 * @returns
+	 *  0 (false): no issues found
+	 * if issues found
+	 *  1 (Yes) - reviewing
+	 *  2 (No) Don't review continue reporting
+	 *  3 (Cancel) stop
+	 */
 	doCheckAllConditionals: function (conditionalDef) {
 		var rqArray = [];
-		console.println(rqArray.join(", "));
 		result = this.checkAllConditionals(conditionalDef, rqArray);
 		console.println(rqArray.join(", "));
 		if (result == 0) return 0;
 
-		var resp = yesNoCancel(conditionalDef.message);
+		var msg = conditionalDef.message + "\nReview now?\n\nYes: Review Now\n\nNo: Continue checking\n\nCancel: Exit check";
+		var resp = yesNoCancel(msg);
 		switch (resp) {
 			case alertYes:
 				var problemname = firstRequired(rqArray);
@@ -176,38 +197,42 @@ var v = {
 
 	checkAllConditionals: function (conditionalDef, rqArray) {
 		var found = 0;
-		console.println("checkAllConditionals")
-		console.println("rqArray: " + rqArray.join(", "));
 
 		conditionalsArray = conditionalDef.tests.call(this);
 
-			
 		for (var j = 0; j < conditionalsArray.length; j++) {
-			console.println(j + " " + conditionalsArray[j] + conditionalsArray[j].test);
-			if (conditionalDef.filter && !(conditionalDef.filter.call(this, gf(conditionalsArray[j].test)))) {
-				setRequiredArray(ConditionsArray[j].rq, false);
+	//		console.println("Conditional " + j + " " + conditionalsArray[j].test);
+			if (conditionalDef.filter) {
+				
+
+				if (conditionalDef.filter.call(this, conditionalsArray[j].test)) {
+//					console.println("Filtering passed - " + conditionalsArray[j].test);	
+					found += this.checkConditional(conditionalsArray[j], rqArray)
+				}
 			}
 			else {
-				found += this.checkConditional(conditionalsArray[j], rqArray)
+				found += this.checkConditional(conditionalsArray[j], rqArray);
 			}
 		}
 		return found;
 	},
 
+	/**
+	 * Check a single conditional field
+	 * @param {any} o conditional field definition test, value rq
+	 * @param {any} rqArray required fields ar epushed onto this array
+	 * @returns
+	 */
 	checkConditional: function (o, rqArray) {
 		var found = 0;
-		console.println("conditional - " + o.test);
-		//console.println("rqArray: " + rqArray.join(", "));
 		var match = false;
 		var fld = gf(o.test);
 
-		//console.println(" fld  " + o.test + " Null: " + (fld == null) + " " + fld.readonly + " value: " + fld.value);
 		if (fld != null) {
+			
 			var v = gfvx(o.test);
-			//console.println(" o.value is array " + Array.isArray(o.value));
-			//console.println(" o.value.length: " + o.value.length);
-			if(Array.isArray(o.value) && o.value.length === 0 && typeof v === "string" && v.trim() !== "") {
-				console.println("conditional - matched any");
+			// if array of matching values is empty, match any non-null
+			if (Array.isArray(o.value) && o.value.length === 0 && typeof v === "string" && v.trim() !== "") {
 				match = true;
 			}
 			else {
@@ -219,20 +244,18 @@ var v = {
 				}
 			}
 		}
-		console.println("Match to " + o.value.join("|") + "=" + match);
 		// if match is true, set required if there is no value
 		// if match is false, set required = false
-		if (match == true)
-			found = this.mandatoryIfEmpty(o.rq,rqArray);
+		if (match == true) {
+			// pass these fields to the mandatoryIfEmpty function, each in its own array
+			
+			var found = this.mandatoryIfEmpty(o.rq, rqArray);
+		}
 		else {
 			for (var i = 0; i < o.rq.length; i++) {
-				var fld = gf(o.rq[i]);			
-				if (fld != null)
-					setRequired(fld, false);
+					setRequiredArray(o.rq[i], false);
 			}
 		}
-		
-		console.println(rqArray.join(", "));
 		console.println("Check conditional: " + found);
 		return found;
 	},

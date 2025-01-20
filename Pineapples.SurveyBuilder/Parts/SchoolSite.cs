@@ -89,11 +89,11 @@ namespace surveybuilder
 			);
 
 			document.Add(table2);
-			new RequiredFields("School Site",
-				"School site is missing information. Review now?"
+			var requiredFields = new RequiredFields("School Site",
+				"School site is missing information."
 				)
-			.AddFields("Site.Secure", "Site.Services", "Site.Size", "Site.Playground.Size","Site.Garden.Size")
-			.GenerateJavaScript(document.GetPdfDocument());
+			.Add("Site.Secure", "Site.Services", "Site.Site.Size", "Site.Playground.Size", "Site.Garden.Size");
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
 			return document;
 		}
 	}

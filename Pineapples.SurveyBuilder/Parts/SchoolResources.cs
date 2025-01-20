@@ -92,10 +92,8 @@ namespace surveybuilder
 				WriteCategoryGroup(document, categoryDef, catResources);
 			}
 
-
-
-			requiredFields.GenerateJavaScript(document.GetPdfDocument());
-			conditionalFields.GenerateJavaScript(document.GetPdfDocument());
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFields);
 			return document;
 		}
 

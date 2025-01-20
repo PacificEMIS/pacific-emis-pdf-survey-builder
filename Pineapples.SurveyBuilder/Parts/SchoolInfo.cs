@@ -28,6 +28,11 @@ namespace surveybuilder
 		{
 			Console.WriteLine("Part: SchoolInfo");
 
+			const string conditionalMsg = "You need to supply details of your Parent Committee";
+			ConditionalFields conditionalFields = new ConditionalFields("SchoolInfo", conditionalMsg);
+			const string requiredMsg = "Some answers are missing from General Information.";
+			RequiredFields requiredFields = new RequiredFields("SchoolInfo", requiredMsg);
+
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 
@@ -168,9 +173,15 @@ namespace surveybuilder
 				TextCell(model, ts.TableRowHeaderStyle("Total teachers (including Head Teacher)")),
 				NumberCell(model, "Survey.Teachers")
 			);
-
-			document.Add(table);
 			#endregion
+			document.Add(table);
+
+			requiredFields.Add("Survey.HtFamily", "Survey.HtGiven",  "Survey.SchoolPhone",  
+				"PC.Exists", "Survey.Classes", "Survey.Pupils", "Survey.Teachers", "PC.Support");
+
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
+			conditionalFields.Add(ConditionalField.IfYes("PC.Exists", "PC.Members.M", "PC.Members.F", "PC.Meet"));
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFields);
 
 			return document;
 		}

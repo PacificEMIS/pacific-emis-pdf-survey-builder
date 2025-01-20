@@ -5,11 +5,35 @@ function OnStartup() {
 
 	console.println("On Startup");
 	console.println("Dynamic requireds:");
+
 	if (requiredsTable) {
+		// sort the elements of requiredsTable based on sort field
+		requiredsTable.sort(function (a, b) {
+			return (a.sort > b.sort) ? 1 : ((b.sort > a.sort) ? -1 : 0);
+		});	
 		for (var i = 0; i < requiredsTable.length; i++) {
 			console.println(requiredsTable[i].name );
 		}
 	}
+	// calculate the number of expected staff
+	// This is the highest index in TL table for which tID is not null
+	var idx = 0;
+	do {
+		var n = "TL." + padStart(idx.toString(), 2, "0") + ".tID";
+		console.println(n);
+		var ff = gf(n);
+		if (ff == null) {
+			console.println(n + " not found");
+			break;
+		}
+		if (!ff.value) {
+			console.println(n + " no value");
+			break; // no more prepopulated entries
+		}
+		idx++;
+	} while (true);
+	numExpectedStaff = idx;
+	console.println("Expected staff: " + numExpectedStaff);
 	return;
 
 	var sy = gf("Survey.SurveyYear");
@@ -118,9 +142,12 @@ function emptyCheckbox(f) {
 	return false;
 }
 
+var gthis = function () {
+	return this;
+}.bind(this);
+
 // simple wrapper around getField
 function gf(fieldname) {
-
 	return this.getField(fieldname);
 }
 
@@ -189,9 +216,10 @@ function gfpage(fld) {
 	return fld.page[0];
 }
 
-function gthis() {
+var gthis = function () {
 	return this;
-}
+}.bind(this);
+
 function padStart(str, targetLength, padString) {
 	str = String(str); // Ensure the input is a string
 	padString = String(padString || ' '); // Default pad string is a space

@@ -108,6 +108,30 @@ namespace surveybuilder
 
 			document.Add(tableMaterial);
 
+			RequiredFields req = new RequiredFields("Classroom Count",
+					"You have not recorded the total number of classrooms.");
+					req.Add("Survey.ClassroomCount");
+			ValidationManager.AddRequiredFields(builder.pdfDoc, req);
+
+			ConditionalFields conditionalFields = new ConditionalFields("Classrooms",
+				"Classrooms are missing Material information."
+			);
+			var cf = ConditionalField.IfAnyAlternatives("Survey.ClassroomCount",
+				"Survey.ClassroomCountP.Num", "Survey.ClassroomCountSP.Num", "Survey.ClassroomCountT.Num");
+	
+			conditionalFields.Add(cf);
+			ValidationManager.AddConditionalFields(builder.pdfDoc, conditionalFields);
+
+			conditionalFields = new ConditionalFields("ClassroomCondition",
+				"Classrooms are missing Condition information."
+				);	
+			conditionalFields.Add(ConditionalField.IfAny("Survey.ClassroomCountT.Num",
+				"Survey.ClassroomCountT.C"));
+			conditionalFields.Add(ConditionalField.IfAny("Survey.ClassroomCountP.Num",
+				"Survey.ClassroomCountP.C"));
+			conditionalFields.Add(ConditionalField.IfAny("Survey.ClassroomCountSP.Num",
+				"Survey.ClassroomCountSP.C"));
+			ValidationManager.AddConditionalFields(builder.pdfDoc,conditionalFields);
 			return document;
 		}
 	}

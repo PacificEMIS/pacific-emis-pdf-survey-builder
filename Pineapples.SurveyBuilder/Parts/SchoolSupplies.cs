@@ -54,8 +54,8 @@ namespace surveybuilder
 				+ @"amount you received.")
 			);
 
-			chk.Names = new string[] { "None Received", "Some Received", "Half Received", "Most Received", "All Received" };
-			chk.Values = new object[] { 0, 1, 2, 3, 4 };
+			chk.Names = new string[] { "All Received", "Most Received", "Half Received", "Some Received", "None Received" };
+			chk.Values = new object[] { "All", "Most", "Half", "Some", "None" };
 			chk.Types = new CheckBoxType[] {CheckBoxType.SQUARE, CheckBoxType.SQUARE
 					,CheckBoxType.SQUARE,CheckBoxType.SQUARE,CheckBoxType.CROSS };
 			chk.Tag = "Supplies.Teacher";
@@ -96,18 +96,18 @@ namespace surveybuilder
 
 			document.Add(table);
 
-			string msg = "School Supplies information is not complete. Review now?";
-			new RequiredFields("School Supplies",
+			string msg = "School Supplies information is not complete.";
+			var requiredFields = new RequiredFields("School Supplies",
 				msg
 				)
-			.AddFields("Supplies.Student", "Supplies.Teacher", "Supplies.Curriculum")
-			.GenerateJavaScript(document.GetPdfDocument());
+			.Add("Supplies.Student", "Supplies.Teacher", "Supplies.Curriculum");
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
 
 			var cf = new ConditionalFields("School Supplies",
 				msg
 				);
 			cf.Add(ConditionalField.IfYes("Supplies.Curriculum", "Supplies.InUse"));
-			cf.GenerateJavaScript(document.GetPdfDocument());
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), cf);
 
 			return document;
 		}

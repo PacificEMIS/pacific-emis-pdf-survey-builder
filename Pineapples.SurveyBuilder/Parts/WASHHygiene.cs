@@ -30,6 +30,12 @@ namespace surveybuilder
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 
+			// validations
+			const string conditionalMsg = "Some answers are missing from Wash Hygiene.";
+			ConditionalFields conditionalFields = new ConditionalFields("WashHygiene", conditionalMsg);
+			const string requiredMsg = "Some answers are missing from Wash Hygiene.";
+			RequiredFields requiredFields = new RequiredFields("WashHygiene", requiredMsg);
+
 			document.Add(new Paragraph()
 				.Add(@"What type of handwashing station is provided at the school.")
 			);
@@ -43,6 +49,7 @@ namespace surveybuilder
 			chk.Description = "Type of handwashing station";
 
 			chk.Make(builder, document);
+			requiredFields.Add(chk.Tag);
 
 			document.Add(new Paragraph()
 				.Add(@"Are there both water and soap available at the handwashing facilities.")
@@ -55,6 +62,7 @@ namespace surveybuilder
 			chk.Description = "Soap and/or water available";
 
 			chk.Make(builder, document);
+			requiredFields.Add(chk.Tag);
 
 			document.Add(new Paragraph()
 				.Add(@"Answer the following Yes/No questions.")
@@ -65,13 +73,16 @@ namespace surveybuilder
 
 			PdfButtonFormField rgrp1 = new RadioFormFieldBuilder(builder.pdfDoc, "Wash.Handwashing.Practiced")
 				.CreateRadioGroup();
+			
 			PdfButtonFormField rgrp2 = new RadioFormFieldBuilder(builder.pdfDoc, "Wash.Toothbrushing.Practiced")
 				.CreateRadioGroup();
+			rgrp1.SetAlternativeName("Handwashing practiced");
+			rgrp2.SetAlternativeName("Toothbrushing practiced");
 
-			table.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
+			table.AddRow(ts.TableHeaderStyle,
+				TextCell(model, String.Empty),
+				TextCell(model, "Yes"),
+				TextCell(model, "No")
 			);
 			table.AddRow(
 				TextCell(model, ts.TableBaseStyle("Is hand washing practiced at the school?")),
@@ -83,8 +94,11 @@ namespace surveybuilder
 				YesCell(model, rgrp2),
 				NoCell(model, rgrp2)
 			);
+			requiredFields.Add(rgrp1.GetFieldName().ToString());
+			requiredFields.Add(rgrp2.GetFieldName().ToString());
 
 			document.Add(table);
+
 
 			document.Add(new Paragraph()
 				.Add(@"What additional facilities are provide in the toilets at the school ?")
@@ -99,11 +113,14 @@ namespace surveybuilder
 				.CreateRadioGroup();
 			PdfButtonFormField rgrpF3 = new RadioFormFieldBuilder(builder.pdfDoc, "Toilets.HasRubbishTin")
 				.CreateRadioGroup();
+			rgrpF1.SetAlternativeName("Shower room in student toilets");
+			rgrpF2.SetAlternativeName("Space for menstrual hygiene");
+			rgrpF3.SetAlternativeName("Rubbish tin with lid in toilets");
 
-			table2.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle(""))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Yes"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("No")))
+			table2.AddRow(ts.TableHeaderStyle,
+				TextCell(model, ""),
+				TextCell(model, "Yes"),
+				TextCell(model, "No")
 			);
 			table2.AddRow(
 				TextCell(model, ts.TableBaseStyle("Shower room in student toilets")),
@@ -121,8 +138,13 @@ namespace surveybuilder
 				NoCell(model, rgrpF3)
 			);
 
-			document.Add(table2);
+			requiredFields.Add(rgrpF1.GetFieldName().ToString());
+			requiredFields.Add(rgrpF2.GetFieldName().ToString());
+			requiredFields.Add(rgrpF3.GetFieldName().ToString());
 
+			document.Add(table2);
+			
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(),requiredFields);
 			return document;
 		}
 	}

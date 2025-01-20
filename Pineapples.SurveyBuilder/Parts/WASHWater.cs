@@ -21,9 +21,12 @@ namespace surveybuilder
 {
 	public class WASHWater
 	{
-		const string conditionalMsg = "You need to specify the test results of last water test";
+		const string conditionalMsg = "You need to specify the test results of last water test.";
 		ConditionalFields conditionalFields = new ConditionalFields("WashWater", conditionalMsg);
-		const string requiredMsg = "Some answers are missing from Wash Water. Review now?";
+
+		ConditionalFields condSourceFields = new ConditionalFields("WashWaterSource", 
+			"Details of water supply are incomplete.");
+		const string requiredMsg = "Some answers are missing from Wash Water.";
 		RequiredFields requiredFields = new RequiredFields("WashWater", requiredMsg);
 
 		public WASHWater() { }
@@ -118,7 +121,12 @@ namespace surveybuilder
 				rgrp.SetAlternativeName($"{waterSupplyTypes[i].N} covered/protected");
 				tableWST.AddCell(YesCell(model, rgrp));
 				tableWST.AddCell(NoCell(model, rgrp));
+
+				// conditional validation for the water supply types: Num=>OK
+				condSourceFields.Add(ConditionalField.IfAny(
+					$"Resource.Water.D.{i:00}.Num", $"Resource.Water.D.{i:00}.OK"));
 			}
+
 
 			document.Add(tableWST);
 			// export the water supply metadata
@@ -199,15 +207,28 @@ namespace surveybuilder
 			);
 
 			document.Add(tableWaterTreatment);
-			requiredFields.Add("Wash.Water.Treatment");
-			requiredFields.GenerateJavaScript(document.GetPdfDocument());
+			// at least one water supply type
+			List<string> waterSupplyFields = new List<string>();
+			for (int i = 0; i < wstCount; i++)
+			{
+				waterSupplyFields.Add($"Resource.Water.D.{i:00}.Num");
+			}
+			requiredFields.Add("Wash.Water.Rating", "Wash.Water.Source","Wash.Water.Treatment");
+			requiredFields.AddAlternatives(waterSupplyFields.ToArray());
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
+
 			conditionalFields.Add(new ConditionalField()
 			{
 				Test = "Wash.Water.Treatment",
 				Value = new string[] { "Boil", "Chlorinate", "SODIS" },
-				Rq = new string[] { "Wash.Water.Test.Date", "Wash.Water.Test.By", "Wash.Water.Test.Result" }
+				Rq = ValidationManager.ToArrayList(
+					"Wash.Water.Test.Date",
+					"Wash.Water.Test.By",
+					"Wash.Water.Test.Result"
+				)
 			});
-			conditionalFields.GenerateJavaScript(document.GetPdfDocument());
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFields);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condSourceFields);
 			return document;
 		}
 	}

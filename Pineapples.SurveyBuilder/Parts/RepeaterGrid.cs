@@ -59,15 +59,15 @@ namespace surveybuilder
 			document.Add(grd.Make(builder, document));
 
 			RequiredFields flds = new RequiredFields("Repeaters",
-				"Repeater certification not set. Review now?"
+				"Repeater certification not set."
 			);
 			flds.Add("Rep.HasData");
-			flds.GenerateJavaScript(document.GetPdfDocument());
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), flds);
 			ConditionalFields cflds = new ConditionalFields("Repeaters",
-				"Repeater data is not complete. Review now?"
+				"Repeater data is not complete."
 			);
 			cflds.Add(ConditionalField.IfYes("Rep.HasData", "Rep.T.T.T.T"));
-			cflds.GenerateJavaScript(document.GetPdfDocument());
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), cflds); 
 			return document;
 		}
 	}

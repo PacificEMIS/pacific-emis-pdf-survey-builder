@@ -24,7 +24,7 @@ namespace surveybuilder
 	{
 		public Document Build(PdfBuilder builder, Document document)
 		{
-			Console.WriteLine("Part: Joint Teacher Classes");
+			Console.WriteLine("Part: Single Teacher Classes");
 
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);

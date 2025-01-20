@@ -45,10 +45,10 @@ namespace surveybuilder
 			document.Add(grd.Make(builder, document));
 
 			RequiredFields flds = new RequiredFields("Enrolment",
-				"No enrolments are recorded. Review now?"
+				"No enrolments are recorded."
 				);
 			flds.Add("Enrol.T.T.T.T");
-			flds.GenerateJavaScript(document.GetPdfDocument());
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), flds);
 			return document;
 		}
 	}

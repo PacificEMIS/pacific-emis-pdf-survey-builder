@@ -28,6 +28,12 @@ namespace surveybuilder
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 
+			// validations
+			const string conditionalMsg = "You need to specify toilet condition";
+			ConditionalFields conditionalFields = new ConditionalFields("WashSanitation", conditionalMsg);
+			const string requiredMsg = "Some answers are missing from Wash Sanitation.";
+			RequiredFields requiredFields = new RequiredFields("WashSanitation", requiredMsg);
+
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
 			var model12 = CellStyleFactory.CreateCell(rowSpan: 1, colSpan: 2, applyHeight: false);
@@ -77,9 +83,6 @@ namespace surveybuilder
 			var ttI = 0;
 			foreach (var toiletType in toiletTypes)
 			{
-				// TODO need to include the field key
-				string fieldK = $"Toilets.R.{ttI:00}.K";
-				string fieldV = $"Toilets.R.{ttI:00}.V";
 				string fieldDPupilM = $"Toilets.D.{ttI:00}.Pupil.M";
 				string fieldDPupilF = $"Toilets.D.{ttI:00}.Pupil.F";
 				string fieldDPupilC = $"Toilets.D.{ttI:00}.Pupil.C";
@@ -91,9 +94,12 @@ namespace surveybuilder
 				PdfButtonFormField rgrpPupilToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDPupilC).CreateRadioGroup();
 				PdfButtonFormField rgrpStaffToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDStaffC).CreateRadioGroup();
 				PdfButtonFormField rgrpWheelchairToiletC = new RadioFormFieldBuilder(builder.pdfDoc, fieldDWheelchairC).CreateRadioGroup();
+				rgrpPupilToiletC.SetAlternativeName("Pupil toilets condition");
+				rgrpStaffToiletC.SetAlternativeName("Staff toilets condition");
+				rgrpWheelchairToiletC.SetAlternativeName("Wheelchair toilets condition");
 
 				tableToilets.AddRow(
-					TextCell(model, ts.TableBaseStyle(toiletType.N)), // fieldK/fieldV missing
+					TextCell(model, ts.TableBaseStyle(toiletType.N)),
 					NumberCell(model, fieldDPupilM),
 					NumberCell(model, fieldDPupilF),
 					SelectCell(model, rgrpPupilToiletC, "G"),
@@ -109,16 +115,37 @@ namespace surveybuilder
 					SelectCell(model, rgrpWheelchairToiletC, "P")
 				);
 
+				conditionalFields.Add(
+					ConditionalField.IfAny(
+					$"Toilets.D.{ttI:00}.Pupil.M",
+					$"Toilets.D.{ttI:00}.Pupil.C"
+				));
+				conditionalFields.Add(
+					ConditionalField.IfAny(
+					$"Toilets.D.{ttI:00}.Pupil.F",
+					$"Toilets.D.{ttI:00}.Pupil.C"
+				));
+				conditionalFields.Add(
+					ConditionalField.IfAny(
+					$"Toilets.D.{ttI:00}.Staff.All",
+					$"Toilets.D.{ttI:00}.Staff.C"
+				));
+				conditionalFields.Add(
+					ConditionalField.IfAny(
+					$"Toilets.D.{ttI:00}.Wheelchair.All",
+					$"Toilets.D.{ttI:00}.Wheelchair.C"
+				));
+
 				ttI++;
 
 			}
-
 
 			toiletTypes.AsFields(document.GetPdfDocument()
 				, (i) => $"Toilets.R.{i:00}.K", (i) => $"Toilets.R.{i:00}.V");
 
 			document.Add(tableToilets);
 
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFields);
 			return document;
 		}
 	}

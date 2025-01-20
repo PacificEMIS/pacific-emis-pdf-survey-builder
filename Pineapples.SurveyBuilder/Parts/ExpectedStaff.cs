@@ -40,23 +40,39 @@ namespace surveybuilder
 
 
 		RequiredFields requireds = new RequiredFields("Staff",
-			"Repeater data is not complete. Review now?"
+			"Repeater data is not complete."
 		);
 
 		ConditionalFields condOnStaff = new ConditionalFields("OnStaff",
-				"On Staff must be entered for all expected staff. Review now?"
-		);
-		ConditionalFields condTeachers = new ConditionalFields("Teachers",
-				"Teacher information is missing some required values. Review now?"
+				"On Staff must be entered for all expected staff."
 		)
 		{
-			Filter = "isReadWrite"      // only check familyName fields that are readwrite
+			Filter = "isExpectedStaff"      // only check Duties fields that are readwrite
 		};
-		ConditionalFields condDuties = new ConditionalFields("TeacherDuties",
-			"Teacher class levels not recorded. Review now?"
+		ConditionalFields condExpectedStaff = new ConditionalFields("Expected Staff",
+				"Teacher information is missing some required values."
 		)
 		{
-			Filter = "isReadWrite"      // only check Duties fields that are readwrite
+			Filter = "isExpectedStaff"      // only check Duties fields that are readwrite
+		};
+		ConditionalFields condNewStaff = new ConditionalFields("New Staff",
+				"Teacher information is missing some required values."
+		)
+		{
+			Filter = "isNewStaff"      // only check familyName fields that are readwrite
+		};
+		ConditionalFields condActivitiesExpected = new ConditionalFields("Expected Staff Duties",
+			"Teacher activities (class levels taught, Admin, or Other) are not recorded."
+		)
+		{
+			Filter = "isExpectedStaff"      // only check Duties fields that are readwrite
+		};
+
+		ConditionalFields condActivitiesNew = new ConditionalFields("New Staff Duties",
+		"Teacher activities (class levels taught, Admin, or Other) are not recorded."
+	)
+		{
+			Filter = "isNewStaff"      // check activities of new staff
 		};
 
 		public Document Build(PdfBuilder builder, Document document)
@@ -105,7 +121,7 @@ namespace surveybuilder
 			var model15 = CellStyleFactory.FiveColumn;
 			var model21 = CellStyleFactory.TwoRowOneColumn;
 			var model31 = CellStyleFactory.ThreeRowOneColumn;
-			
+
 			// shorthand
 			LookupList classLevels = builder.lookups["classLevels"];
 
@@ -116,23 +132,11 @@ namespace surveybuilder
 
 			PdfAction onOnStaffChange = PdfAction.CreateJavaScript("actions.onOnStaffChange(event);");
 
-			const int MaxTeachers = 8;
+			const int MaxTeachers = 80;
 			for (int i = 0; i < MaxTeachers; i++)
 			{
-				condOnStaff.Add(ConditionalField.IfAny($"TL.{i:00}.tID", $"TL.{i:00}.OnStaff"));
-				// expand this to make any field required on the existence of a teacher
-				condTeachers.Add(ConditionalField.IfAny(
-					$"TL.{i:00}.FamilyName",
-					new string[] { $"TL.{i:00}.FirstName", $"TL.{i:00}.Gender", $"TL.{i:00}.Duties" }
-				));
-				// if duties T or Mixed, must record the class levels
-				condDuties.Add(
-					new ConditionalField($"TL.{i:00}.Duties")
-					{
-						Value = new string[] { "T", "M" },
-						Rq = new string[] { "TL.{i:00}.Class.Min", "TL.{i:00}.Class.Max" }
-					}
-				);
+
+
 
 				const int teachersPerPage = 3;
 				builder.NewPageIf(document, ((i % teachersPerPage) == teachersPerPage - 1));
@@ -169,10 +173,6 @@ namespace surveybuilder
 					.CreateRadioGroup();
 				grpFP.SetAlternativeName("Does this teacher work full-time or part-time this year?");
 
-				//var grpTAM = new RadioFormFieldBuilder(builder.pdfDoc, $"TL.{i:00}.Duties")
-				//	.CreateRadioGroup();
-				//grpTAM.SetAlternativeName("Teachers duties:\nT = teaching only\nA = administration only\nM = mixed; some teaching and some admin");
-
 				var grpHouse = new RadioFormFieldBuilder(builder.pdfDoc, $"TL.{i:00}.House")
 					.CreateRadioGroup();
 				grpHouse.SetAlternativeName("Is this teacher provided with a house?");
@@ -188,7 +188,7 @@ namespace surveybuilder
 					NoCell(model, grpOnStaff)
 				);
 
-				
+
 				// details in sub table
 				Table subtable = CellStyleFactory.DefaultTable(subcolwidths)
 					.SetMarginBottom(0);
@@ -216,16 +216,20 @@ namespace surveybuilder
 					);
 				//CheckBox cells per class level
 				PdfButtonFormField grp;
+				List<string> activitiesList = new List<string>();
+
+
 				for (int idx = 0; idx < dutiesLength; idx++)
 				{
-					
+
 					string id;
 					string tooltip;
 					if (idx == dutiesLength - 1)
 					{
 						id = $"TL.{i:00}.Activity.X";
 						tooltip = "Other duties";
-					} else
+					}
+					else
 					if (idx == dutiesLength - 2)
 					{
 						id = $"TL.{i:00}.Activity.A";
@@ -242,7 +246,9 @@ namespace surveybuilder
 					subsubTable
 							.AddRow(ThinData,
 						CellMakers.CheckCell(model, grp, "X", CheckBoxType.SQUARE));
-					
+					// build the array for validation
+					activitiesList.Add(id);
+
 				}
 
 				// Role and TAM - most important
@@ -256,12 +262,12 @@ namespace surveybuilder
 
 					ComboCell(model12, $"TL.{i:00}.Role", builder.lookups.Opt("filteredRoles"))
 					//TextCell(model, "")
-					
+
 					);
 
 				// Activities array
 				Cell activities = CellStyleFactory.CreateCell(1, subtable.GetNumberOfColumns() - 1);
-					
+
 				subtable.AddRow(ss["unpaddedabstractcell"],
 					ElementCell(activities, subsubTable)
 					);
@@ -285,7 +291,7 @@ namespace surveybuilder
 					InputCell(model14, $"TL.{i:00}.InService.Topic", 20)
 					);
 
-				
+
 				//////////// in service
 				//////////subtable.AddRow(
 				//////////	TextCell(model, "Last Inservice"),
@@ -312,7 +318,7 @@ namespace surveybuilder
 					TextCell(model, ""),
 					ComboCell(model13, $"TL.{i:00}.EmpStatus", builder.lookups.Opt("teacherStatus")),
 					// now collected as F P, not FT PT note tchFullPart is nvarchar(1) so this has always neem truncated
-					SelectCell(model, grpFP, "F"),		
+					SelectCell(model, grpFP, "F"),
 					SelectCell(model, grpFP, "P"),
 					NumberCell(model, $"TL.{i:00}.Days"),
 					TextCell(model12, "")
@@ -381,10 +387,37 @@ namespace surveybuilder
 				// like the Grid, if we create a form field and don;t place it on the page, it will
 				// exists somewhere in the ether not visible
 				ExportValue(builder.pdfDoc, $"TL.{i:00}.tID", "");
+
+				// validations
+				condOnStaff.Add(ConditionalField.IfAny($"TL.{i:00}.tID", $"TL.{i:00}.OnStaff"));
+				// expand this to make any field required on the existence of a teacher
+				condExpectedStaff.Add(ConditionalField.IfYes(
+					$"TL.{i:00}.OnStaff",
+					new string[] { $"TL.{i:00}.FirstName", $"TL.{i:00}.Gender", $"TL.{i:00}.DoB",
+						$"TL.{i:00}.Role", $"TL.{i:00}.FP" }
+				));
+				condNewStaff.Add(ConditionalField.IfAny(
+				$"TL.{i:00}.FamilyName",
+				new string[] { $"TL.{i:00}.FirstName", $"TL.{i:00}.Gender", $"TL.{i:00}.DoB",
+						$"TL.{i:00}.Role", $"TL.{i:00}.FP" }
+
+				));
+				condActivitiesExpected.Add(ConditionalField.IfYesAlternatives(
+					$"TL.{i:00}.OnStaff",
+					activitiesList.ToArray()
+				));
+				condActivitiesNew.Add(ConditionalField.IfAnyAlternatives(
+					$"TL.{i:00}.FamilyName",
+					activitiesList.ToArray()
+				));
+
 			}
-			condOnStaff.GenerateJavaScript(document.GetPdfDocument());
-			condTeachers.GenerateJavaScript(document.GetPdfDocument());
-			condDuties.GenerateJavaScript(document.GetPdfDocument());
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condOnStaff);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condExpectedStaff);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condActivitiesExpected);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condNewStaff);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condActivitiesNew);
+
 			return document;
 		}
 	}
