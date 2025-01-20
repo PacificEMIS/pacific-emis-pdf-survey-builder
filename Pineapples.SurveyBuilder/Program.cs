@@ -107,7 +107,11 @@ namespace surveybuilder
 				new Toolbox(opts).RunTools();
 				return;
 			}
-
+			if (opts.Script != null)
+			{
+				new Toolbox(opts).Script();
+				return;
+			}
 
 
 			try
@@ -197,55 +201,5 @@ namespace surveybuilder
 			return (IBuilder)Activator.CreateInstance(type);
 		}
 
-		static void HierarchyTest(PdfDocument pdfDoc)
-		{
-
-			var field = PdfBuilders.HP("BRD.D.00.00", pdfDoc);
-			field = PdfBuilders.HP("BRD.D.00.01", pdfDoc);
-			field = PdfBuilders.HP("BRD.D.01.01", pdfDoc);
-			field = PdfBuilders.HP("BRD.D.01.01", pdfDoc);
-			// examine this in IEnumerableViewer
-			var fields = PdfFormCreator.GetAcroForm(pdfDoc, true).GetAllFormFields();
-		}
-
-
-		public static void LostFieldsDemo(Options opts)
-		{
-			// Initialize PDF writer and document
-			PdfWriter writer = new PdfWriter(new FileStream(System.IO.Path.Combine(opts.OutputPath, "output.pdf"), FileMode.Create, FileAccess.Write));
-			writer.SetCompressionLevel(CompressionConstants.NO_COMPRESSION);
-			PdfDocument pdf = new PdfDocument(writer);
-			Document document = new Document(pdf);
-			PdfAcroForm form = PdfAcroForm.GetAcroForm(pdf, true);
-
-			// Add content to the first page
-			document.Add(new Paragraph("This is the first page."));
-			PdfTextFormField field1 = new TextFormFieldBuilder(pdf, "field1")
-					.SetWidgetRectangle(new iText.Kernel.Geom.Rectangle(100, 750, 200, 20))
-					.CreateText();
-			form.AddField(field1);
-			Console.WriteLine(form.GetAllFormFields().Count());
-			// Create a page break (start a new page)
-			pdf.AddNewPage();
-
-
-			document.Add(new Paragraph("This is the 2 page."));
-			PdfTextFormField field2 = new TextFormFieldBuilder(pdf, "field2")
-					.SetWidgetRectangle(new iText.Kernel.Geom.Rectangle(100, 750, 200, 20))
-					.CreateText();
-			form.AddField(field2);
-			Console.WriteLine(form.GetAllFormFields().Count());
-			pdf.AddNewPage();
-			Console.WriteLine(form.GetAllFormFields().Count());
-			pdf.AddNewPage();
-			Console.WriteLine(form.GetAllFormFields().Count());
-
-			// Close the document
-			document.Close();
-			Console.WriteLine(form.GetAllFormFields().Count());
-
-			Console.ReadLine();
-
-		}
 	}
 }
