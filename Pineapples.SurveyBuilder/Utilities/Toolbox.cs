@@ -321,8 +321,14 @@ namespace surveybuilder.Utilities
 				Console.WriteLine($"EmisUrl must be supplied when scripting");
 				return;
 			}
+			Assembly assembly = Assembly.GetExecutingAssembly();
 
-			string app = Assembly.GetExecutingAssembly().Location;
+			// Retrieve the attributes
+			string title = ((AssemblyTitleAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyTitleAttribute)))?.Title ?? "No Title Defined";
+			string app = assembly.Location;
+			string version = assembly.GetName().Version?.ToString().Substring(0, 5) ?? "No Version Defined";
+			string copyright = ((AssemblyCopyrightAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyCopyrightAttribute)))?.Copyright ?? "No Copyright Defined";
+
 			LookupManager lm = new LookupManager(null, opts.EmisUrl);
 			LookupList schools = lm["schoolNames"]
 				.OrderBy(entry => entry.C).ToLookupList();
@@ -333,8 +339,14 @@ namespace surveybuilder.Utilities
 			script = System.IO.Path.ChangeExtension(script, "bat");
 			FileStream fs = new FileStream(script, FileMode.Create, FileAccess.Write);
 			StreamWriter sw = new StreamWriter(fs);
+			sw.WriteLine($"REM {title} version {version}");
+			sw.WriteLine($"REM {copyright}");
+			sw.WriteLine();
+			sw.WriteLine($"REM Generate Pacific EMIS Surveys");
+			sw.WriteLine();
 			sw.WriteLine($"SET EmisUrl={opts.EmisUrl}");
 			sw.WriteLine($"SET AppPath=\"{app}\"");
+			sw.WriteLine();
 
 			foreach (LookupEntry school in schools)
 			{

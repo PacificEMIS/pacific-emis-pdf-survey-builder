@@ -49,6 +49,7 @@ var v = {
 		}
 
 		this.setStatus(event.target, status);
+		gf("Survey.Status").value = status;
 		switch (status) {
 			case "Complete":
 				inform("Congratulations! Your survey is now complete!");
@@ -62,11 +63,11 @@ var v = {
 	setStatus: function (btn, status) {
 		switch (status) {
 			case "Complete":
-				btn.value = "Survey is Complete!"
+				btn.buttonSetCaption("Survey is Complete!");
 				btn.fillColor = color.green;
 				return;
 			case "Incomplete":
-				btn.value = "Survey is not Complete! - Click to test again"
+				btn.buttonSetCaption("Survey is not Complete! - Click to test again");
 				btn.fillColor = color.red;
 				return;
 		}

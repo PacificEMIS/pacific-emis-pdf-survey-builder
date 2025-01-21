@@ -14,6 +14,7 @@ using iText.Forms;
 using iText.Forms.Fields.Properties;
 using static surveybuilder.CellMakers;
 using surveybuilder.Utilities;
+using Newtonsoft.Json.Linq;
 
 namespace surveybuilder
 {
@@ -29,10 +30,14 @@ namespace surveybuilder
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 
 			// validations
+			const string toiletMsg = "You need to specify toilet types.";
+			ConditionalFields conditionalToilet = new ConditionalFields("Wash Sanitation", toiletMsg);
 			const string conditionalMsg = "You need to specify toilet condition";
-			ConditionalFields conditionalFields = new ConditionalFields("WashSanitation", conditionalMsg);
-			const string requiredMsg = "Some answers are missing from Wash Sanitation.";
-			RequiredFields requiredFields = new RequiredFields("WashSanitation", requiredMsg);
+			ConditionalFields conditionalFields = new ConditionalFields("Wash Sanitation Condition", conditionalMsg);
+			//making this separate for F (girls) becuase it conflicts with M otherwise
+			ConditionalFields conditionalFieldsF = new ConditionalFields("Wash Sanitation Condition F", conditionalMsg);
+			//const string requiredMsg = "Some answers are missing from Wash Sanitation.";
+			//RequiredFields requiredFields = new RequiredFields("WashSanitation", requiredMsg);
 
 			// Cell layout/styling models
 			var model = CellStyleFactory.Default;
@@ -120,7 +125,7 @@ namespace surveybuilder
 					$"Toilets.D.{ttI:00}.Pupil.M",
 					$"Toilets.D.{ttI:00}.Pupil.C"
 				));
-				conditionalFields.Add(
+				conditionalFieldsF.Add(
 					ConditionalField.IfAny(
 					$"Toilets.D.{ttI:00}.Pupil.F",
 					$"Toilets.D.{ttI:00}.Pupil.C"
@@ -136,15 +141,35 @@ namespace surveybuilder
 					$"Toilets.D.{ttI:00}.Wheelchair.C"
 				));
 
+				// get the vertical collection of toilets
+				
 				ttI++;
 
 			}
+			// make the Required-Alternative arrays for M F and Staff
+			List<string> alternativesM = new List<string>();
+			List<string> alternativesF = new List<string>();
+			List<string> alternativesStaff = new List<string>();
+
+			for (int i = 0; i < ttI; i++)
+			{
+				alternativesM.Add($"Toilets.D.{i:00}.Pupil.M");
+				alternativesF.Add($"Toilets.D.{i:00}.Pupil.F");
+				alternativesStaff.Add($"Toilets.D.{i:00}.Staff.All");
+			}
+			var toiletsMaterial = new RequiredFields("Toilets", "Toilet material is missing.");
+			toiletsMaterial.AddAlternatives(alternativesM.ToArray());
+			toiletsMaterial.AddAlternatives(alternativesF.ToArray());
+			toiletsMaterial.AddAlternatives(alternativesStaff.ToArray());
+
 
 			toiletTypes.AsFields(document.GetPdfDocument()
 				, (i) => $"Toilets.R.{i:00}.K", (i) => $"Toilets.R.{i:00}.V");
 
 			document.Add(tableToilets);
 
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), toiletsMaterial);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFieldsF);
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFields);
 			return document;
 		}

@@ -25,9 +25,10 @@ namespace surveybuilder
 			// and for checking that the script is being generated correctly
 			// the script can be copied from the file and pasted into the console
 			// for testing
-			string folder = System.IO.Directory.GetCurrentDirectory();
-			string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
-			System.IO.File.WriteAllText(debugFile, script);
+			
+			//string folder = System.IO.Directory.GetCurrentDirectory();
+			//string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
+			//System.IO.File.WriteAllText(debugFile, script);
 			return script;
 		}
 		/// <summary>

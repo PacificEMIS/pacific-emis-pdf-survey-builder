@@ -98,6 +98,8 @@ namespace surveybuilder
 
 			document.Add(tableCertification);
 
+			// status reports the checking of the form to the server
+			CellMakers.ExportValue(builder.pdfDoc, "Survey.Status", "Not Checked");
 
 
 			return document;

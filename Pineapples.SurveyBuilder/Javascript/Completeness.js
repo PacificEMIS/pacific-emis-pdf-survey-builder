@@ -92,8 +92,9 @@ var isNewStaff = function (fieldName) {
  * Change the appearance of a field depending on its Required status
  * @param {any} fld the form field to act on
  * @param {any} required boolean
+ * @param {any} isAlternative boolean the field is part of a group of alternatives
  */
-function setRequired(fld, required) {
+function setRequired(fld, required, isAlternative) {
 	fname = fld.name;
 	if (required) {
 		fld.required = true;
@@ -101,7 +102,7 @@ function setRequired(fld, required) {
 			case "text":
 			case "combobox":
 				fld.borderWidth = 1;
-				fld.strokeColor = color.red;
+				fld.strokeColor = isAlternative? color.magenta: color.red;
 				break;
 			case "checkbox":
 				// Modify properties for each widget
@@ -115,7 +116,7 @@ function setRequired(fld, required) {
 					bw = widget.borderWidth;
 
 					//widget.strokeColor = color.red;
-					widget.fillColor = color.red;
+					widget.fillColor = isAlternative ? color.magenta : color.red;
 					widget.textColor = txtc;
 					//widget.borderWidth = bw;
 				}
@@ -162,7 +163,7 @@ function setRequired(fld, required) {
  */
 function setRequiredArray(rq, required) {
 	for (j = 0; j < rq.length; j++) {
-		setRequired(gf(rq[j]), required);
+		setRequired(gf(rq[j]), required, rq.length > 1? true:false);
 	}
 }
 /**
@@ -190,6 +191,7 @@ function firstRequired(rqArray) {
 			switch (fld.type) {
 				case "text":
 				case "checkbox":
+				case "combobox":
 					if (fld.required && gfvx(fieldname) == "") {
 						count++;
 						var pg = gfpage(fld);
