@@ -23,12 +23,12 @@ namespace surveybuilder
 			// write the script to a debug file in the current directory
 			// this is useful for debugging the script
 			// and for checking that the script is being generated correctly
-			// the script can be copied from the file and pasted into the console
-			// for testing
-			
-			//string folder = System.IO.Directory.GetCurrentDirectory();
-			//string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
-			//System.IO.File.WriteAllText(debugFile, script);
+			if (pdfDoc.IsVerbose())
+			{
+				string folder = System.IO.Directory.GetCurrentDirectory();
+				string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
+				System.IO.File.WriteAllText(debugFile, script);
+			}
 			return script;
 		}
 		/// <summary>
@@ -40,9 +40,13 @@ namespace surveybuilder
 		public static string AddConditionalFields(PdfDocument pdfDoc, ConditionalFields fields)
 		{
 			string script =  fields.GenerateJavaScript(pdfDoc, sequence++);
-			string folder = System.IO.Directory.GetCurrentDirectory();
-			string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
-			System.IO.File.WriteAllText(debugFile, script);
+			if (pdfDoc.IsVerbose())
+			{
+				string folder = System.IO.Directory.GetCurrentDirectory();
+				string debugFile = $"{folder}\\{fields.Name}{sequence:00}.js";
+				System.IO.File.WriteAllText(debugFile, script);
+			}
+
 			return script;
 
 		}
@@ -194,6 +198,12 @@ namespace surveybuilder
 			return cf;
 		}
 
+		/// <summary>
+		/// Create a conditional field that requires at least one of the dependent fields
+		/// </summary>
+		/// <param name="test">name of field that has a value</param>
+		/// <param name="rq">array of the alternative fields to provide</param>
+		/// <returns></returns>
 		public static ConditionalField IfAnyAlternatives(string test, params string[] rq)
 		{
 			var cf = new ConditionalField(test)
