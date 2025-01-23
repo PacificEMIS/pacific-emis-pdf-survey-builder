@@ -131,7 +131,18 @@ namespace surveybuilder
 			grd.Rows = builder.lookups["disabilities"];
 			grd.Columns = builder.lookups["classLevels"];
 			document.Add(grd.Make(builder, document));
-
+			
+			//validation
+			RequiredFields flds = new RequiredFields("Disability",
+				"Disability certification not set."
+			);
+			flds.Add("DIS.HasData");
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), flds);
+			ConditionalFields cflds = new ConditionalFields("Disability",
+				"Disability data is not complete."
+			);
+			cflds.Add(ConditionalField.IfYes("DIS.HasData", "DIS.T.T.T.T"));
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), cflds);
 			return document;
 		}
 	}
