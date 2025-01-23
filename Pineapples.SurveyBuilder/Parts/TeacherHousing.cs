@@ -31,6 +31,9 @@ namespace surveybuilder
 		{
 			Console.WriteLine("Part: Teacher Housing");
 
+			var houseTypeConditionFields = new ConditionalFields("House condition",
+					"House condition not specified");
+
 			// Import common table styles
 			PdfTableStylesheet ts = new PdfTableStylesheet(builder.stylesheet);
 
@@ -55,7 +58,7 @@ namespace surveybuilder
 				ts.TableHeaderStyle(TextCell(model, "Off Site"))
 			);
 			table.AddRow(
-				TextCell(model, "No. of teachers that are provided with housing.").Style(ts.TableRowHeaderStyle),
+				TextCell(model, "No. of teachers that are provided with housing").Style(ts.TableRowHeaderStyle),
 				NumberCell(model, "Housing.OnSite"),
 				NumberCell(model, "Housing.OffSite")
 			);
@@ -64,7 +67,7 @@ namespace surveybuilder
 				NumberCell(model12, "Housing.N")
 			);
 			table.AddRow(
-				TextCell(model, "No. of teachers whose houses need significant maintenance.").Style(ts.TableRowHeaderStyle),
+				TextCell(model, "No. of teachers whose houses need significant maintenance").Style(ts.TableRowHeaderStyle),
 				NumberCell(model12, "Housing.M")
 			);
 
@@ -101,6 +104,8 @@ namespace surveybuilder
 				{ "Staff Housing Traditional", "TchHouseTrad" }
 			};
 
+			// we'll push all the Num column into this array
+			var alternatives = new List<string>();
 			foreach (var kvp in teacherHousingCategories)
 			{
 				// export the full category name
@@ -132,6 +137,9 @@ namespace surveybuilder
 					string fieldA = $"Resource.{tag}.D.{i:00}.A"; // Not used
 					string fieldNum = $"Resource.{tag}.D.{i:00}.Num";
 					string fieldC = $"Resource.{tag}.D.{i:00}.C";
+					// tracking validations as field names are generated
+					alternatives.Add(fieldNum);
+					houseTypeConditionFields.Add(ConditionalField.IfAny(fieldNum, fieldC));
 
 					PdfButtonFormField rgrp = new RadioFormFieldBuilder(builder.pdfDoc, fieldC).CreateRadioGroup();
 
@@ -142,12 +150,25 @@ namespace surveybuilder
 						SelectCell(model, rgrp, "F"),
 						SelectCell(model, rgrp, "P")
 					);
+					
 					i++;
 				}
 			}
 
 			document.Add(tableTHTConditions);
 
+			// Validation
+			var requiredFields = new RequiredFields("Teacher Housing",
+				"Teacher housing is missing information."
+				)
+				.AddAlternatives("Housing.OnSite", "Housing.OffSite", "Housing.N");
+			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
+			var houseTypeFields = new ConditionalFields("Teacher Housing Types",
+				"Teacher housing types not specified.");
+			houseTypeFields.Add(ConditionalField.IfAnyAlternatives("Housing.OnSite",alternatives.ToArray()));
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), houseTypeFields);
+			// condition dependencies added after house type dependencies
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), houseTypeConditionFields);
 
 			return document;
 		}
