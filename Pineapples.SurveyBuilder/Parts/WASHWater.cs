@@ -206,7 +206,12 @@ namespace surveybuilder
 				NumberCell(model, "Wash.Water.Test.Result")
 			);
 
+			// export the full category name
+			var cat = $"Resource.Water.Cat";
+			ExportValue(builder.pdfDoc, cat, "Water Supply");
+
 			document.Add(tableWaterTreatment);
+
 			// at least one water supply type
 			List<string> waterSupplyFields = new List<string>();
 			for (int i = 0; i < wstCount; i++)
