@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Project      : Pineapples.SurveyBuilder
+ * File         : core.js
+ * Description  : embedded JavaScript for Adobe Acrobat forms - utility functions
+ * Author       : Brian Lewis
+ * Created      : 2024-10-01
+ * Last Updated : 2025-01-24 by Brian Lewis
+ * Version      : 1.0.0
+ * 
+ * Copyright (c) 2024, 2025.
+ * 
+ *******************************************************************************/
 console.println("core Loading...");
 
 // Core functionality for Acrobat forms
@@ -12,7 +24,7 @@ function OnStartup() {
 			return (a.sort > b.sort) ? 1 : ((b.sort > a.sort) ? -1 : 0);
 		});	
 		for (var i = 0; i < requiredsTable.length; i++) {
-			console.println(requiredsTable[i].name );
+			console.println(requiredsTable[i].name + " (" + requiredsTable[i].type + ")");
 		}
 	}
 	// calculate the number of expected staff
@@ -20,7 +32,7 @@ function OnStartup() {
 	var idx = 0;
 	do {
 		var n = "TL." + padStart(idx.toString(), 2, "0") + ".tID";
-		console.println(n);
+		//console.println(n);
 		var ff = gf(n);
 		if (ff == null) {
 			console.println(n + " not found");
@@ -88,10 +100,6 @@ function OnStartup() {
 		idx++;
 
 	} while (true);
-
-
-
-	//}
 }
 
 //****************** Utilities and wrappers *************************

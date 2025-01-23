@@ -1,4 +1,17 @@
-﻿console.println("Completeness loading...");
+﻿/*******************************************************************************
+ * Project      : Pineapples.SurveyBuilder
+ * File         : Completeness.js
+ * Description  : embedded JavaScript for Adobe Acrobat forms - 
+ *								completeness testing utility functions
+ * Author       : Brian Lewis
+ * Created      : 2024-10-01
+ * Last Updated : 2025-01-24 by Brian Lewis
+ * Version      : 1.0.0
+ * 
+ * Copyright (c) 2024, 2025.
+ * 
+ *******************************************************************************/
+console.println("Completeness loading...");
 /**
  * requiredsTable is an array of 'requiredFields' or 'conditionalFields' objects.
  * requiredFields objects have the following properties:
@@ -147,7 +160,7 @@ function setRequired(fld, required, isAlternative) {
 
 						//widget.strokeColor = color.gray;   // Green border
 						//widget.borderWidth = 1.8;
-						widget.fillColor = ["RGB", 0.988, 0.957, 0.898];  // these come from defaaultbackcolor()
+						widget.fillColor = ["RGB", 0.988, 0.957, 0.898];  // these come from defaultbackcolor()
 
 					}
 			}

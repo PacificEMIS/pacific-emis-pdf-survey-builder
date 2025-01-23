@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Project      : Pineapples.SurveyBuilder
+ * File         : Completeness.js
+ * Description  : embedded JavaScript for Adobe Acrobat forms - 
+ *								management of grids and other complex form elements
+ * Author       : Brian Lewis
+ * Created      : 2024-10-01
+ * Last Updated : 2025-01-24 by Brin Lewis
+ * Version      : 1.0.0
+ * 
+ * Copyright (c) 2024, 2025.
+ * 
+ *******************************************************************************/
 console.println("Pineapples Loading...");
 
 var p = {
@@ -249,14 +262,3 @@ var rx = /^((?:19|20)\d{2})(?:-|\/)(\d{1,2})(?:-|\/)(\d{1,2})|(\d{1,2})(?:-|\/)(
 };
 
 console.println("Pineapples loaded");
-
-//app.alert(v);
-//app.alert(v.test(1));
-//app.alert("2".toString());
-//app.alert(padStart);
-////app.alert(globalThis);
-//app.alert(v.TL(2, "tID"));
-//app.alert(v.onStaff(0));
-//app.alert(v.onStaffv(1));
-//app.alert(v.checkOnStaff(1));
-//app.alert(v.checkAllOnStaff());

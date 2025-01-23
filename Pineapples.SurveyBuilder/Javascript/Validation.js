@@ -1,4 +1,17 @@
-﻿console.println("Validation Loading...");
+﻿/*******************************************************************************
+ * Project      : Pineapples.SurveyBuilder
+ * File         : Validation.js
+ * Description  : embedded JavaScript for Adobe Acrobat forms - 
+ *								Completeness testing UI functions
+ * Author       : Brian Lewis
+ * Created      : 2024-10-01
+ * Last Updated : 2025-01-24 by Brian Lewis
+ * Version      : 1.0.0
+ * 
+ * Copyright (c) 2024, 2025
+ * 
+ *******************************************************************************/
+console.println("Validation Loading...");
 
 /// validations object
 var v = {
@@ -55,7 +68,7 @@ var v = {
 				inform("Congratulations! Your survey is now complete!");
 				break;
 			case "Incomplete":
-				break
+				break;
 		}
 
 	},
@@ -64,10 +77,12 @@ var v = {
 		switch (status) {
 			case "Complete":
 				btn.buttonSetCaption("Survey is Complete!");
+				btn.userName = "Click to test again";
 				btn.fillColor = color.green;
 				return;
 			case "Incomplete":
 				btn.buttonSetCaption("Survey is not Complete! - Click to test again");
+				btn.userName = "Click to test again";
 				btn.fillColor = color.red;
 				return;
 		}
@@ -257,7 +272,7 @@ var v = {
 					setRequiredArray(o.rq[i], false);
 			}
 		}
-		console.println("Check conditional: " + found);
+		//console.println("Check conditional: " + found);
 		return found;
 	},
 	//#endregion
