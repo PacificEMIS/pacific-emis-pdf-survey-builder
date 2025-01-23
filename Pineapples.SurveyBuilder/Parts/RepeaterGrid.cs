@@ -58,6 +58,7 @@ namespace surveybuilder
 			grd.Tag = "Rep";
 			document.Add(grd.Make(builder, document));
 
+			//validation
 			RequiredFields flds = new RequiredFields("Repeaters",
 				"Repeater certification not set."
 			);
@@ -68,6 +69,7 @@ namespace surveybuilder
 			);
 			cflds.Add(ConditionalField.IfYes("Rep.HasData", "Rep.T.T.T.T"));
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), cflds); 
+
 			return document;
 		}
 	}
