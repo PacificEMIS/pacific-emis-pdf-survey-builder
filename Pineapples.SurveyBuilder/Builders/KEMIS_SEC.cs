@@ -60,8 +60,17 @@ namespace surveybuilder
 			/* Begin Pdf output														  */
 			/**************************************************************************/
 
-			CoverPage(document, "Secondary", SurveyYear);
+			CoverPage(document, "Secondary", SurveyYear);			
 			NewPage(document);
+
+			// Styling for secondary. We use this one throughout the whole survey.
+			stylesheet.Theme = new Theme
+			{
+				Primary = PredefinedPalettes.Blue,
+				Accent = PredefinedPalettes.Yellow,
+				Warn = PredefinedPalettes.Red,
+				Background = PredefinedPalettes.Green
+			};
 
 			#region ***** School Information *****
 			var schoolInfoOutline = this.AddOutline(document, parentOutline, "School Information");
@@ -72,13 +81,7 @@ namespace surveybuilder
 
 			NewPage(document);
 			#endregion
-			stylesheet.Theme = new Theme
-			{
-				Primary = PredefinedPalettes.Red,
-				Accent = PredefinedPalettes.Purple,
-				Warn = PredefinedPalettes.Pink,
-				Background = PredefinedPalettes.Green
-			};
+
 			#region ***** Enrolment Grids *****
 
 			// Prepare grid makers common to several sections in the document
@@ -136,13 +139,14 @@ namespace surveybuilder
 			NewPage(document);
 
 			#endregion
-			stylesheet.Theme = new Theme
-			{
-				Primary = PredefinedPalettes.Purple,
-				Accent = PredefinedPalettes.Green,
-				Warn = PredefinedPalettes.Pink,
-				Background = PredefinedPalettes.Green
-			};
+			// No changes throughout (but could be changed)
+			//stylesheet.Theme = new Theme
+			//{
+			//	Primary = PredefinedPalettes.Blue,
+			//	Accent = PredefinedPalettes.Blue2,
+			//	Warn = PredefinedPalettes.Red,
+			//	Background = PredefinedPalettes.Green
+			//};
 			#region ************** Buildings and Rooms *************************
 			var infrastructureOutline = this.AddOutline(document, parentOutline, "Buildings and Rooms");
 			document.Add(Heading_1("Buildings and Rooms"));
@@ -195,8 +199,8 @@ namespace surveybuilder
 				.Build(this, document);
 			NewPage(document);
 			#endregion
-			stylesheet.Theme.Primary = PredefinedPalettes.Green;
-			stylesheet.Theme.Accent = PredefinedPalettes.Red;
+			//stylesheet.Theme.Primary = PredefinedPalettes.Blue;
+			//stylesheet.Theme.Accent = PredefinedPalettes.Blue2;
 			#region ************ Resources ***************
 			var resourcesOutline = this.AddOutline(document, parentOutline, "School Resources");
 			document.Add(Heading_1("School Resources"));

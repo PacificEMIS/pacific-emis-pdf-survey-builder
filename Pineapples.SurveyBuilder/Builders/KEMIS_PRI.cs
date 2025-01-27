@@ -66,6 +66,15 @@ namespace surveybuilder
 			CoverPage(document, "Primary", SurveyYear);
 			NewPage(document);
 
+			// Styling for primary. We use this one throughout the whole survey.
+			stylesheet.Theme = new Theme
+			{
+				Primary = PredefinedPalettes.Blue,
+				Accent = PredefinedPalettes.Blue2,
+				Warn = PredefinedPalettes.Red,
+				Background = PredefinedPalettes.Green
+			};
+
 			#region ***** School Information *****
 			var schoolInfoOutline = this.AddOutline(document,parentOutline, "School Information");
 
@@ -264,7 +273,7 @@ namespace surveybuilder
 				  .EndText();                // do this to reset the co-ordinates
 
 			// right align the version
-			string version = "07112024";
+			string version = "28012025";
 			int fontSize = 12;
 
 			// Define the right margin (or use page width)
