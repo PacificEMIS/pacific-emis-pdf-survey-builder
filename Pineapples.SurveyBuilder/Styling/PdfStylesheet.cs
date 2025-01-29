@@ -944,8 +944,8 @@ namespace surveybuilder
 				{
 					TextAlignment = TextAlignment.CENTER,
 					FontBold = true,
-					GetBackgroundColor = theme => theme.Primary.GetColor(300),
-					GetFontColor = theme => theme.Primary.TextColor,
+					GetBackgroundColor = theme => theme.Accent.GetColor(300),
+					GetFontColor = theme => theme.Accent.TextColor,
 				};
 			styles["tablerowheader"] =
 				new PdfStyle(styles["tablebase"])
@@ -965,14 +965,14 @@ namespace surveybuilder
 			styles["tablesubheader"] =
 				new PdfStyle(styles["tablebase"])
 				{
-					GetBackgroundColor = theme => theme.Primary.GetColor(200),
-					GetFontColor = theme => theme.Primary.TextColor
+					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+					GetFontColor = theme => theme.Accent.TextColor
 				};
 			styles["tabletotal"] =
 				new PdfStyle(styles["tablebase"])
 				{
-					GetBackgroundColor = theme => theme.Primary.GetColor(200),
-					GetFontColor = theme => theme.Primary.TextColor,
+					GetBackgroundColor = theme => theme.Accent.GetColor(200),
+					GetFontColor = theme => theme.Accent.TextColor,
 					TextAlignment = TextAlignment.RIGHT
 				};
 

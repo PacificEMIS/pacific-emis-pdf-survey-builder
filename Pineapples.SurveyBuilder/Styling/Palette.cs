@@ -12,8 +12,8 @@ namespace surveybuilder
 {
 	public enum PaletteMode
 	{
-		Scheme,					// use Primary Secondary, Tertiary Surface and Error
-		Theme,					// the original AngukarJS Material model of theme
+		Scheme,                 // use Primary Secondary, Tertiary Surface and Error
+		Theme,                  // the original AngukarJS Material model of theme
 		Swatch
 	}
 
@@ -68,7 +68,8 @@ namespace surveybuilder
 		// A quick way to get the default hue (500)
 		public PaletteMode PaletteMode { get; protected set; }
 
-		protected int DefaultHueIndex { 
+		protected int DefaultHueIndex
+		{
 			get
 			{
 				switch (PaletteMode)
@@ -172,17 +173,43 @@ namespace surveybuilder
 	public static class PredefinedPalettes
 	{
 		public static Palette Blue => Palette.Theme("Blue")
-			.AddHue(50, "#E3F2FD")
-			.AddHue(100, "#BBDEFB")
-			.AddHue(200, "#90CAF9")
-			.AddHue(300, "#64B5F6")
-			.AddHue(400, "#42A5F5")
-			.AddHue(500, "#2196F3") // Primary hue
-			.AddHue(600, "#1E88E5")
-			.AddHue(700, "#1976D2")
-			.AddHue(800, "#1565C0")
-			.AddHue(900, "#0D47A1")
-			.AddHue(1000, "#896b42");
+			.AddHue(50, "#E4E8F5")
+			.AddHue(100, "#C0C7E2")
+			.AddHue(200, "#97A3CD")
+			.AddHue(300, "#6E80B8")
+			.AddHue(400, "#4C62A3")
+			.AddHue(500, "#24336E") // Primary hue
+			.AddHue(600, "#202E63")
+			.AddHue(700, "#1B2757")
+			.AddHue(800, "#161F4B")
+			.AddHue(900, "#101535")
+			.AddHue(1000, "#0C0F24");
+
+		public static Palette Blue2 => Palette.Theme("Blue2")
+			.AddHue(50, "#E4E6F2")
+			.AddHue(100, "#C0C4E0")
+			.AddHue(200, "#979FCA")
+			.AddHue(300, "#6E7AB3")
+			.AddHue(400, "#4C5C9E")
+			.AddHue(500, "#3A4883") // Primary hue
+			.AddHue(600, "#343F75")
+			.AddHue(700, "#2D3666")
+			.AddHue(800, "#252D57")
+			.AddHue(900, "#1A1F3C")
+			.AddHue(1000, "#121427");
+
+		public static Palette Yellow => Palette.Theme("Yellow")
+			.AddHue(50, "#F5F1E4")
+			.AddHue(100, "#E2D9C0")
+			.AddHue(200, "#CDBF97")
+			.AddHue(300, "#B8A66E")
+			.AddHue(400, "#A38C4C")
+			.AddHue(500, "#A29026") // Primary hue
+			.AddHue(600, "#8E8220")
+			.AddHue(700, "#7A6F1B")
+			.AddHue(800, "#655B16")
+			.AddHue(900, "#4B4310")
+			.AddHue(1000, "#322E0C");
 
 		public static Palette Red => Palette.Theme("Red")
 			.AddHue(100, "#FFCDD2")
@@ -194,6 +221,20 @@ namespace surveybuilder
 			.AddHue(700, "#D32F2F")
 			.AddHue(800, "#C62828")
 			.AddHue(900, "#B71C1C");
+
+		public static Palette Orange => Palette.Theme("Orange")
+			.AddHue(50, "#F5EDE4")
+			.AddHue(100, "#E8D2C0")
+			.AddHue(200, "#D6B297")
+			.AddHue(300, "#C4916E")
+			.AddHue(400, "#B3754C")
+			.AddHue(500, "#A26426") // Primary hue
+			.AddHue(600, "#8E5820")
+			.AddHue(700, "#7A4C1B")
+			.AddHue(800, "#654016")
+			.AddHue(900, "#4B3010")
+			.AddHue(1000, "#32210C");
+
 
 		public static Palette Green => Palette.Theme("Green")
 		.AddHue(50, "#E8F5E9")
@@ -234,19 +275,21 @@ namespace surveybuilder
 			.AddHue(900, "#FF6F00");
 
 		public static Palette Purple => Palette.Theme("Purple")
-			.AddHue(50, "#F3E5F5")
-			.AddHue(100, "#E1BEE7")
-			.AddHue(200, "#CE93D8")
-			.AddHue(300, "#BA68C8")
-			.AddHue(400, "#AB47BC")
-			.AddHue(500, "#9C27B0") // Primary hue
-			.AddHue(600, "#8E24AA")
-			.AddHue(700, "#7B1FA2")
-			.AddHue(800, "#6A1B9A")
-			.AddHue(900, "#4A148C");
+			.AddHue(50, "#E9E4F5")
+			.AddHue(100, "#D1C7E8")
+			.AddHue(200, "#B5A3D6")
+			.AddHue(300, "#987EC4")
+			.AddHue(400, "#7C5AAE")
+			.AddHue(500, "#3B236F") // Primary hue
+			.AddHue(600, "#352064")
+			.AddHue(700, "#2D1B56")
+			.AddHue(800, "#251647")
+			.AddHue(900, "#190F31")
+			.AddHue(1000, "#120A21");
 
 
-			
+
+
 	}
 	#endregion
 }
