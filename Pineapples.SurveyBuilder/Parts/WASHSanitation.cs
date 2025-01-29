@@ -49,7 +49,8 @@ namespace surveybuilder
 			document.Add(builder.Heading_3("Toilets"));
 
 			document.Add(new Paragraph()
-				.Add(@"Record the details of your school’s toilet facilities for staff and pupils.")
+				.Add(@"Record the details of your school’s toilet facilities. More specifically, record the total number of toilets for pupils (by gender), "
+					+ @"the total number of toilets for staff, and the total number of wheelchair accessible toilets.")
 			);
 
 			document.Add(new Paragraph()
@@ -62,11 +63,11 @@ namespace surveybuilder
 			// Heading
 			tableToilets.AddRow(ts.TableHeaderStyle,
 				TextCell(model21, "Toilet Type"),
-				TextCell(model12, "No of Pupil Toilets"),
+				TextCell(model12, "Pupil Toilets"),
 				TextCell(model13, "Condition"),
-				TextCell(model21, "No of Staff Toilets"),
+				TextCell(model21, "Staff Toilets"),
 				TextCell(model13, "Condition"),
-				TextCell(model21, "No of Wheelchair Accessible Toilets"),
+				TextCell(model21, "Wheelchair Accessible Toilets"),
 				TextCell(model13, "Condition")
 			);
 
