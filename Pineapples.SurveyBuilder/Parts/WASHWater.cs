@@ -222,17 +222,6 @@ namespace surveybuilder
 			requiredFields.AddAlternatives(waterSupplyFields.ToArray());
 			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
 
-			conditionalFields.Add(new ConditionalField()
-			{
-				Test = "Wash.Water.Treatment",
-				Value = new string[] { "Boil", "Chlorinate", "SODIS" },
-				Rq = ValidationManager.ToArrayList(
-					"Wash.Water.Test.Date",
-					"Wash.Water.Test.By",
-					"Wash.Water.Test.Result"
-				)
-			});
-			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFields);
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condSourceFields);
 			return document;
 		}
