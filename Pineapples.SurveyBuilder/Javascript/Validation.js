@@ -28,7 +28,7 @@ var v = {
 		var result;
 		var status = "Complete";
 
-		console.show();
+		//console.show();
 		console.clear();
 		// step through the requireds table checking all entries
 		var idx = 0;
