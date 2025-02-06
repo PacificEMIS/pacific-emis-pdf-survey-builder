@@ -103,6 +103,13 @@ namespace surveybuilder
 			new RepeaterGrid().Build(this, document);
 			NewPage(document);
 
+
+			AddOutline(document, enrolOutline, "Boarders");
+			document.Add(Heading_2("Boarders"));
+
+			new BoarderGrid().Build(this, document);
+			NewPage(document);
+
 			AddOutline(document, enrolOutline, "Distance from School");
 			document.Add(Heading_2("Distance from School"));
 			document = new DistanceFromSchool()

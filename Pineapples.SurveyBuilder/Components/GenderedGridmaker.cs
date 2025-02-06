@@ -279,35 +279,39 @@ namespace surveybuilder
 			{
 
 				// gender totals
-				
-				table.AddRow(ss[ColTotalHeader],
-					TextCell(CellStyleFactory.TwoRowOneColumn,"Totals")
-				);
-
-				// Data fields for each row
-				for (int j = 0; j < Columns.Count; j++)
+				// gender totals may be omitted if there is only 1 data row
+				if (Rows.Count > 1)
 				{
-					foreach (string g in new string[] { "M", "F" })
-					{
-						string name = $"{Tag}.T.T.{j:00}.{g}";
-						Paragraph pp = new Paragraph();
-						pp.SetNextRenderer(new TotalFieldRenderer(totalmodel, name));
-						table.AddRow(ss[ColTotal],totalmodel.Clone(false).Add(pp));
-					}
-				}
-				if (RowTotals)
-				{
-					foreach (string g in new string[] { "M", "F" })
-					{
-						string n = $"{Tag}.T.T.T.{g}";
-						Paragraph p = new Paragraph();
-						p.SetNextRenderer(new TotalFieldRenderer(totalmodel, n));
-						table.AddRow(ss[ColTotal],totalmodel.Clone(false).Add(p));
-					}
-					Paragraph pp = new Paragraph();
-					table.AddRow(ss["abstractcell"], 
-						TextCell(new Cell(1,2), "")
+					// first the row header
+					table.AddRow(ss[ColTotalHeader],
+					TextCell(CellStyleFactory.TwoRowOneColumn, "Totals")
 					);
+
+					// Data fields for each row
+					for (int j = 0; j < Columns.Count; j++)
+					{
+						foreach (string g in new string[] { "M", "F" })
+						{
+							string name = $"{Tag}.T.T.{j:00}.{g}";
+							Paragraph pp = new Paragraph();
+							pp.SetNextRenderer(new TotalFieldRenderer(totalmodel, name));
+							table.AddRow(ss[ColTotal], totalmodel.Clone(false).Add(pp));
+						}
+					}
+					if (RowTotals)
+					{
+						foreach (string g in new string[] { "M", "F" })
+						{
+							string n = $"{Tag}.T.T.T.{g}";
+							Paragraph p = new Paragraph();
+							p.SetNextRenderer(new TotalFieldRenderer(totalmodel, n));
+							table.AddRow(ss[ColTotal], totalmodel.Clone(false).Add(p));
+						}
+						Paragraph pp = new Paragraph();
+						table.AddRow(ss["abstractcell"],
+							TextCell(new Cell(1, 2), "")
+						);
+					}
 				}
 			}
 
@@ -316,6 +320,14 @@ namespace surveybuilder
 			#region column totals / grand total
 			if (ColumnTotals)
 			{
+				if (Rows.Count == 1)
+				{
+					// first the row header becuase we don;t have the 2-deep row header
+					// in the gender totals row
+					table.AddRow(ss[ColTotalHeader],
+					TextCell(CellStyleFactory.Default, "Totals")
+					);
+				}
 				// from above 1 column
 
 				for (int j = 0; j < Columns.Count; j++)
