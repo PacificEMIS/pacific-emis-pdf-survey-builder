@@ -158,6 +158,7 @@
     <Compile Include="Parts\Dormitories.cs" />
     <Compile Include="Parts\EnrolmentGrid.cs" />
     <Compile Include="Parts\GeneralComments.cs" />
+    <Compile Include="Parts\BoarderGrid.cs" />
     <Compile Include="Parts\RepeaterGrid.cs" />
     <Compile Include="Parts\SchoolSupplies.cs" />
     <Compile Include="Parts\SchoolResources.cs" />
