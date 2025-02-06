@@ -33,16 +33,10 @@ namespace surveybuilder
 		{
 
 			GenderedGridmaker grd = new GenderedGridmaker();
-			// nulls to support the editable
-			var rows = Enumerable.Repeat<string>(null, 10)
-							.Select(n => new LookupEntry
-							{
-								C = n, // Set the primary code (C)
-								N = n  // Set the primary name (N)
-							})
-							.ToLookupList();
-
+			var rows = new LookupList();
+			rows.Add(new LookupEntry("PSA", "Attended Preschool"));
 			grd.Rows = rows;
+
 			
 			var ages = new LookupList();
 
@@ -61,7 +55,6 @@ namespace surveybuilder
 
 			grd.Tag = "PSA";
 			grd.RowTotals = true;
-			grd.EditRowValue = true;
 			document.Add(grd.Make(builder, document));
 
 			return document;
