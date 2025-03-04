@@ -101,6 +101,22 @@ var isNewStaff = function (fieldName) {
 	var n = fieldName.split('.');
 	return parseInt(n[1]) >= numExpectedStaff;
 }
+
+var isTeacherOnStaff = function (fieldName) {
+	// extract the number from the field name
+	// field name assumed to be a teacher field TL.nn.<name>
+	var n = fieldName.split('.');
+	var idx = parseInt(n[1]);
+	if (idx >= numExpectedStaff) {
+		// its a new staff member, teacher is OnStaff if they have a name
+		var newStaffName = [n[0], n[1], "FamilyName"].join(".");;
+		return (gfvx(newStaffName) != "");
+
+	}
+	// for an expectedStaff member, check if OnStaff="Y"
+	var onStaff = [n[0], n[1], "OnStaff"].join(".");
+	return (gfvx(onStaff) == "Y");
+}
 /**
  * Change the appearance of a field depending on its Required status
  * @param {any} fld the form field to act on

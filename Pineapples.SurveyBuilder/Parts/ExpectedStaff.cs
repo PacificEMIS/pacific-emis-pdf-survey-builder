@@ -47,25 +47,25 @@ namespace surveybuilder
 				"On Staff must be entered for all expected staff."
 		)
 		{
-			Filter = "isExpectedStaff"      // only check Duties fields that are readwrite
+			Filter = "isExpectedStaff"      // check that OnStaff is entered for all expected staff
 		};
 		ConditionalFields condExpectedStaff = new ConditionalFields("Expected Staff",
 				"Teacher information is missing some required values."
 		)
 		{
-			Filter = "isExpectedStaff"      // only check Duties fields that are readwrite
+			Filter = "isExpectedStaff"      // when OnStaff = Y, check that all required fields are entered
 		};
 		ConditionalFields condNewStaff = new ConditionalFields("New Staff",
 				"Teacher information is missing some required values."
 		)
 		{
-			Filter = "isNewStaff"      // only check familyName fields that are readwrite
+			Filter = "isNewStaff"      // only check familyName fields that are not null in new staff
 		};
 		ConditionalFields condActivitiesExpected = new ConditionalFields("Expected Staff Duties",
 			"Teacher activities (class levels taught, Admin, or Other) are not recorded."
 		)
 		{
-			Filter = "isExpectedStaff"      // only check Duties fields that are readwrite
+			Filter = "isExpectedStaff"      // only check Activities fields in expected staff with OnStaff=Y
 		};
 
 		ConditionalFields condActivitiesNew = new ConditionalFields("New Staff Duties",
@@ -73,6 +73,12 @@ namespace surveybuilder
 	)
 		{
 			Filter = "isNewStaff"      // check activities of new staff
+		};
+		ConditionalFields condFPDays = new ConditionalFields("FullTime part Time",
+		"For part-time teachers, enter the equivalent number of full days worked."
+	)
+		{
+			Filter = "isTeacherOnStaff"      // check FP status of all active staff
 		};
 
 		public Document Build(PdfBuilder builder, Document document)
@@ -320,7 +326,7 @@ namespace surveybuilder
 					// now collected as F P, not FT PT note tchFullPart is nvarchar(1) so this has always neem truncated
 					SelectCell(model, grpFP, "F"),
 					SelectCell(model, grpFP, "P"),
-					NumberCell(model, $"TL.{i:00}.Days"),
+					NumberCell(model, $"TL.{i:00}.Days",null,1),		// 1 decimal point
 					TextCell(model12, "")
 
 				);
@@ -410,6 +416,12 @@ namespace surveybuilder
 					$"TL.{i:00}.FamilyName",
 					activitiesList.ToArray()
 				));
+				var days = new ConditionalField($"TL.{i:00}.FP")
+				{
+					Value = new[] { "P" },
+				};
+				days.AddAll($"TL.{i:00}.Days");
+				condFPDays.Add(days);
 
 			}
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condOnStaff);
@@ -417,6 +429,7 @@ namespace surveybuilder
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condActivitiesExpected);
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condNewStaff);
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condActivitiesNew);
+			ValidationManager.AddConditionalFields(document.GetPdfDocument(), condFPDays);
 
 			return document;
 		}
