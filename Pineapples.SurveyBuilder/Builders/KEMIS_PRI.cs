@@ -119,11 +119,11 @@ namespace surveybuilder
 				.Build(this, document);
 			NewPage(document);
 
-			AddOutline(document, enrolOutline, "Transfers In");
-			document.Add(Heading_2("Transfers In"));
-			document = new TransfersInGrid()
-				.Build(this, document);
-			NewPage(document);
+			//AddOutline(document, enrolOutline, "Transfers In");
+			//document.Add(Heading_2("Transfers In"));
+			//document = new TransfersInGrid()
+			//	.Build(this, document);
+			//NewPage(document);
 
 			AddOutline(document, enrolOutline, "Pre-School Attendance");
 			document.Add(Heading_2("Pupils Who Have Attended Pre-School"));
@@ -273,7 +273,7 @@ namespace surveybuilder
 				  .EndText();                // do this to reset the co-ordinates
 
 			// right align the version
-			string version = "28012025";
+			string version = "06032025";
 			int fontSize = 12;
 
 			// Define the right margin (or use page width)
