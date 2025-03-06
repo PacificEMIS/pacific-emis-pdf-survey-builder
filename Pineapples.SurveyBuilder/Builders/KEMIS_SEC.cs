@@ -122,10 +122,10 @@ namespace surveybuilder
 				.Build(this, document);
 			NewPage(document);
 
-			AddOutline(document, enrolOutline, "Transfers In");
-			document.Add(Heading_2("Transfers In"));
-			document = new TransfersInGrid()
-				.Build(this, document);
+			//AddOutline(document, enrolOutline, "Transfers In");
+			//document.Add(Heading_2("Transfers In"));
+			//document = new TransfersInGrid()
+			//	.Build(this, document);
 			
 
 			#endregion

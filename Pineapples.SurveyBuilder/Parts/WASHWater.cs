@@ -182,35 +182,36 @@ namespace surveybuilder
 
 			chk.Make(builder, document);
 
-			document.Add(new Paragraph()
-				.Add(@"For drinking water does the school practice water treatment? If YES, provide details of the most recent test:")
-			);
+			// Kiribati wanted to remove this.
+			//document.Add(new Paragraph()
+			//	.Add(@"For drinking water does the school practice water treatment? If YES, provide details of the most recent test:")
+			//);
 
-			Table tableWaterTreatment = new Table(UnitValue.CreatePercentArray(new float[] { 70, 30 }))
-						.UseAllAvailableWidth();
+			//Table tableWaterTreatment = new Table(UnitValue.CreatePercentArray(new float[] { 70, 30 }))
+			//			.UseAllAvailableWidth();
 
-			tableWaterTreatment.AddRow(
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Water Treatment Details (if treated)"))),
-				ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Answer")))
-			);
-			tableWaterTreatment.AddRow(
-				TextCell(model, ts.TableBaseStyle("Date tested (yyyy-mm-dd):")),
-				DateCell(model, "Wash.Water.Test.Date")
-			);
-			tableWaterTreatment.AddRow(
-				TextCell(model, ts.TableBaseStyle("Tested by")),
-				InputCell(model, "Wash.Water.Test.By")
-			);
-			tableWaterTreatment.AddRow(
-				TextCell(model, ts.TableBaseStyle("Total Coliform found")),
-				NumberCell(model, "Wash.Water.Test.Result")
-			);
+			//tableWaterTreatment.AddRow(
+			//	ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Water Treatment Details (if treated)"))),
+			//	ts.TableHeaderStyle(TextCell(model, ts.TableHeaderStyle("Answer")))
+			//);
+			//tableWaterTreatment.AddRow(
+			//	TextCell(model, ts.TableBaseStyle("Date tested (yyyy-mm-dd):")),
+			//	DateCell(model, "Wash.Water.Test.Date")
+			//);
+			//tableWaterTreatment.AddRow(
+			//	TextCell(model, ts.TableBaseStyle("Tested by")),
+			//	InputCell(model, "Wash.Water.Test.By")
+			//);
+			//tableWaterTreatment.AddRow(
+			//	TextCell(model, ts.TableBaseStyle("Total Coliform found")),
+			//	NumberCell(model, "Wash.Water.Test.Result")
+			//);
 
 			// export the full category name
 			var cat = $"Resource.Water.Cat";
 			ExportValue(builder.pdfDoc, cat, "Water Supply");
 
-			document.Add(tableWaterTreatment);
+			//document.Add(tableWaterTreatment);
 
 			// at least one water supply type
 			List<string> waterSupplyFields = new List<string>();
