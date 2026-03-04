@@ -273,7 +273,7 @@ namespace surveybuilder
 				  .EndText();                // do this to reset the co-ordinates
 
 			// right align the version
-			string version = "06032025";
+			string version = "05032026"; // DDMMYYYY updates version when any changes to templates
 			int fontSize = 12;
 
 			// Define the right margin (or use page width)
@@ -309,12 +309,12 @@ namespace surveybuilder
 			var classLevels = new LookupList()
 			{
 
-			new LookupEntry { C = "P1", N = "Class 1" },
-			new LookupEntry { C = "P2", N = "Class 2" },
-			new LookupEntry { C = "P3", N = "Class 3" },
-			new LookupEntry { C = "P4", N = "Class 4" },
-			new LookupEntry { C = "P5", N = "Class 5" },
-			new LookupEntry { C = "P6", N = "Class 6" }
+			new LookupEntry { C = "P1", N = "Year 1" },
+			new LookupEntry { C = "P2", N = "Year 2" },
+			new LookupEntry { C = "P3", N = "Year 3" },
+			new LookupEntry { C = "P4", N = "Year 4" },
+			new LookupEntry { C = "P5", N = "Year 5" },
+			new LookupEntry { C = "P6", N = "Year 6" }
 			};
 			lookups.Add("classLevels", classLevels);
 
