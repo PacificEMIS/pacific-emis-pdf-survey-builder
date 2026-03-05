@@ -265,13 +265,13 @@ namespace surveybuilder
 
 			var classLevels = new LookupList()
 			{
-				new LookupEntry() {C = "JS1", N = "Form 1" },
-				new LookupEntry() { C = "JS2", N = "Form 2" },
-				new LookupEntry() { C = "JS3", N = "Form 3" },
-				new LookupEntry() { C = "SS1", N = "Form 4" },
-				new LookupEntry() { C = "SS2", N = "Form 5" },
-				new LookupEntry() { C = "SS3", N = "Form 6" },
-				new LookupEntry() { C = "SS4", N = "Form 7" }
+				new LookupEntry() {C = "JS1", N = "Year 7" },
+				new LookupEntry() { C = "JS2", N = "Year 8" },
+				new LookupEntry() { C = "JS3", N = "Year 9" },
+				new LookupEntry() { C = "SS1", N = "Year 10" },
+				new LookupEntry() { C = "SS2", N = "Year 11" },
+				new LookupEntry() { C = "SS3", N = "Year 12" },
+				new LookupEntry() { C = "SS4", N = "Year 13" }
 			};
 
 			lookups.Add("classLevels", classLevels);
