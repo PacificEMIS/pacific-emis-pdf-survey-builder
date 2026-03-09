@@ -76,8 +76,11 @@ namespace surveybuilder
 			
 			PdfButtonFormField rgrp2 = new RadioFormFieldBuilder(builder.pdfDoc, "Wash.Toothbrushing.Practiced")
 				.CreateRadioGroup();
+			PdfButtonFormField rgrp3 = new RadioFormFieldBuilder(builder.pdfDoc, "Wash.LifeSkillsEducation.Practiced")
+				.CreateRadioGroup();
 			rgrp1.SetAlternativeName("Handwashing practiced");
 			rgrp2.SetAlternativeName("Toothbrushing practiced");
+			rgrp3.SetAlternativeName("Life skills, sexual health, and HIV prevention education provided");
 
 			table.AddRow(ts.TableHeaderStyle,
 				TextCell(model, String.Empty),
@@ -94,8 +97,14 @@ namespace surveybuilder
 				YesCell(model, rgrp2),
 				NoCell(model, rgrp2)
 			);
+			table.AddRow(
+				TextCell(model, ts.TableBaseStyle("Do you provide life skills, sexual health, and HIV prevention education?")),
+				YesCell(model, rgrp3),
+				NoCell(model, rgrp3)
+			);
 			requiredFields.Add(rgrp1.GetFieldName().ToString());
 			requiredFields.Add(rgrp2.GetFieldName().ToString());
+			requiredFields.Add(rgrp3.GetFieldName().ToString());
 
 			document.Add(table);
 
