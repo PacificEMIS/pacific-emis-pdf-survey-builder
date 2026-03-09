@@ -92,6 +92,41 @@ namespace surveybuilder
 				WriteCategoryGroup(document, categoryDef, catResources);
 			}
 
+			// Yes/No questions about computers and internet for teaching
+			document.Add(new Paragraph()
+				.Add(@"Answer the following Yes/No questions.")
+			);
+
+			Table yesNoTable = new Table(UnitValue.CreatePercentArray(new float[] { 80, 10, 10 }))
+						.UseAllAvailableWidth();
+
+			PdfButtonFormField rgrpComputers = new RadioFormFieldBuilder(builder.pdfDoc, "Resource.Computers.ForTeaching")
+				.CreateRadioGroup();
+			PdfButtonFormField rgrpInternet = new RadioFormFieldBuilder(builder.pdfDoc, "Resource.Internet.ForTeaching")
+				.CreateRadioGroup();
+			rgrpComputers.SetAlternativeName("Computers used for teaching");
+			rgrpInternet.SetAlternativeName("Internet used for teaching");
+
+			yesNoTable.AddRow(ts.TableHeaderStyle,
+				TextCell(model, String.Empty),
+				TextCell(model, "Yes"),
+				TextCell(model, "No")
+			);
+			yesNoTable.AddRow(
+				TextCell(model, ts.TableBaseStyle("Are computers used for teaching?")),
+				YesCell(model, rgrpComputers),
+				NoCell(model, rgrpComputers)
+			);
+			yesNoTable.AddRow(
+				TextCell(model, ts.TableBaseStyle("Is the Internet used for teaching?")),
+				YesCell(model, rgrpInternet),
+				NoCell(model, rgrpInternet)
+			);
+			requiredFields.Add(rgrpComputers.GetFieldName().ToString());
+			requiredFields.Add(rgrpInternet.GetFieldName().ToString());
+
+			document.Add(yesNoTable);
+
 			ValidationManager.AddRequiredFields(document.GetPdfDocument(), requiredFields);
 			ValidationManager.AddConditionalFields(document.GetPdfDocument(), conditionalFields);
 			return document;
